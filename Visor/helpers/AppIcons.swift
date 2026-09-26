@@ -1,9 +1,3 @@
-//
-//  AppIcons.swift
-//  
-//
-//  Created by Apurva   on 16/08/24.
-//
 
 import SwiftUI
 import AppKit

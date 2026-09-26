@@ -1,7 +1,6 @@
 //  BrightnessManager.swift
 //  
 //
-//  Created by Apurva on 08/22/24.
 
 import AppKit
 

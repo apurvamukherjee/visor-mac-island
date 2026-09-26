@@ -2,7 +2,6 @@
 //  OpenNotchHUD.swift
 //  
 //
-//  Created by Apurva on 2024-11-23.
 //
 
 import SwiftUI

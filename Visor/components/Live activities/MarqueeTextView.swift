@@ -2,7 +2,6 @@
 //  MarqueeTextView.swift
 //  
 //
-//  Created by Apurva on 08/08/2024.
 //
 
 import SwiftUI

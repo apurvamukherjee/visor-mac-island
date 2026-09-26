@@ -2,8 +2,6 @@
     //  SystemEventIndicatorModifier.swift
     //  
     //
-    //  Created by Apurva on 12/08/2024.
-    //
 
 import SwiftUI
 import Defaults

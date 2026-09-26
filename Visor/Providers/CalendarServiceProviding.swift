@@ -1,11 +1,4 @@
-//
-//  CalendarServiceProvider.swift
-//  Calendr
-//
-//  Created by Apurva on 31/12/20.
-//  
-//  Modified by Apurva on 08/06/25
-//
+
 
 import Foundation
 @preconcurrency import EventKit

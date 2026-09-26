@@ -2,7 +2,6 @@
 //  MusicSlotConfigurationView.swift
 //  
 //
-//  Created by Apurva on 2025-11-17.
 //
 
 import Defaults

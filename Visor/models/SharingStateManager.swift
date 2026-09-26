@@ -1,9 +1,3 @@
-//
-//  SharingStateManager.swift
-//  
-//
-//  Created by Apurva on 2025-10-10.
-//
 
 import AppKit
 import Foundation

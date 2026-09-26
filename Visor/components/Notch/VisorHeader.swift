@@ -1,9 +1,4 @@
-//
-//  VisorHeader.swift
-//  
-//
-//  Created by Apurva   on 04/08/24.
-//
+
 
 import Defaults
 import SwiftUI

@@ -1,9 +1,4 @@
-//
-//  sizeMatters.swift
-//  
-//
-//  Created by Apurva   on 05/08/24.
-//
+
 
 import Defaults
 import Foundation

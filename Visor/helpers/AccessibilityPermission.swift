@@ -1,14 +1,6 @@
-//
-//  AccessibilityPermission.swift
-//  Visor
-//
-
 import ApplicationServices
 import Foundation
-
-// Visor: replaces XPCHelperClient and the VisorXPCHelper service. TCC charges
-// an embedded XPC service's Accessibility check to its host app, and Visor is
-// unsandboxed, so running the check in-process reads the same grant.
+eads the same grant.
 final class AccessibilityPermission {
     static let shared = AccessibilityPermission()
 
@@ -52,8 +44,6 @@ final class AccessibilityPermission {
             if promptIfNeeded {
                 request()
             }
-            // The helper re-checked half a second after prompting; kept so a
-            // caller sees the same timing as before.
             try? await Task.sleep(for: .milliseconds(500))
         }
         return await isAuthorized()

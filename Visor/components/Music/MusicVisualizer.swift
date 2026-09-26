@@ -1,9 +1,4 @@
-//
-//  MusicVisualizer.swift
-//  
-//
-//  Created by Apurva   on 02/08/24.
-//
+
 import AppKit
 import SwiftUI
 

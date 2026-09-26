@@ -1,9 +1,3 @@
-//
-//  YouTubeMusicNetworking.swift
-//  
-//
-//  Created by Apurva on 2025-09-14.
-//
 
 import Foundation
 

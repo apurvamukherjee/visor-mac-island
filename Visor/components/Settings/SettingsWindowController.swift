@@ -2,7 +2,6 @@
 //  SettingsWindowController.swift
 //  
 //
-//  Created by Apurva on 2025-06-14.
 //
 
 import AppKit

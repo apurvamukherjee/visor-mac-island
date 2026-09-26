@@ -1,10 +1,3 @@
-//
-//  FullscreenMediaDetection.swift
-//  
-//
-//  Created by Apurva on 06/09/2024.
-//
-
 import AppKit
 import Combine
 import Defaults
@@ -16,12 +9,6 @@ final class FullscreenMediaDetector: ObservableObject {
     @Published var fullscreenStatus: [String: Bool] = [:]
     
     private var spaces: [String: [String]]?
-    
-    // Visor: replaces MacroVisionKit's FullScreenMonitor stream with the same
-    // two triggers. The package registered the screen-parameters observer on
-    // NSWorkspace's center, where AppKit never posts it; it is on the default
-    // center here, so plugging in a display updates the status too. A
-    // singleton never removes its observers.
     private init() {
         NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.activeSpaceDidChangeNotification, object: nil, queue: .main
@@ -33,8 +20,6 @@ final class FullscreenMediaDetector: ObservableObject {
         ) { _ in
             Task { @MainActor in FullscreenMediaDetector.shared.refresh() }
         }
-        // Deferred like the package's first yield, so shared is set before
-        // updateStatus reads MusicManager.
         Task { @MainActor in refresh() }
     }
     

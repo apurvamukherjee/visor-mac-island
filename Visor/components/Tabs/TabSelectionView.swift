@@ -1,9 +1,3 @@
-//
-//  TabSelectionView.swift
-//  
-//
-//  Created by Apurva on 2024-08-25.
-//
 
 import SwiftUI
 

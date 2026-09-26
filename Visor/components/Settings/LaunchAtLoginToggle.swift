@@ -1,14 +1,6 @@
-//
-//  LaunchAtLoginToggle.swift
-//  Visor
-//
-
 import os
 import ServiceManagement
 import SwiftUI
-
-// Visor: replaces the LaunchAtLogin package, which wrapped this one call for
-// a single toggle. Only `.enabled` counts as on, as it did in the package.
 struct LaunchAtLoginToggle: View {
     private static let logger = Logger(subsystem: "com.apurvamukherjee.visor", category: "LaunchAtLogin")
 

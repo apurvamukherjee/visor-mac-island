@@ -1,9 +1,4 @@
-//
-//  VolumeManager.swift
-//  
-//
-//  Created by Apurva on 22/08/2025.
-//
+
 
 import AppKit
 import Combine

@@ -1,9 +1,3 @@
-//
-//  MusicControlButton.swift
-//  
-//
-//  Created by Apurva on 2025-11-16.
-//
 
 import Defaults
 

@@ -1,8 +1,3 @@
-//
-//  ShelfStateViewModel.swift
-//  
-//
-//  Created by Apurva on 2025-10-09.
 
 import Foundation
 import AppKit

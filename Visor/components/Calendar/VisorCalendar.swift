@@ -1,9 +1,4 @@
-//
-//  VisorCalendar.swift
-//  
-//
-//  Created by Apurva   on 08/09/24.
-//
+
 
 import Defaults
 import SwiftUI

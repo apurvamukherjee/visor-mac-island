@@ -1,9 +1,4 @@
-//
-//  Constants.swift
-//  
-//
-//  Created by Apurva on 16/08/2024.
-//
+
 
 import KeyboardShortcuts
 import SwiftUI

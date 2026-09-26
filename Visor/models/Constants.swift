@@ -1,9 +1,3 @@
-//
-//  Constants.swift
-//  
-//
-//  Created by Apurva on 2024. 10. 17..
-//
 
 import SwiftUI
 import Defaults

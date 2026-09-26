@@ -1,9 +1,3 @@
-//
-//  InlineHUDs.swift
-//  
-//
-//  Created by Apurva on 14/09/2024.
-//
 
 import SwiftUI
 import Defaults

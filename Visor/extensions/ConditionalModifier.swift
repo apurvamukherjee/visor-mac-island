@@ -1,9 +1,4 @@
-//
-//  ConditionalModifier.swift
-//  
-//
-//  Created by Apurva on 20/08/2024.
-//
+
 
 import SwiftUI
 

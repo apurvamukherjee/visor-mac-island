@@ -1,9 +1,3 @@
-//
-//  Color+AccentColor.swift
-//  
-//
-//  Created by Apurva on 2025-10-24.
-//
 
 import SwiftUI
 import Defaults

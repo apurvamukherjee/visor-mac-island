@@ -1,9 +1,3 @@
-//
-//  NSScreen+UUID.swift
-//  
-//
-//  Created by Apurva on 2025-11-21.
-//
 
 import AppKit
 import CoreGraphics

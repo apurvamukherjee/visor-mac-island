@@ -1,9 +1,4 @@
-//
-//  Image2Color.swift
-//  
-//
-//  Created by Apurva on 07/08/2024.
-//
+
 
 import SwiftUI
 import AppKit

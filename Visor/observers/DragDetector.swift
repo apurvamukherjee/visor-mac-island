@@ -1,9 +1,3 @@
-//
-//  DragDetector.swift
-//  
-//
-//  Created by Apurva on 2025-11-20.
-//
 
 import Cocoa
 import UniformTypeIdentifiers

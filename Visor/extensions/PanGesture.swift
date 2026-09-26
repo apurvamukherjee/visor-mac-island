@@ -1,9 +1,4 @@
-//
-//  PanGesture.swift
-//  
-//
-//  Created by Apurva on 21/08/2024.
-//
+
 
 import AppKit
 import SwiftUI

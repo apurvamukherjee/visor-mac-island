@@ -1,23 +1,14 @@
-//
-//  YouTubeMusicController.swift
-//  
-//
-//  Created by Apurva on 2025-03-30.
-//  Modified by Apurva on 2025-06-16.
-//
 
 import Foundation
 import Combine
 import SwiftUI
 
 final class YouTubeMusicController: MediaControllerProtocol {
-    // MARK: - Published Properties
     @Published var playbackState = PlaybackState(
         bundleIdentifier: YouTubeMusicConfiguration.default.bundleIdentifier
     )
 
     private var artworkFetchTask: Task<Void, Never>?
-    // Visor: see updatePlaybackState.
     private var lastArtworkURL: String?
     
     var playbackStatePublisher: AnyPublisher<PlaybackState, Never> {
@@ -42,14 +33,8 @@ final class YouTubeMusicController: MediaControllerProtocol {
             print("[YouTubeMusicController] Failed to set favorite: \(error)")
         }
     }
-
-    // MARK: - Private Properties
-    // Visor: nothing passed another configuration, so the init takes none.
     private let configuration = YouTubeMusicConfiguration.default
     private let httpClient = YouTubeMusicHTTPClient(baseURL: YouTubeMusicConfiguration.default.baseURL)
-    // Visor: replaces the YouTubeMusicAuthManager actor. One cached token
-    // task, shared by concurrent callers; main-actor isolation stands in for
-    // the actor, and a failure or a 401 clears it so the next call re-auths.
     @MainActor private var authTask: Task<String, Error>?
     private var webSocketClient: YouTubeMusicWebSocketClient?
     
@@ -57,7 +42,6 @@ final class YouTubeMusicController: MediaControllerProtocol {
     private var appStateObserver: Task<Void, Never>?
     private var reconnectDelay: TimeInterval = 1.0
     
-    // MARK: - Initialization
     init() {
         setupAppStateObserver()
         
@@ -66,7 +50,6 @@ final class YouTubeMusicController: MediaControllerProtocol {
         }
     }
     
-    // MARK: - MediaControllerProtocol Implementation
     func togglePlay() async {
         if !isActive() { launchApp() }
         await sendCommand(endpoint: "/toggle-play", method: "POST")
@@ -256,9 +239,6 @@ final class YouTubeMusicController: MediaControllerProtocol {
             }
         }
     }
-
-    // Visor: each single-field websocket event stamped lastUpdated and
-    // published only a changed copy; the four copies share this now.
     private func updateState(_ change: (inout PlaybackState) -> Void) {
         var copy = playbackState
         change(&copy)
@@ -323,7 +303,6 @@ final class YouTubeMusicController: MediaControllerProtocol {
                 body: body,
                 token: token
             )
-            // Lightweight endpoint-specific parsing
             if endpoint == "/shuffle" {
                 if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any], let shuffleState = json["state"] as? Bool {
                     playbackState.isShuffled = shuffleState
@@ -362,10 +341,6 @@ final class YouTubeMusicController: MediaControllerProtocol {
             newState.repeatMode = mode
         }
         newState.volume = response.volume.map { $0 / 100.0 } ?? newState.volume
-
-        // Visor: lastUpdated is always new, so this branch runs on every poll
-        // and websocket update; refetch the cover only when it changed (or
-        // never arrived), not every 2 s, cancelling a slow download each time.
         if newState != playbackState {
             playbackState = newState
 

@@ -2,7 +2,6 @@
 //  QuickLookService.swift
 //  
 //
-//  Created by Apurva on 2025-10-07.
 //
 
 import Foundation

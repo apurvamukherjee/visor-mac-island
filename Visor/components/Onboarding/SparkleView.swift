@@ -2,7 +2,6 @@
 //  SparkleView.swift
 //  
 //
-//  Created by Apurva on 2024. 09. 26..
 //
 
 import SwiftUI
