@@ -114,9 +114,6 @@ class VisorViewModel: NSObject, ObservableObject {
 
         return max(0, menuBarHeight - currentHeight)
     }
-
-    // Visor: the header button collapses the mirror when it stops the camera;
-    // tapping the preview itself only pauses it, as upstream's view did.
     func toggleCameraPreview(collapsesOnStop: Bool = true) {
         if isRequestingAuthorization {
             return

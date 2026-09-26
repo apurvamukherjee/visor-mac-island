@@ -14,7 +14,6 @@ settings:
     # Release shipped its full symbol table.
     Release:
       DEPLOYMENT_POSTPROCESSING: YES
-# Pinned to the exact versions the ported code was built against.
 packages:
   MediaRemoteAdapter:
     url: https://github.com/ejbills/mediaremote-adapter.git

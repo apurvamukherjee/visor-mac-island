@@ -1,17 +1,4 @@
-//
-//  FullScreenSpaces.swift
-//
-//  From MacroVisionKit 0.2.0 (github.com/TheBoredTeam/MacroVisionKit),
-//  MIT License, Copyright (c) 2024 github.com/theboringhumane.
-//
-
 import AppKit
-
-// Visor: vendored from the MacroVisionKit package, which Visor used only for
-// this. It reads which displays show a full-screen space and which apps fill
-// it. The CGS calls are the package's, resolved at runtime: if macOS drops
-// one, no space reads as full screen, where a link-time binding would stop
-// Visor from launching.
 enum FullScreenSpaces {
     private typealias MainConnectionID = @convention(c) () -> Int32
     private typealias CopyManagedDisplaySpaces = @convention(c) (Int32) -> Unmanaged<CFArray>?
@@ -26,9 +13,6 @@ enum FullScreenSpaces {
             unsafeBitCast(copySpaces, to: CopyManagedDisplaySpaces.self)
         )
     }()
-
-    /// The bundle IDs filling each display's current full-screen space, keyed
-    /// by display UUID. Displays showing a normal space are absent.
     static func current() -> [String: [String]] {
         guard let calls,
               let displaySpaces = calls.copySpaces(calls.mainConnectionID())?.takeRetainedValue() as? [NSDictionary]

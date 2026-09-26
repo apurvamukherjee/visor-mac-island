@@ -1,16 +1,4 @@
-//
-//  SkyLightOperator.swift
-//
-//  From SkyLightWindow 1.0.0 (github.com/Lakr233/SkyLightWindow),
-//  MIT License, Copyright (c) 2025 Lakr Aream.
-//
-
 import AppKit
-
-// Visor: vendored from the SkyLightWindow package, which Visor used only for
-// this. It moves a window into a private SkyLight space that draws above the
-// lock screen. The calls are the package's; a missing symbol now leaves the
-// window where it is instead of crashing.
 final class SkyLightOperator {
     static let shared = SkyLightOperator()
 
@@ -20,8 +8,6 @@ final class SkyLightOperator {
     private typealias ShowSpaces = @convention(c) (Int32, CFArray) -> Int32
     private typealias AddWindowsAndRemoveFromSpaces = @convention(c) (Int32, Int32, CFArray, Int32) -> Int32
     private typealias RemoveWindowsFromSpaces = @convention(c) (Int32, CFArray, CFArray) -> Int32
-
-    // kSLSSpaceAbsoluteLevelNotificationCenterAtScreenLock
     private static let aboveLockScreenLevel: Int32 = 400
 
     private let connection: Int32
