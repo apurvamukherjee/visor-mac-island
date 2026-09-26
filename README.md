@@ -178,6 +178,20 @@ bash scripts/make-dmg.sh
 
 Visor is free and open source under the [GPL-3.0](LICENSE) license. Read the code, fork it, [open an issue](https://github.com/apurvamukherjee/visor-mac-island/issues) when something breaks, or send a pull request.
 
+```
+Visor — The Mac Island
+Copyright (C) 2026 Apurva Mukherjee
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+```
+
 <a href="https://github.com/apurvamukherjee/visor-mac-island/stargazers"><img src="https://img.shields.io/github/stars/apurvamukherjee/visor-mac-island?style=for-the-badge&logo=github&label=Star%20Visor&color=e11d48&labelColor=18181b" alt="Star Visor on GitHub"></a>
 
 <br>

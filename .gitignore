@@ -1,7 +1,6 @@
 .DS_Store
 /DerivedData/
 /*.xcodeproj
-# Written by xcodegen from project.yml's info.properties on every generate.
 /Generated-Info.plist
 /.build/
 /.swiftpm/
@@ -9,7 +8,3 @@ xcuserdata/
 *.xcuserstate
 build/
 dist/
-
-# Local-only archive: the reference checkouts Visor was ported from and the
-# 2.x docs, kept on disk for lookup. Git history holds the docs too.
-/backup/

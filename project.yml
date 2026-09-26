@@ -5,8 +5,6 @@ options:
     macOS: "14.0"
 settings:
   base:
-    # The app is ported verbatim and written for Swift 5; strict Swift 6
-    # concurrency would mean editing dozens of copied files.
     SWIFT_VERSION: "5.0"
     # Apple silicon only, so an x86_64 slice is dead weight.
     ARCHS: arm64
@@ -48,11 +46,6 @@ targets:
         CURRENT_PROJECT_VERSION: "37"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SWIFT_EMIT_LOC_STRINGS: YES
-        # Ad-hoc signing gives the app a new identity on every build, so TCC
-        # re-asks for calendar access each time. A stable identity fixes it.
-        # Add your Apple ID in Xcode > Settings > Accounts (free is enough),
-        # then fill in DEVELOPMENT_TEAM below with the 10-character Team ID
-        # from that screen and uncomment both lines.
         CODE_SIGN_STYLE: Automatic
         # DEVELOPMENT_TEAM: XXXXXXXXXX
         # CODE_SIGN_IDENTITY: "Apple Development"
