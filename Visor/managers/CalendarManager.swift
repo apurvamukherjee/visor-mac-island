@@ -1,16 +1,6 @@
-//
-//  CalendarManager.swift
-//  
-//
-//  Created by Apurva   on 08/09/24.
-//
-
 import Defaults
 import EventKit
 import SwiftUI
-
-// MARK: - CalendarManager
-
 @MainActor
 class CalendarManager: ObservableObject {
     static let shared = CalendarManager()
@@ -35,7 +25,6 @@ class CalendarManager: ObservableObject {
     }
 
     private func setupEventStoreChangedObserver() {
-        // Visor: the manager is a singleton, so the observer is never removed.
         NotificationCenter.default.addObserver(
             forName: .EKEventStoreChanged,
             object: nil,
@@ -52,12 +41,9 @@ class CalendarManager: ObservableObject {
         let all = await calendarService.calendars()
         self.eventCalendars = all.filter { !$0.isReminder }
         self.reminderLists = all.filter { $0.isReminder }
-        self.allCalendars = all // for legacy compatibility, can be removed if not needed
+        self.allCalendars = all
         updateSelectedCalendars()
     }
-
-    // Visor: one check for both entity types; only calendars refetch events,
-    // as upstream's separate calendar and reminder checks did.
     func checkAuthorization(for type: EKEntityType) async {
         let status: ReferenceWritableKeyPath<CalendarManager, EKAuthorizationStatus> =
             type == .event ? \.calendarAuthorizationStatus : \.reminderAuthorizationStatus
@@ -81,7 +67,6 @@ class CalendarManager: ObservableObject {
     }
 
     func updateSelectedCalendars() {
-        // Populate selectedCalendarIDs based on Defaults calendar selection state
         switch Defaults[.calendarSelectionState] {
         case .all:
             selectedCalendarIDs = Set(allCalendars.map { $0.id })
@@ -89,7 +74,6 @@ class CalendarManager: ObservableObject {
             selectedCalendarIDs = identifiers
         }
 
-        // Update the local calendar objects that correspond to the selected ids
         selectedCalendars = allCalendars.filter { selectedCalendarIDs.contains($0.id) }
     }
 

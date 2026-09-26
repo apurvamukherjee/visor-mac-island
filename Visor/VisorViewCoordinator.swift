@@ -11,12 +11,9 @@ enum SneakContentType {
     case backlight
     case music
     case battery
-    // Visor: the lock/unlock padlock. `ExpandedItem.value` is 1 while locked.
     case lock
 
-    // Visor: the HUD bars' drag handlers (closed, inline and open) each
-    // wrote this out.
-    /// Applies a HUD slider value to the system setting this type shows.
+
     @MainActor func applySystemValue(_ value: CGFloat) {
         switch self {
         case .volume:
@@ -89,14 +86,11 @@ class VisorViewCoordinator: ObservableObject {
     private var hudReplacementCancellable: AnyCancellable?
 
     private init() {
-        // Visor: upstream migrated a name-based preferred_screen_name here;
-        // nothing in Visor ever wrote that key, so only the default remains.
         if preferredScreenUUID == nil {
             preferredScreenUUID = NSScreen.main?.displayUUID
         }
         
         selectedScreenUUID = preferredScreenUUID ?? NSScreen.main?.displayUUID ?? ""
-        // Observe changes to accessibility authorization and react accordingly
         accessibilityObserver = NotificationCenter.default.addObserver(
             forName: Notification.Name.accessibilityAuthorizationChanged,
             object: nil,
@@ -108,8 +102,6 @@ class VisorViewCoordinator: ObservableObject {
                 }
             }
         }
-
-        // Observe changes to hudReplacement
         hudReplacementCancellable = Defaults.publisher(.hudReplacement)
             .sink { [weak self] change in
                 Task { @MainActor in
@@ -160,8 +152,6 @@ class VisorViewCoordinator: ObservableObject {
             }
         }
         Task { @MainActor in
-            // Visor: one assignment, so didSet (and its hide task) runs once, not
-            // once per field.
             var peek = self.sneakPeek
             peek.show = status
             peek.type = type
@@ -175,8 +165,6 @@ class VisorViewCoordinator: ObservableObject {
 
     private var sneakPeekDuration: TimeInterval = 1.5
     private var sneakPeekTask: Task<Void, Never>?
-
-    // Helper function to manage sneakPeek timer using Swift Concurrency
     private func scheduleSneakPeekHide(after duration: TimeInterval) {
         sneakPeekTask?.cancel()
 
@@ -208,7 +196,6 @@ class VisorViewCoordinator: ObservableObject {
         value: CGFloat = 0
     ) {
         Task { @MainActor in
-            // Visor: one assignment, as in toggleSneakPeek.
             var item = self.expandingView
             item.show = status
             item.type = type
