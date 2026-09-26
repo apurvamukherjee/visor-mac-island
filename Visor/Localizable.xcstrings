@@ -2501,6 +2501,9 @@
         }
       }
     },
+    "By Apurva" : {
+
+    },
     "Calendar" : {
       "localizations" : {
         "ar" : {
@@ -5701,6 +5704,9 @@
         }
       }
     },
+    "Enable mirror" : {
+
+    },
     "Enable shelf" : {
       "localizations" : {
         "ar" : {
@@ -8201,6 +8207,9 @@
         }
       }
     },
+    "Launch at login" : {
+
+    },
     "Layout Preview" : {
       "localizations" : {
         "ar" : {
@@ -8300,6 +8309,9 @@
           }
         }
       }
+    },
+    "Lock and unlock animation" : {
+
     },
     "Low" : {
       "localizations" : {
@@ -8500,6 +8512,9 @@
           }
         }
       }
+    },
+    "Made with 🫶🏻 by Apurva" : {
+
     },
     "Mark as complete" : {
       "localizations" : {
@@ -13201,6 +13216,9 @@
         }
       }
     },
+    "Restart Visor" : {
+
+    },
     "Select the music source you want to use. You can change this later in the app settings." : {
       "localizations" : {
         "ar" : {
@@ -16700,6 +16718,12 @@
           }
         }
       }
+    },
+    "Vinyl mode" : {
+
+    },
+    "Visor" : {
+
     },
     "Welcome" : {
       "localizations" : {
