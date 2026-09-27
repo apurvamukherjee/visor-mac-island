@@ -17,8 +17,6 @@ enum OnboardingStep {
     case finished
 }
 
-private let calendarService = CalendarService()
-
 struct OnboardingView: View {
     @State private var step: OnboardingStep = .welcome
     let onFinish: () -> Void
@@ -55,7 +53,7 @@ struct OnboardingView: View {
                     privacyNote: "Your calendar data is only used to show your events and is never shared.",
                     onAllow: {
                         Task {
-                            _ = try? await calendarService.requestAccess(to: .event)
+                            await CalendarManager.shared.checkAuthorization(for: .event)
                             go(.remindersPermission)
                         }
                     },
@@ -71,7 +69,7 @@ struct OnboardingView: View {
                     privacyNote: "Your reminders data is only used to show your reminders and is never shared.",
                     onAllow: {
                         Task {
-                            _ = try? await calendarService.requestAccess(to: .reminder)
+                            await CalendarManager.shared.checkAuthorization(for: .reminder)
                             go(.accessibilityPermission)
                         }
                     },
