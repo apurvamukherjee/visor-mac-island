@@ -175,11 +175,6 @@ final class ShelfItemViewModel: ObservableObject {
                 }
             }
 
-            submenu.addItem(NSMenuItem.separator())
-            let other = NSMenuItem(title: "Other…", action: nil, keyEquivalent: "")
-            other.representedObject = "__OTHER__"
-            submenu.addItem(other)
-
             openWith.submenu = submenu
             menu.addItem(openWith)
         }
@@ -276,11 +271,6 @@ final class ShelfItemViewModel: ObservableObject {
 
         @MainActor @objc func handle(_ sender: NSMenuItem) {
             let title = sender.title
-
-            if let marker = sender.representedObject as? String, marker == "__OTHER__" {
-                openWithPanel()
-                return
-            }
 
             if let appURL = sender.representedObject as? URL {
                 let selected = selectedShelfItems
@@ -402,130 +392,6 @@ final class ShelfItemViewModel: ObservableObject {
             }
         }
 
-        @MainActor
-        private func openWithPanel() {
-            // Support both file items and link items
-            guard let fileURL = item.openableURL else { return }
-
-            let panel = NSOpenPanel()
-            panel.title = "Choose Application"
-            panel.message = "Choose an application to open the document \"\(item.displayName)\"."
-            panel.prompt = "Open"
-            panel.allowsMultipleSelection = false
-            panel.canChooseFiles = true
-            panel.canChooseDirectories = false
-            panel.resolvesAliases = true
-            panel.allowedContentTypes = [.application]
-            panel.directoryURL = URL(fileURLWithPath: "/Applications")
-
-            // Compute recommended applications for the selected target
-            let recommendedApps: Set<URL> = {
-                let apps: [URL]
-                if let uti = (try? fileURL.resourceValues(forKeys: [.contentTypeKey]))?.contentType {
-                    apps = NSWorkspace.shared.urlsForApplications(toOpen: uti)
-                } else {
-                    apps = NSWorkspace.shared.urlsForApplications(toOpen: fileURL)
-                }
-                return Set(apps.map { $0.standardizedFileURL })
-            }()
-
-            // Delegate to filter entries when in "Recommended Applications" mode.
-            // Visor: it also follows the Enable popup, which a separate
-            // PopupBinder holding weak references to it and the panel did.
-            final class AppChooserDelegate: NSObject, NSOpenSavePanelDelegate {
-                var showsAll = false
-                let recommended: Set<URL>
-                weak var panel: NSOpenPanel?
-                init(recommended: Set<URL>) { self.recommended = recommended }
-                
-                func panel(_ sender: Any, shouldEnable url: URL) -> Bool {
-                    if url.pathExtension.lowercased() == "app" {
-                        // Standardize URLs for reliable comparison
-                        return showsAll || recommended.contains(url.standardizedFileURL)
-                    }
-                    var isDirectory: ObjCBool = false
-                    return FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory) && isDirectory.boolValue
-                }
-
-                @MainActor @objc func modeChanged(_ sender: NSPopUpButton) {
-                    showsAll = sender.indexOfSelectedItem == 1
-                    guard let panel else { return }
-                    panel.validateVisibleColumns()
-                    let currentDir = panel.directoryURL
-                    panel.directoryURL = currentDir
-                }
-            }
-
-            let chooserDelegate = AppChooserDelegate(recommended: recommendedApps)
-            chooserDelegate.panel = panel
-            panel.delegate = chooserDelegate
-
-            let enableLabel = NSTextField(labelWithString: "Enable:")
-            enableLabel.font = .systemFont(ofSize: NSFont.systemFontSize)
-            enableLabel.alignment = .natural
-            enableLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-            
-            let popup = NSPopUpButton(frame: .zero, pullsDown: false)
-            popup.addItems(withTitles: ["Recommended Applications", "All Applications"])
-            popup.font = .systemFont(ofSize: NSFont.systemFontSize)
-            popup.selectItem(at: 0)
-            
-            popup.setContentHuggingPriority(.defaultLow, for: .horizontal)
-            popup.widthAnchor.constraint(greaterThanOrEqualToConstant: 200).isActive = true
-            
-            let alwaysCheckbox = NSButton(checkboxWithTitle: "Always Open With", target: nil, action: nil)
-            alwaysCheckbox.font = .systemFont(ofSize: NSFont.systemFontSize)
-            alwaysCheckbox.setContentHuggingPriority(.defaultLow, for: .horizontal)
-
-            let row = NSStackView(views: [enableLabel, popup])
-            row.orientation = .horizontal
-            row.spacing = 8
-            row.alignment = .centerY
-            row.distribution = .fill
-            
-            let column = NSStackView(views: [row, alwaysCheckbox])
-            column.orientation = .vertical
-            column.spacing = 12
-            column.alignment = .centerX
-            column.distribution = .fill
-            column.edgeInsets = NSEdgeInsets(top: 16, left: 20, bottom: 16, right: 20)
-            
-            panel.accessoryView = column
-            panel.isAccessoryViewDisclosed = true
-
-            // Wire up popup to switch filter mode
-            popup.target = chooserDelegate
-            popup.action = #selector(AppChooserDelegate.modeChanged(_:))
-
-            panel.begin { response in
-                if response == .OK, let appURL = panel.url {
-                    Task {
-                        do {
-                            let config = NSWorkspace.OpenConfiguration()
-                            if alwaysCheckbox.state == .on, let bundleID = Bundle(url: appURL)?.bundleIdentifier {
-                                if let contentType = (try? fileURL.resourceValues(forKeys: [.contentTypeKey]))?.contentType {
-                                    let status = LSSetDefaultRoleHandlerForContentType(contentType.identifier as CFString, LSRolesMask.all, bundleID as CFString)
-                                    if status != noErr { print("⚠️ Failed to set default handler for \(contentType.identifier): \(status)") }
-                                } else if let scheme = fileURL.scheme {
-                                    let status = LSSetDefaultHandlerForURLScheme(scheme as CFString, bundleID as CFString)
-                                    if status != noErr { print("⚠️ Failed to set default handler for scheme \(scheme): \(status)") }
-                                }
-                            }
-
-                            // Visor: a link's startAccessingSecurityScopedResource returns false, so it just opens.
-                            _ = try await fileURL.accessSecurityScopedResource { accessibleURL in
-                                try await NSWorkspace.shared.open([accessibleURL], withApplicationAt: appURL, configuration: config)
-                            }
-                        } catch {
-                            print("❌ Failed to open with application: \(error.localizedDescription)")
-                        }
-                    }
-                }
-                // Keep the delegate alive until the panel finishes
-                _ = chooserDelegate
-            }
-        }
-        
         @MainActor
         private func showRenameDialog(for item: ShelfItem) {
             guard case let .file(bookmarkData) = item.kind else { return }
