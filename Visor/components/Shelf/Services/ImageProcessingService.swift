@@ -22,6 +22,15 @@ struct ImageConversionOptions {
         
         var fileExtension: String { self == .jpeg ? "jpg" : rawValue }
         var usesCompression: Bool { self == .jpeg || self == .heic }
+        var utType: UTType {
+            switch self {
+            case .png: .png
+            case .jpeg: .jpeg
+            case .heic: .heic
+            case .tiff: .tiff
+            case .bmp: .bmp
+            }
+        }
     }
     
     let format: ImageFormat
@@ -108,111 +117,50 @@ final class ImageProcessingService {
     
     /// Converts an image with specified options
     func convertImage(from url: URL, options: ImageConversionOptions) async throws -> URL? {
-        guard var inputImage = NSImage(contentsOf: url) else {
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else {
             throw ImageProcessingError.invalidImage
         }
-        
-        // Scale image if needed
-        if let maxDim = options.maxDimension {
-            inputImage = scaleImage(inputImage, maxDimension: maxDim)
+        var thumbnailOptions: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true
+        ]
+        if let maxDim = options.maxDimension, maxDim > 0 {
+            thumbnailOptions[kCGImageSourceThumbnailMaxPixelSize] = maxDim
         }
-        
-        if options.removeMetadata {
-            // Create new image without metadata
-            guard let cgImage = inputImage.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
-                throw ImageProcessingError.invalidImage
-            }
-            inputImage = NSImage(cgImage: cgImage, size: inputImage.size)
+        guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, thumbnailOptions as CFDictionary) else {
+            throw ImageProcessingError.invalidImage
         }
-        
-        guard let data = convertToFormat(inputImage, format: options.format, quality: options.compressionQuality) else {
+
+        var properties: [CFString: Any] = [:]
+        if !options.removeMetadata,
+           let sourceProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any] {
+            properties = sourceProperties
+            // The thumbnail already has the orientation applied.
+            properties[kCGImagePropertyOrientation] = 1
+        }
+        properties[kCGImageDestinationLossyCompressionQuality] = options.compressionQuality
+        if options.format == .tiff {
+            properties[kCGImagePropertyTIFFDictionary] = [kCGImagePropertyTIFFCompression: 5] // LZW
+        }
+
+        let data = NSMutableData()
+        guard let destination = CGImageDestinationCreateWithData(data, options.format.utType.identifier as CFString, 1, nil) else {
             throw ImageProcessingError.conversionFailed
         }
-        
-        // Create temporary file
-        let originalName = url.deletingPathExtension().lastPathComponent
-        let newName = "\(originalName)_converted.\(options.format.fileExtension)"
-        
+        CGImageDestinationAddImage(destination, image, properties as CFDictionary)
+        guard CGImageDestinationFinalize(destination) else {
+            throw ImageProcessingError.conversionFailed
+        }
+
+        let newName = "\(url.deletingPathExtension().lastPathComponent)_converted.\(options.format.fileExtension)"
         guard let tempURL = await TemporaryFileStorageService.shared.createTempFile(
-            for: .data(data, suggestedName: newName)
+            for: .data(data as Data, suggestedName: newName)
         ) else {
             throw ImageProcessingError.saveFailed
         }
-        
         return tempURL
     }
-    
-    private func convertToFormat(_ image: NSImage, format: ImageConversionOptions.ImageFormat, quality: Double) -> Data? {
-        guard let tiffData = image.tiffRepresentation,
-              let bitmap = NSBitmapImageRep(data: tiffData) else {
-            return nil
-        }
-        
-        switch format {
-        case .png:
-            return bitmap.representation(using: .png, properties: [:])
-        case .jpeg:
-            let properties: [NSBitmapImageRep.PropertyKey: Any] = [
-                .compressionFactor: quality
-            ]
-            return bitmap.representation(using: .jpeg, properties: properties)
-        case .tiff:
-            let properties: [NSBitmapImageRep.PropertyKey: Any] = [
-                .compressionMethod: NSNumber(value: NSBitmapImageRep.TIFFCompression.lzw.rawValue)
-            ]
-            return bitmap.representation(using: .tiff, properties: properties)
-        case .bmp:
-            return bitmap.representation(using: .bmp, properties: [:])
-        case .heic:
-            // HEIC requires using CIContext
-            guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
-                return nil
-            }
-            let ciImage = CIImage(cgImage: cgImage)
-            let colorSpace = CGColorSpace(name: CGColorSpace.sRGB)!
-            let options: [CIImageRepresentationOption: Any] = [
-                CIImageRepresentationOption(rawValue: kCGImageDestinationLossyCompressionQuality as String): quality
-            ]
-            return ciContext.heifRepresentation(of: ciImage, format: .RGBA8, colorSpace: colorSpace, options: options)
-        }
-    }
-    
-    private func scaleImage(_ image: NSImage, maxDimension: CGFloat) -> NSImage {
-        guard maxDimension > 0 else { return image }
 
-        guard let srcCG = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
-            return image
-        }
-
-        let srcMax = max(srcCG.width, srcCG.height)
-        if CGFloat(srcMax) <= maxDimension {
-            return image // no downscaling needed
-        }
-
-        let scale = maxDimension / CGFloat(srcMax)
-
-        let ciImage = CIImage(cgImage: srcCG)
-        let lanczos = CIFilter.lanczosScaleTransform()
-        lanczos.inputImage = ciImage
-        lanczos.scale = Float(scale)
-        lanczos.aspectRatio = 1.0
-
-        guard let output = lanczos.outputImage else {
-            return image
-        }
-
-        // Preserve the source color space for exact color matching
-        let colorSpace = srcCG.colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB)!
-        let ciContext = CIContext(options: [.workingColorSpace: colorSpace])
-
-        // Render using the CIContext with matching color space
-        guard let dstCG = ciContext.createCGImage(output, from: output.extent, format: .RGBA8, colorSpace: colorSpace) else {
-            return image
-        }
-
-        return NSImage(cgImage: dstCG, size: NSSize(width: dstCG.width, height: dstCG.height))
-    }
-    
     // MARK: - Create PDF
     
     /// Creates a PDF from multiple image URLs
