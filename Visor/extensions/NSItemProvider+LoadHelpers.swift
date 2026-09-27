@@ -94,44 +94,25 @@ extension NSItemProvider {
 
     /// Loads a file URL from the provider for the given type identifier.
     func loadFileURL(typeIdentifier: String) async -> URL? {
-        await withCheckedContinuation { (cont: CheckedContinuation<URL?, Never>) in
-            self.loadItem(forTypeIdentifier: typeIdentifier, options: nil) { item, error in
-                if let error = error {
-                    print("❌ Error loading item for type \(typeIdentifier): \(error.localizedDescription)")
-                    cont.resume(returning: nil)
-                    return
-                }
-                if let url = item as? URL {
-                    cont.resume(returning: url)
-                    return
-                }
-                // Some providers hand out a UTF-8 file URL string, others a bookmark. Prefer parsing string first.
-                let data = item as? Data
-                let string = (item as? String) ?? data.flatMap { String(data: $0, encoding: .utf8) }
-                let parsed = string.flatMap { URL(string: $0) ?? ($0.hasPrefix("/") ? URL(fileURLWithPath: $0) : nil) }
-                cont.resume(returning: parsed ?? data.flatMap { Bookmark(data: $0).resolveURL() })
-            }
+        let item: NSSecureCoding
+        do {
+            item = try await loadItem(forTypeIdentifier: typeIdentifier)
+        } catch {
+            print("❌ Error loading item for type \(typeIdentifier): \(error.localizedDescription)")
+            return nil
         }
+        if let url = item as? URL { return url }
+        // Some providers hand out a UTF-8 file URL string, others a bookmark. Prefer parsing string first.
+        let data = item as? Data
+        let string = (item as? String) ?? data.flatMap { String(data: $0, encoding: .utf8) }
+        let parsed = string.flatMap { URL(string: $0) ?? ($0.hasPrefix("/") ? URL(fileURLWithPath: $0) : nil) }
+        return parsed ?? data.flatMap { Bookmark(data: $0).resolveURL() }
     }
 
     /// Loads text from the provider for the given type identifier.
     func loadText(typeIdentifier: String) async -> String? {
-        await withCheckedContinuation { (cont: CheckedContinuation<String?, Never>) in
-            self.loadItem(forTypeIdentifier: typeIdentifier, options: nil) { item, error in
-                if error != nil {
-                    cont.resume(returning: nil)
-                    return
-                }
-
-                if let string = item as? String {
-                    cont.resume(returning: string)
-                } else if let data = item as? Data,
-                          let string = String(data: data, encoding: .utf8) {
-                    cont.resume(returning: string)
-                } else {
-                    cont.resume(returning: nil)
-                }
-            }
-        }
+        // A provider that fails to load simply has no text for this type.
+        guard let item = try? await loadItem(forTypeIdentifier: typeIdentifier) else { return nil }
+        return (item as? String) ?? (item as? Data).flatMap { String(data: $0, encoding: .utf8) }
     }
 }
