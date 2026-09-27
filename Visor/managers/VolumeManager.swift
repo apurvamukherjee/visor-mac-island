@@ -1,6 +1,7 @@
 
 
 import AppKit
+import AudioToolbox
 import Combine
 import CoreAudio
 import Foundation
@@ -100,36 +101,32 @@ final class VolumeManager: NSObject, ObservableObject {
 
         _ = listen(AudioObjectID(kAudioObjectSystemObject), kAudioHardwarePropertyDefaultOutputDevice,
                    scope: kAudioObjectPropertyScopeGlobal, element: kAudioObjectPropertyElementMain)
-        if !listen(deviceID, kAudioDevicePropertyVolumeScalar, scope: kAudioDevicePropertyScopeOutput, element: kAudioObjectPropertyElementMain) {
-            for channel in [UInt32(1), UInt32(2)] {
-                _ = listen(deviceID, kAudioDevicePropertyVolumeScalar, scope: kAudioDevicePropertyScopeOutput, element: channel)
-            }
-        }
+        _ = listen(deviceID, kAudioHardwareServiceDeviceProperty_VirtualMainVolume, scope: kAudioDevicePropertyScopeOutput, element: kAudioObjectPropertyElementMain)
         _ = listen(deviceID, kAudioDevicePropertyMute, scope: kAudioDevicePropertyScopeOutput, element: kAudioObjectPropertyElementMain)
     }
 
+    // The virtual main volume is what the menu bar slider drives: CoreAudio spreads it
+    // across the channels, so devices without a main element need no per-channel loop.
+    private static var mainVolumeAddress = AudioObjectPropertyAddress(
+        mSelector: kAudioHardwareServiceDeviceProperty_VirtualMainVolume,
+        mScope: kAudioDevicePropertyScopeOutput,
+        mElement: kAudioObjectPropertyElementMain
+    )
+
     private func readVolumeInternal() -> Float32? {
         let deviceID = systemOutputDeviceID()
-        if deviceID == kAudioObjectUnknown { return nil }
-        var collected: [Float32] = []
-        for el in [kAudioObjectPropertyElementMain, 1, 2, 3, 4] {
-            if let v = readValidatedScalar(deviceID: deviceID, element: el) { collected.append(v) }
-        }
-        guard !collected.isEmpty else { return nil }
-        return collected.reduce(0, +) / Float32(collected.count)
+        guard deviceID != kAudioObjectUnknown else { return nil }
+        var volume = Float32(0)
+        var size = UInt32(MemoryLayout<Float32>.size)
+        guard AudioObjectGetPropertyData(deviceID, &Self.mainVolumeAddress, 0, nil, &size, &volume) == noErr else { return nil }
+        return volume
     }
 
     private func writeVolumeInternal(_ value: Float32) {
         let deviceID = systemOutputDeviceID()
-        if deviceID == kAudioObjectUnknown { return }
-        let newVal = max(0, min(1, value))
-
-        // Devices without a main volume take it per channel
-        if !writeValidatedScalar(deviceID: deviceID, element: kAudioObjectPropertyElementMain, value: newVal) {
-            for el in [UInt32](1...4) {
-                _ = writeValidatedScalar(deviceID: deviceID, element: el, value: newVal)
-            }
-        }
+        guard deviceID != kAudioObjectUnknown else { return }
+        var volume = max(0, min(1, value))
+        AudioObjectSetPropertyData(deviceID, &Self.mainVolumeAddress, 0, nil, UInt32(MemoryLayout<Float32>.size), &volume)
     }
 
     private static let muteAddress = AudioObjectPropertyAddress(
@@ -183,40 +180,6 @@ final class VolumeManager: NSObject, ObservableObject {
             softwareMuted = true
             publish(volume: 0)
         }
-    }
-
-    private func readValidatedScalar(deviceID: AudioObjectID, element: UInt32) -> Float32? {
-        var addr = AudioObjectPropertyAddress(
-            mSelector: kAudioDevicePropertyVolumeScalar,
-            mScope: kAudioDevicePropertyScopeOutput,
-            mElement: element
-        )
-        guard AudioObjectHasProperty(deviceID, &addr) else { return nil }
-        var sizeNeeded: UInt32 = 0
-        guard AudioObjectGetPropertyDataSize(deviceID, &addr, 0, nil, &sizeNeeded) == noErr,
-            sizeNeeded == UInt32(MemoryLayout<Float32>.size)
-        else { return nil }
-        var vol = Float32(0)
-        var size = sizeNeeded
-        let status = AudioObjectGetPropertyData(deviceID, &addr, 0, nil, &size, &vol)
-        return status == noErr ? vol : nil
-    }
-
-    private func writeValidatedScalar(deviceID: AudioObjectID, element: UInt32, value: Float32)
-        -> Bool
-    {
-        var addr = AudioObjectPropertyAddress(
-            mSelector: kAudioDevicePropertyVolumeScalar,
-            mScope: kAudioDevicePropertyScopeOutput,
-            mElement: element
-        )
-        guard AudioObjectHasProperty(deviceID, &addr) else { return false }
-        var sizeNeeded: UInt32 = 0
-        guard AudioObjectGetPropertyDataSize(deviceID, &addr, 0, nil, &sizeNeeded) == noErr,
-            sizeNeeded == UInt32(MemoryLayout<Float32>.size)
-        else { return false }
-        var val = value
-        return AudioObjectSetPropertyData(deviceID, &addr, 0, nil, sizeNeeded, &val) == noErr
     }
 
     private func publish(volume: Float32) {
