@@ -1,9 +1,3 @@
-//
-//  EventModel.swift
-//  Calendr
-//
-//
-
 import Foundation
 
 struct EventModel: Equatable, Identifiable {

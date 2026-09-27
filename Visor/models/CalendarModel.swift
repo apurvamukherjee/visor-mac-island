@@ -1,9 +1,3 @@
-//
-//  CalendarModel.swift
-//  Calendr
-//
-//
-
 import Cocoa
 
 struct CalendarModel: Equatable {

@@ -1,9 +1,4 @@
-//
-//  NotchHomeView.swift
-//  
-//
-//  Modified by Apurva & Apurva 
-//
+
 
 import Defaults
 import SwiftUI

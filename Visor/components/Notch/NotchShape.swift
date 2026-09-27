@@ -1,8 +1,3 @@
-//
-//  NotchShape.swift
-//  
-// Modified by Apurva on 2025-05-18.
-
 import SwiftUI
 
 struct NotchShape: Shape {

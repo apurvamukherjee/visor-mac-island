@@ -1,6 +1,4 @@
 import AppKit
-
-/// Small Spaces API wrapper.
 public final class CGSSpace {
     private let identifier: CGSSpaceID
 
@@ -17,8 +15,6 @@ public final class CGSSpace {
                                   [self.identifier])
         }
     }
-
-    /// Initialized `CGSSpace`s *MUST* be de-initialized upon app exit!
     public init(level: Int = 0) {
         let flag = 0x1 // this value MUST be 1, otherwise, Finder decides to draw desktop icons
         self.identifier = CGSSpaceCreate(_CGSDefaultConnection(), flag, nil)

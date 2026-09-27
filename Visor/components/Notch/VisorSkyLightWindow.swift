@@ -1,8 +1,3 @@
-//
-//  SkyLightWindow.swift
-//  
-//
-
 import Cocoa
 import Defaults
 import Combine
