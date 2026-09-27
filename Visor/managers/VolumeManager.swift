@@ -86,23 +86,38 @@ final class VolumeManager: NSObject, ObservableObject {
         publish(volume: max(0, min(1, volume)))
     }
 
+    private var listenedDeviceID = AudioObjectID(kAudioObjectUnknown)
+    private lazy var deviceListener: AudioObjectPropertyListenerBlock = { [weak self] _, _ in
+        self?.fetchCurrentVolume()
+    }
+
     private func setupAudioListener() {
-        let deviceID = systemOutputDeviceID()
-        guard deviceID != kAudioObjectUnknown else { return }
-
-        func listen(_ objectID: AudioObjectID, _ selector: AudioObjectPropertySelector, scope: AudioObjectPropertyScope, element: UInt32) -> Bool {
-            var address = AudioObjectPropertyAddress(mSelector: selector, mScope: scope, mElement: element)
-            guard AudioObjectHasProperty(objectID, &address) else { return false }
-            AudioObjectAddPropertyListenerBlock(objectID, &address, nil) { _, _ in
-                self.fetchCurrentVolume()
-            }
-            return true
+        var defaultDevice = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyDefaultOutputDevice,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        AudioObjectAddPropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject), &defaultDevice, nil) { [weak self] _, _ in
+            self?.attachDeviceListeners()
+            self?.fetchCurrentVolume()
         }
+        attachDeviceListeners()
+    }
 
-        _ = listen(AudioObjectID(kAudioObjectSystemObject), kAudioHardwarePropertyDefaultOutputDevice,
-                   scope: kAudioObjectPropertyScopeGlobal, element: kAudioObjectPropertyElementMain)
-        _ = listen(deviceID, kAudioHardwareServiceDeviceProperty_VirtualMainVolume, scope: kAudioDevicePropertyScopeOutput, element: kAudioObjectPropertyElementMain)
-        _ = listen(deviceID, kAudioDevicePropertyMute, scope: kAudioDevicePropertyScopeOutput, element: kAudioObjectPropertyElementMain)
+    // Follows the default output, so volume changes on newly selected speakers or headphones still arrive.
+    private func attachDeviceListeners() {
+        let deviceID = systemOutputDeviceID()
+        guard deviceID != listenedDeviceID else { return }
+        for selector in [kAudioHardwareServiceDeviceProperty_VirtualMainVolume, kAudioDevicePropertyMute] {
+            var address = AudioObjectPropertyAddress(mSelector: selector, mScope: kAudioDevicePropertyScopeOutput, mElement: kAudioObjectPropertyElementMain)
+            if listenedDeviceID != kAudioObjectUnknown {
+                AudioObjectRemovePropertyListenerBlock(listenedDeviceID, &address, nil, deviceListener)
+            }
+            if deviceID != kAudioObjectUnknown, AudioObjectHasProperty(deviceID, &address) {
+                AudioObjectAddPropertyListenerBlock(deviceID, &address, nil, deviceListener)
+            }
+        }
+        listenedDeviceID = deviceID
     }
 
     // The virtual main volume is what the menu bar slider drives: CoreAudio spreads it
