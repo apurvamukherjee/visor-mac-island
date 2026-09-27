@@ -9,76 +9,68 @@ import EventKit
 import KeyboardShortcuts
 import SwiftUI
 
+private enum SettingsTab: String, CaseIterable, Identifiable {
+    case general = "General"
+    case appearance = "Appearance"
+    case media = "Media"
+    case calendar = "Calendar"
+    case huds = "HUDs"
+    case battery = "Battery"
+    case shelf = "Shelf"
+    case shortcuts = "Shortcuts"
+    case advanced = "Advanced"
+    case about = "About"
+
+    var id: Self { self }
+
+    var systemImage: String {
+        switch self {
+        case .general: "gear"
+        case .appearance: "eye"
+        case .media: "play.laptopcomputer"
+        case .calendar: "calendar"
+        case .huds: "dial.medium.fill"
+        case .battery: "battery.100.bolt"
+        case .shelf: "books.vertical"
+        case .shortcuts: "keyboard"
+        case .advanced: "gearshape.2"
+        case .about: "info.circle"
+        }
+    }
+
+    @ViewBuilder var content: some View {
+        switch self {
+        case .general: GeneralSettings()
+        case .appearance: Appearance()
+        case .media: Media()
+        case .calendar: CalendarSettings()
+        case .huds: HUD()
+        case .battery: Charge()
+        case .shelf: Shelf()
+        case .shortcuts: Shortcuts()
+        case .advanced: Advanced()
+        case .about: About()
+        }
+    }
+}
+
 struct SettingsView: View {
-    @State private var selectedTab = "General"
+    @State private var selectedTab: SettingsTab = .general
     @State private var accentColorUpdateTrigger = UUID()
 
     var body: some View {
         NavigationSplitView {
-            List(selection: $selectedTab) {
-                NavigationLink(value: "General") {
-                    Label("General", systemImage: "gear")
-                }
-                NavigationLink(value: "Appearance") {
-                    Label("Appearance", systemImage: "eye")
-                }
-                NavigationLink(value: "Media") {
-                    Label("Media", systemImage: "play.laptopcomputer")
-                }
-                NavigationLink(value: "Calendar") {
-                    Label("Calendar", systemImage: "calendar")
-                }
-                NavigationLink(value: "HUD") {
-                    Label("HUDs", systemImage: "dial.medium.fill")
-                }
-                NavigationLink(value: "Battery") {
-                    Label("Battery", systemImage: "battery.100.bolt")
-                }
-                NavigationLink(value: "Shelf") {
-                    Label("Shelf", systemImage: "books.vertical")
-                }
-                NavigationLink(value: "Shortcuts") {
-                    Label("Shortcuts", systemImage: "keyboard")
-                }
-                NavigationLink(value: "Advanced") {
-                    Label("Advanced", systemImage: "gearshape.2")
-                }
-                NavigationLink(value: "About") {
-                    Label("About", systemImage: "info.circle")
+            List(SettingsTab.allCases, selection: $selectedTab) { tab in
+                NavigationLink(value: tab) {
+                    Label(tab.rawValue, systemImage: tab.systemImage)
                 }
             }
             .listStyle(SidebarListStyle())
-            .tint(.effectiveAccent)
             .toolbar(removing: .sidebarToggle)
             .navigationSplitViewColumnWidth(200)
         } detail: {
-            Group {
-                switch selectedTab {
-                case "General":
-                    GeneralSettings()
-                case "Appearance":
-                    Appearance()
-                case "Media":
-                    Media()
-                case "Calendar":
-                    CalendarSettings()
-                case "HUD":
-                    HUD()
-                case "Battery":
-                    Charge()
-                case "Shelf":
-                    Shelf()
-                case "Shortcuts":
-                    Shortcuts()
-                case "Advanced":
-                    Advanced()
-                case "About":
-                    About()
-                default:
-                    GeneralSettings()
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            selectedTab.content
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .navigationSplitViewStyle(.balanced)
         .toolbar(removing: .sidebarToggle)
@@ -127,7 +119,6 @@ struct GeneralSettings: View {
                 )) {
                     Text("Show menu bar icon")
                 }
-                .tint(.effectiveAccent)
                 LaunchAtLoginToggle()
                 Defaults.Toggle(key: .showOnAllDisplays) {
                     Text("Show on all displays")
@@ -206,7 +197,6 @@ struct GeneralSettings: View {
             }
             .controlSize(.extraLarge)
         }
-        .accentColor(.effectiveAccent)
         .navigationTitle("General")
         .onChange(of: openNotchOnHover) {
             if !openNotchOnHover {
@@ -308,7 +298,6 @@ struct Charge: View {
                 await AccessibilityPermission.shared.isAuthorized()
             }
         }
-        .accentColor(.effectiveAccent)
         .navigationTitle("Battery")
     }
 }
@@ -421,7 +410,6 @@ struct HUD: View {
             }
             .disabled(!Defaults[.hudReplacement])
         }
-        .accentColor(.effectiveAccent)
         .navigationTitle("HUDs")
         .task {
             accessibilityAuthorized = await AccessibilityPermission.shared.isAuthorized()
@@ -521,7 +509,6 @@ struct Media: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .accentColor(.effectiveAccent)
         .navigationTitle("Media")
     }
 }
@@ -564,7 +551,6 @@ struct CalendarSettings: View {
                 privacyPane: "Privacy_Reminders"
             )
         }
-        .accentColor(.effectiveAccent)
         .navigationTitle("Calendar")
         .onAppear {
             Task {
@@ -792,7 +778,6 @@ struct Shelf: View {
                     .foregroundColor(.secondary)
             }
         }
-        .accentColor(.effectiveAccent)
         .navigationTitle("Shelf")
     }
 }
@@ -853,7 +838,6 @@ struct Appearance: View {
                 Text("Additional features")
             }
         }
-        .accentColor(.effectiveAccent)
         .navigationTitle("Appearance")
     }
 }
@@ -1022,7 +1006,6 @@ struct Advanced: View {
                 Text("Window Behavior")
             }
         }
-        .accentColor(.effectiveAccent)
         .navigationTitle("Advanced")
         .onAppear {
             loadCustomColor()
@@ -1111,7 +1094,6 @@ struct Shortcuts: View {
                 KeyboardShortcuts.Recorder("Toggle Notch Open:", name: .toggleNotchOpen)
             }
         }
-        .accentColor(.effectiveAccent)
         .navigationTitle("Shortcuts")
     }
 }
