@@ -3,7 +3,6 @@ import Foundation
 import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
-import CoreServices
 
 @MainActor
 final class ShelfItemViewModel: ObservableObject {
