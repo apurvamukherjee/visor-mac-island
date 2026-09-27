@@ -1,6 +1,7 @@
 
 import SwiftUI
 import AppKit
+import QuickLook
 
 struct ShelfView: View {
     @EnvironmentObject var vm: VisorViewModel
@@ -24,6 +25,9 @@ struct ShelfView: View {
             updateQuickLookSelection()
         }
         .quickLookPreview($quickLookService.selectedURL, in: quickLookService.urls)
+        .onChange(of: quickLookService.selectedURL) { _, url in
+            if url == nil { quickLookService.close() }
+        }
     }
     
     private func handleDrop(providers: [NSItemProvider]) -> Bool {

@@ -3,7 +3,6 @@ import AppKit
 import SwiftUI
 import Defaults
 
-import QuickLook
 
 struct ShelfItemView: View {
     let item: ShelfItem
@@ -62,7 +61,6 @@ struct ShelfItemView: View {
                 cachedPreviewImage = renderDragPreview()
             }
         }
-        .quickLookPreview($quickLookService.selectedURL, in: quickLookService.urls)
     }
 
     // MARK: - View Components
