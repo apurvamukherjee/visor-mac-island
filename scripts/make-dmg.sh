@@ -210,8 +210,8 @@ if [ "$SHIPPED" != "$EXPECTED" ]; then
     rm -f "$DMG"
     exit 1
 fi
-# Keep a dated copy in the repo so a build is downloadable straight from
-# GitHub. dist/ is gitignored and gets overwritten; this one is permanent.
+# Keep a dated local copy for GitHub Releases (new-releases/ is gitignored).
+# dist/ gets overwritten; this one is permanent.
 # Read from the app that was just built, not grepped out of project.yml:
 # project.yml had one MARKETING_VERSION per target while the XPC helper
 # existed, and grepping it returned both, putting newlines in the permanent

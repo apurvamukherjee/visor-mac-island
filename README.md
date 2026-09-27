@@ -111,7 +111,7 @@ System accent color, a preset or any color. Tint the player from the artwork, gl
 
 ## <img src="assets/readme/icons/download.svg" width="34" align="center"> &nbsp;Install
 
-1. Download the latest `.dmg` from **[Releases](https://github.com/apurvamukherjee/visor-mac-island/releases/latest)**. Every build ever made also lives in [`new-releases/`](new-releases).
+1. Download the latest `.dmg` from **[Releases](https://github.com/apurvamukherjee/visor-mac-island/releases/latest)**.
 2. Open it and drag **Visor** into **Applications**.
 3. Builds are ad-hoc signed, so macOS quarantines them. Clear that once:
 
