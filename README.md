@@ -50,7 +50,7 @@
 <tr>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/music.svg" width="40" align="center"> &nbsp;Now Playing</h3>
-Cover art, title, artist, a timeline you can scrub and the usual controls for whatever is playing. Any app that reports to macOS works, including YouTube Music in Chrome or Safari. Apple Music, Spotify or a YouTube Music desktop app can be the source instead.
+Cover art, title, artist, a timeline you can scrub and the usual controls for whatever is playing. Any app that reports to macOS works, including YouTube Music in Chrome or Safari. Apple Music or Spotify can be the source instead.
 </td>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/live.svg" width="40" align="center"> &nbsp;Live activity</h3>

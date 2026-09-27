@@ -21,10 +21,14 @@ public final class ImageService {
     }
 
     public func fetchImageData(from url: URL) async throws -> Data {
-        guard let scheme = url.scheme?.lowercased(), scheme == "http" || scheme == "https" else {
+        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let scheme = components.scheme?.lowercased(), scheme == "http" || scheme == "https" else {
             throw URLError(.unsupportedURL)
         }
-        let (data, _) = try await session.data(from: url)
+        // ATS blocks plain HTTP, and Spotify's AppleScript can still hand out http:// artwork URLs.
+        components.scheme = "https"
+        guard let secureURL = components.url else { throw URLError(.badURL) }
+        let (data, _) = try await session.data(from: secureURL)
         return data
     }
 }

@@ -93,7 +93,6 @@ class MusicManager: ObservableObject {
         case .nowPlaying: NowPlayingController()
         case .appleMusic: AppleMusicController()
         case .spotify: SpotifyController()
-        case .youtubeMusic: YouTubeMusicController()
         }
 
         // Set up state observation for the new controller
@@ -496,11 +495,7 @@ class MusicManager: ObservableObject {
         // Request immediate update from the active controller
         Task { [weak self] in
             if self?.activeController?.isActive() == true {
-                if let youtubeController = self?.activeController as? YouTubeMusicController {
-                    await youtubeController.pollPlaybackState()
-                } else {
-                    await self?.activeController?.updatePlaybackInfo()
-                }
+                await self?.activeController?.updatePlaybackInfo()
             }
         }
     }

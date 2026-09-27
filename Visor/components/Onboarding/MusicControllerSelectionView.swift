@@ -83,12 +83,6 @@ struct ControllerOptionView: View {
                 Text(controller.description)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                
-                if controller == .youtubeMusic, let url = URL(string: "https://github.com/pear-devs/pear-desktop") {
-                    Link("View on GitHub: pear-devs/pear-desktop", destination: url)
-                        .font(.subheadline)
-                        .padding(.top, 2)
-                }
             }
             
             Spacer()
@@ -116,8 +110,6 @@ extension MediaControllerType {
             return "Connects directly to the Spotify app."
         case .appleMusic:
             return "Connects directly to the Apple Music app."
-        case .youtubeMusic:
-            return "Requires a third-party client with API plugin enabled."
         }
     }
 }

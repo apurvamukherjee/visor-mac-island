@@ -59,9 +59,6 @@ targets:
         NSCalendarsFullAccessUsageDescription: "Visor uses the calendar to display your calendar events."
         NSRemindersFullAccessUsageDescription: "Visor uses Reminders to display your scheduled reminders in the calendar."
         NSCameraUsageDescription: "Visor uses the camera to display a live camera view."
-        # The YouTube Music controller talks to a local HTTP server.
-        NSAppTransportSecurity:
-          NSAllowsArbitraryLoads: true
 schemes:
   Visor:
     build:
