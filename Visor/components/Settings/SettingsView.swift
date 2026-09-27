@@ -94,7 +94,7 @@ struct SettingsView: View {
         .background(Color(NSColor.windowBackgroundColor))
         .tint(.effectiveAccent)
         .id(accentColorUpdateTrigger)
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("AccentColorChanged"))) { _ in
+        .onReceive(Defaults.publisher(keys: .useCustomAccentColor, .customAccentColorData, options: []).receive(on: DispatchQueue.main)) { _ in
             accentColorUpdateTrigger = UUID()
         }
     }
@@ -114,7 +114,6 @@ struct GeneralSettings: View {
     @Default(.notchHeight) var notchHeight
     @Default(.notchHeightMode) var notchHeightMode
     @Default(.showOnAllDisplays) var showOnAllDisplays
-    @Default(.automaticallySwitchDisplay) var automaticallySwitchDisplay
     @Default(.enableGestures) var enableGestures
     @Default(.openNotchOnHover) var openNotchOnHover
     
@@ -133,10 +132,6 @@ struct GeneralSettings: View {
                 Defaults.Toggle(key: .showOnAllDisplays) {
                     Text("Show on all displays")
                 }
-                .onChange(of: showOnAllDisplays) {
-                    NotificationCenter.default.post(
-                        name: Notification.Name.showOnAllDisplaysChanged, object: nil)
-                }
                 Picker("Preferred display", selection: $coordinator.preferredScreenUUID) {
                     ForEach(screens, id: \.uuid) { screen in
                         Text(screen.name).tag(screen.uuid as String?)
@@ -153,10 +148,6 @@ struct GeneralSettings: View {
                 Defaults.Toggle(key: .automaticallySwitchDisplay) {
                     Text("Automatically switch displays")
                 }
-                    .onChange(of: automaticallySwitchDisplay) {
-                        NotificationCenter.default.post(
-                            name: Notification.Name.automaticallySwitchDisplayChanged, object: nil)
-                    }
                     .disabled(showOnAllDisplays)
             } header: {
                 Text("System features")
@@ -178,16 +169,10 @@ struct GeneralSettings: View {
                 .onChange(of: notchHeightMode) {
                     // Visor: real-notch and custom both start at 38
                     notchHeight = notchHeightMode == .matchMenuBar ? 44 : 38
-                    NotificationCenter.default.post(
-                        name: Notification.Name.notchHeightChanged, object: nil)
                 }
                 if notchHeightMode == .custom {
                     Slider(value: $notchHeight, in: 15...45, step: 1) {
                         Text("Custom notch size - \(notchHeight, specifier: "%.0f")")
-                    }
-                    .onChange(of: notchHeight) {
-                        NotificationCenter.default.post(
-                            name: Notification.Name.notchHeightChanged, object: nil)
                     }
                 }
                 Picker("Notch height on non-notch displays", selection: $nonNotchHeightMode) {
@@ -201,16 +186,10 @@ struct GeneralSettings: View {
                 .onChange(of: nonNotchHeightMode) {
                     // Visor: real-notch and custom both start at 32
                     nonNotchHeight = nonNotchHeightMode == .matchMenuBar ? 24 : 32
-                    NotificationCenter.default.post(
-                        name: Notification.Name.notchHeightChanged, object: nil)
                 }
                 if nonNotchHeightMode == .custom {
                     Slider(value: $nonNotchHeight, in: 0...40, step: 1) {
                         Text("Custom notch size - \(nonNotchHeight, specifier: "%.0f")")
-                    }
-                    .onChange(of: nonNotchHeight) {
-                        NotificationCenter.default.post(
-                            name: Notification.Name.notchHeightChanged, object: nil)
                     }
                 }
             } header: {
@@ -292,10 +271,6 @@ struct GeneralSettings: View {
                         Text("\(minimumHoverDuration, specifier: "%.1f")s")
                             .foregroundStyle(.secondary)
                     }
-                }
-                .onChange(of: minimumHoverDuration) {
-                    NotificationCenter.default.post(
-                        name: Notification.Name.notchHeightChanged, object: nil)
                 }
             }
         } header: {
@@ -481,12 +456,6 @@ struct Media: View {
                     ForEach(MediaControllerType.allCases) { controller in
                         Text(controller.rawValue).tag(controller)
                     }
-                }
-                .onChange(of: mediaController) { _, _ in
-                    NotificationCenter.default.post(
-                        name: Notification.Name.mediaControllerChanged,
-                        object: nil
-                    )
                 }
             } header: {
                 Text("Media Source")
@@ -739,7 +708,6 @@ struct About: View {
 struct Shelf: View {
     
     @Default(.quickShareProvider) var quickShareProvider
-    @Default(.expandedDragDetection) var expandedDragDetection: Bool
     @StateObject private var quickShareService = QuickShareService.shared
 
     private var selectedProvider: QuickShareProvider? {
@@ -776,12 +744,6 @@ struct Shelf: View {
                 }
                 Defaults.Toggle(key: .expandedDragDetection) {
                     Text("Expanded drag detection area")
-                }
-                .onChange(of: expandedDragDetection) {
-                    NotificationCenter.default.post(
-                        name: Notification.Name.expandedDragDetectionChanged,
-                        object: nil
-                    )
                 }
                 Defaults.Toggle(key: .copyOnDrag) {
                     Text("Copy items on drag")
@@ -1067,20 +1029,10 @@ struct Advanced: View {
         }
     }
     
-    // Visor: saveCustomColor posts this itself; the preset and picker
-    // actions posted it a second time.
-    private func forceUiUpdate() {
-        // Force refresh the UI
-        DispatchQueue.main.async {
-            NotificationCenter.default.post(name: Notification.Name("AccentColorChanged"), object: nil)
-        }
-    }
-    
     private func saveCustomColor(_ color: Color) {
         let nsColor = NSColor(color)
         if let colorData = try? NSKeyedArchiver.archivedData(withRootObject: nsColor, requiringSecureCoding: false) {
             Defaults[.customAccentColorData] = colorData
-            forceUiUpdate()
         }
     }
     

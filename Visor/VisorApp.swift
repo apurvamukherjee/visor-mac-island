@@ -1,3 +1,4 @@
+import Combine
 import Defaults
 import KeyboardShortcuts
 import SwiftUI
@@ -54,6 +55,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // each display's window in multi-display mode, so all but the last leaked.
     private var windowScreenDidChangeObservers: [ObjectIdentifier: Any] = [:]
     private var dragDetectors: [String: DragDetector] = [:] // UUID -> DragDetector
+    private var preferenceObservers: Set<AnyCancellable> = []
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return false
@@ -283,42 +285,42 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
-        NotificationCenter.default.addObserver(
-            forName: Notification.Name.notchHeightChanged, object: nil, queue: nil
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.adjustWindowPosition()
-                self?.setupDragDetectors()
+        Defaults.publisher(keys: .notchHeight, .notchHeightMode, .nonNotchHeight, .nonNotchHeightMode, .minimumHoverDuration, options: [])
+            .sink { [weak self] in
+                Task { @MainActor in
+                    self?.adjustWindowPosition()
+                    self?.setupDragDetectors()
+                }
             }
-        }
+            .store(in: &preferenceObservers)
 
-        NotificationCenter.default.addObserver(
-            forName: Notification.Name.automaticallySwitchDisplayChanged, object: nil, queue: nil
-        ) { [weak self] _ in
-            guard let self = self, let window = self.window else { return }
-            Task { @MainActor in
-                window.alphaValue = self.coordinator.selectedScreenUUID == self.coordinator.preferredScreenUUID ? 1 : 0
+        Defaults.publisher(.automaticallySwitchDisplay, options: [])
+            .sink { [weak self] _ in
+                Task { @MainActor in
+                    guard let self, let window = self.window else { return }
+                    window.alphaValue = self.coordinator.selectedScreenUUID == self.coordinator.preferredScreenUUID ? 1 : 0
+                }
             }
-        }
+            .store(in: &preferenceObservers)
 
-        NotificationCenter.default.addObserver(
-            forName: Notification.Name.showOnAllDisplaysChanged, object: nil, queue: nil
-        ) { [weak self] _ in
-            Task { @MainActor in
-                guard let self = self else { return }
-                self.cleanupWindows(shouldInvert: true)
-                self.adjustWindowPosition(changeAlpha: true)
-                self.setupDragDetectors()
+        Defaults.publisher(.showOnAllDisplays, options: [])
+            .sink { [weak self] _ in
+                Task { @MainActor in
+                    guard let self else { return }
+                    self.cleanupWindows(shouldInvert: true)
+                    self.adjustWindowPosition(changeAlpha: true)
+                    self.setupDragDetectors()
+                }
             }
-        }
+            .store(in: &preferenceObservers)
 
-        NotificationCenter.default.addObserver(
-            forName: Notification.Name.expandedDragDetectionChanged, object: nil, queue: nil
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.setupDragDetectors()
+        Defaults.publisher(.expandedDragDetection, options: [])
+            .sink { [weak self] _ in
+                Task { @MainActor in
+                    self?.setupDragDetectors()
+                }
             }
-        }
+            .store(in: &preferenceObservers)
 
         // Use closure-based observers for DistributedNotificationCenter and keep tokens for removal
         DistributedNotificationCenter.default().addObserver(
@@ -551,8 +553,4 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 extension Notification.Name {
     static let selectedScreenChanged = Notification.Name("SelectedScreenChanged")
-    static let notchHeightChanged = Notification.Name("NotchHeightChanged")
-    static let showOnAllDisplaysChanged = Notification.Name("showOnAllDisplaysChanged")
-    static let automaticallySwitchDisplayChanged = Notification.Name("automaticallySwitchDisplayChanged")
-    static let expandedDragDetectionChanged = Notification.Name("expandedDragDetectionChanged")
 }

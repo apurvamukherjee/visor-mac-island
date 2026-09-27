@@ -57,7 +57,7 @@ class MusicManager: ObservableObject {
     // MARK: - Initialization
     init() {
         // Listen for changes to the default controller preference
-        NotificationCenter.default.publisher(for: Notification.Name.mediaControllerChanged)
+        Defaults.publisher(.mediaController, options: [])
             .sink { [weak self] _ in
                 self?.setActiveControllerBasedOnPreference()
             }

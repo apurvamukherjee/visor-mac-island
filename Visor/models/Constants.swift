@@ -15,11 +15,6 @@ enum HideNotchOption: String, Defaults.Serializable {
     case never
 }
 
-// Define notification names at file scope
-extension Notification.Name {
-    static let mediaControllerChanged = Notification.Name("mediaControllerChanged")
-}
-
 // Media controller types for selection in settings
 enum MediaControllerType: String, CaseIterable, Identifiable, Defaults.Serializable {
     case nowPlaying = "Now Playing"

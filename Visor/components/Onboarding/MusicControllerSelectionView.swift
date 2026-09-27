@@ -46,10 +46,6 @@ struct MusicControllerSelectionView: View {
 
             Button("Continue", action: {
                 self.mediaController = self.selectedMediaController
-                NotificationCenter.default.post(
-                    name: Notification.Name.mediaControllerChanged,
-                    object: nil
-                )
                 onContinue()
             })
                 .buttonStyle(.borderedProminent)
