@@ -1,6 +1,5 @@
 import ApplicationServices
 import Foundation
-eads the same grant.
 final class AccessibilityPermission {
     static let shared = AccessibilityPermission()
 
