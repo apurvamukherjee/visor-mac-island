@@ -403,11 +403,10 @@ class MusicManager: ObservableObject {
     }
 
     func calculateAverageColor() {
+        // averageColor already calls back on main.
         albumArt.averageColor { [weak self] color in
-            DispatchQueue.main.async {
-                withAnimation(.smooth) {
-                    self?.avgColor = color ?? .white
-                }
+            withAnimation(.smooth) {
+                self?.avgColor = color ?? .white
             }
         }
     }
