@@ -30,7 +30,6 @@ struct sneakPeek {
     var show: Bool = false
     var type: SneakContentType = .music
     var value: CGFloat = 0
-    var icon: String = ""
 }
 
 struct ExpandedItem {
@@ -142,8 +141,7 @@ class VisorViewCoordinator: ObservableObject {
     }
     
     func toggleSneakPeek(
-        status: Bool, type: SneakContentType, duration: TimeInterval = 1.5, value: CGFloat = 0,
-        icon: String = ""
+        status: Bool, type: SneakContentType, duration: TimeInterval = 1.5, value: CGFloat = 0
     ) {
         sneakPeekDuration = duration
         if type != .music {
@@ -156,7 +154,6 @@ class VisorViewCoordinator: ObservableObject {
             peek.show = status
             peek.type = type
             peek.value = value
-            peek.icon = icon
             withAnimation(.smooth) {
                 self.sneakPeek = peek
             }

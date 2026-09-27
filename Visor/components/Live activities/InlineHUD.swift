@@ -6,7 +6,6 @@ struct InlineHUD: View {
     @EnvironmentObject var vm: VisorViewModel
     @Binding var type: SneakContentType
     @Binding var value: CGFloat
-    @Binding var icon: String
     @Binding var hoverAnimation: Bool
     @Binding var gestureProgress: CGFloat
     var body: some View {
@@ -15,18 +14,10 @@ struct InlineHUD: View {
                 Group {
                     switch (type) {
                         case .volume:
-                            if icon.isEmpty {
-                                Image(systemName: SpeakerSymbol(value))
-                                    .contentTransition(.interpolate)
-                                    .symbolVariant(value > 0 ? .none : .slash)
-                                    .frame(width: 20, height: 15, alignment: .leading)
-                            } else {
-                                Image(systemName: icon)
-                                    .contentTransition(.interpolate)
-                                    .opacity(value.isZero ? 0.6 : 1)
-                                    .scaleEffect(value.isZero ? 0.85 : 1)
-                                    .frame(width: 20, height: 15, alignment: .leading)
-                            }
+                            Image(systemName: SpeakerSymbol(value))
+                                .contentTransition(.interpolate)
+                                .symbolVariant(value > 0 ? .none : .slash)
+                                .frame(width: 20, height: 15, alignment: .leading)
                         case .brightness:
                             Image(systemName: BrightnessSymbol(value))
                                 .contentTransition(.interpolate)

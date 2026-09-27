@@ -273,7 +273,7 @@ struct ContentView: View {
                         }
                         .frame(height: vm.effectiveClosedNotchHeight, alignment: .center)
                       } else if coordinator.sneakPeek.show && Defaults[.inlineHUD] && (coordinator.sneakPeek.type != .music) && (coordinator.sneakPeek.type != .battery) && vm.notchState == .closed {
-                          InlineHUD(type: $coordinator.sneakPeek.type, value: $coordinator.sneakPeek.value, icon: $coordinator.sneakPeek.icon, hoverAnimation: $isHovering, gestureProgress: $gestureProgress)
+                          InlineHUD(type: $coordinator.sneakPeek.type, value: $coordinator.sneakPeek.value, hoverAnimation: $isHovering, gestureProgress: $gestureProgress)
                               .transition(.opacity)
                       } else if showsMusicActivity {
                           MusicLiveActivity()
@@ -292,7 +292,6 @@ struct ContentView: View {
                               SystemEventIndicatorModifier(
                                   eventType: $coordinator.sneakPeek.type,
                                   value: $coordinator.sneakPeek.value,
-                                  icon: $coordinator.sneakPeek.icon,
                                   sendEventBack: { newVal in
                                       coordinator.sneakPeek.type.applySystemValue(newVal)
                                   }

@@ -10,25 +10,16 @@ struct SystemEventIndicatorModifier: View {
     @EnvironmentObject var vm: VisorViewModel
     @Binding var eventType: SneakContentType
     @Binding var value: CGFloat
-    @Binding var icon: String
     var sendEventBack: (CGFloat) -> Void
     
     var body: some View {
         HStack(spacing: 14) {
             switch (eventType) {
                 case .volume:
-                    if icon.isEmpty {
-                        Image(systemName: SpeakerSymbol(value))
-                            .contentTransition(.interpolate)
-                            .symbolVariant(value > 0 ? .none : .slash)
-                            .frame(width: 20, height: 15, alignment: .leading)
-                    } else {
-                        Image(systemName: icon)
-                            .contentTransition(.interpolate)
-                            .opacity(value.isZero ? 0.6 : 1)
-                            .scaleEffect(value.isZero ? 0.85 : 1)
-                            .frame(width: 20, height: 15, alignment: .leading)
-                    }
+                    Image(systemName: SpeakerSymbol(value))
+                        .contentTransition(.interpolate)
+                        .symbolVariant(value > 0 ? .none : .slash)
+                        .frame(width: 20, height: 15, alignment: .leading)
                 case .brightness:
                     Image(systemName: "sun.max.fill")
                         .contentTransition(.symbolEffect)

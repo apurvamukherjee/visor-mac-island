@@ -10,7 +10,6 @@ import Defaults
 struct OpenNotchHUD: View {
     @Binding var type: SneakContentType
     @Binding var value: CGFloat
-    @Binding var icon: String
     @Default(.showOpenNotchHUDPercentage) var showPercentage
     
     var body: some View {
@@ -19,13 +18,8 @@ struct OpenNotchHUD: View {
             Group {
                 switch type {
                 case .volume:
-                    if icon.isEmpty {
-                        Image(systemName: SpeakerSymbol(value))
-                            .contentTransition(.interpolate)
-                    } else {
-                        Image(systemName: icon)
-                            .contentTransition(.interpolate)
-                    }
+                    Image(systemName: SpeakerSymbol(value))
+                        .contentTransition(.interpolate)
                 case .brightness:
                     Image(systemName: "sun.max.fill")
                         .contentTransition(.symbolEffect)
