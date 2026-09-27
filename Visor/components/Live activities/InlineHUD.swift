@@ -14,9 +14,8 @@ struct InlineHUD: View {
                 Group {
                     switch (type) {
                         case .volume:
-                            Image(systemName: SpeakerSymbol(value))
+                            Image(systemName: value.isZero ? "speaker.slash" : "speaker.wave.3", variableValue: value)
                                 .contentTransition(.interpolate)
-                                .symbolVariant(value > 0 ? .none : .slash)
                                 .frame(width: 20, height: 15, alignment: .leading)
                         case .brightness:
                             Image(systemName: BrightnessSymbol(value))
@@ -70,21 +69,6 @@ struct InlineHUD: View {
             .frame(width: 100 - (hoverAnimation ? 0 : 12) + gestureProgress / 2, height: vm.closedNotchSize.height - (hoverAnimation ? 0 : 12), alignment: .center)
         }
         .frame(height: vm.closedNotchSize.height + (hoverAnimation ? 8 : 0), alignment: .center)
-    }
-    
-    func SpeakerSymbol(_ value: CGFloat) -> String {
-        switch(value) {
-            case 0:
-                return "speaker"
-            case 0...0.3:
-                return "speaker.wave.1"
-            case 0.3...0.8:
-                return "speaker.wave.2"
-            case 0.8...1:
-                return "speaker.wave.3"
-            default:
-                return "speaker.wave.2"
-        }
     }
     
     func BrightnessSymbol(_ value: CGFloat) -> String {

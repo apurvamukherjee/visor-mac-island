@@ -18,7 +18,7 @@ struct OpenNotchHUD: View {
             Group {
                 switch type {
                 case .volume:
-                    Image(systemName: SpeakerSymbol(value))
+                    Image(systemName: value.isZero ? "speaker.slash" : "speaker.wave.3", variableValue: value)
                         .contentTransition(.interpolate)
                 case .brightness:
                     Image(systemName: "sun.max.fill")
@@ -57,14 +57,4 @@ struct OpenNotchHUD: View {
                 .stroke(Color.white.opacity(0.1), lineWidth: 1)
         )
     }
-    
-    func SpeakerSymbol(_ value: CGFloat) -> String {
-        switch(value) {
-            case 0: return "speaker.slash"
-            case 0...0.33: return "speaker.wave.1"
-            case 0.33...0.66: return "speaker.wave.2"
-            default: return "speaker.wave.3"
-        }
-    }
-
 }
