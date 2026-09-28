@@ -56,7 +56,10 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
 
 struct SettingsView: View {
     @State private var selectedTab: SettingsTab = .general
-    @State private var accentColorUpdateTrigger = UUID()
+    // Visor: these re-render the tint in place. Re-keying the view with .id used to
+    // rebuild the ColorPicker on every change, which cut it off from the colour panel.
+    @Default(.useCustomAccentColor) private var useCustomAccentColor
+    @Default(.customAccentColorData) private var customAccentColorData
 
     var body: some View {
         NavigationSplitView {
@@ -85,10 +88,6 @@ struct SettingsView: View {
         .frame(width: 700)
         .background(Color(NSColor.windowBackgroundColor))
         .tint(.effectiveAccent)
-        .id(accentColorUpdateTrigger)
-        .onReceive(Defaults.publisher(keys: .useCustomAccentColor, .customAccentColorData, options: []).receive(on: DispatchQueue.main)) { _ in
-            accentColorUpdateTrigger = UUID()
-        }
     }
 }
 
