@@ -69,9 +69,15 @@ final class MediaKeyInterceptor {
             place: .headInsertEventTap,
             options: .defaultTap,
             eventsOfInterest: mask,
-            callback: { _, _, cgEvent, userInfo in
+            callback: { _, type, cgEvent, userInfo in
                 guard let userInfo else { return Unmanaged.passRetained(cgEvent) }
                 let interceptor = Unmanaged<MediaKeyInterceptor>.fromOpaque(userInfo).takeUnretainedValue()
+                // macOS switches the tap off when a callback runs slow and never turns it back on,
+                // so the HUD silently died until relaunch.
+                if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+                    if let tap = interceptor.eventTap { CGEvent.tapEnable(tap: tap, enable: true) }
+                    return Unmanaged.passUnretained(cgEvent)
+                }
                 return interceptor.handleEvent(cgEvent)
             },
             userInfo: UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
