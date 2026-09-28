@@ -39,7 +39,9 @@ enum MusicPlayerImageSizes {
             // This is a display WITH a notch - use notch height settings
             notchHeight = Defaults[.notchHeight]
             if Defaults[.notchHeightMode] == .matchRealNotchSize {
-                notchHeight = screen.safeAreaInsets.top
+                // Visor: the physical cutout runs about one device pixel past the safe
+                // area, which left a sliver of the real notch showing below the island.
+                notchHeight = screen.safeAreaInsets.top + 1 / screen.backingScaleFactor
             } else if Defaults[.notchHeightMode] == .matchMenuBar {
                 notchHeight = screen.frame.maxY - screen.visibleFrame.maxY
             }
