@@ -44,6 +44,8 @@ class VisorViewCoordinator: ObservableObject {
 
     @Published var currentView: NotchViews = .home
     @Published var helloAnimationRunning: Bool = false
+    // Visor: holds the padlock beside the notch for as long as the screen is locked.
+    @Published var isScreenLocked: Bool = false
     private var hudEnableTask: Task<Void, Never>?
 
     @AppStorage("firstLaunch") var firstLaunch: Bool = true

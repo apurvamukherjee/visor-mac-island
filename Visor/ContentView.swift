@@ -47,8 +47,17 @@ struct ContentView: View {
 
     // Visor: the closed-notch activities, shared by the chin width and the
     // body so the two cannot drift apart.
+    private var showsLockAnimation: Bool {
+        coordinator.expandingView.type == .lock && coordinator.expandingView.show
+    }
+
+    // Visor: the padlock stays until unlock, yielding to the album cover and
+    // to any other activity or HUD that briefly takes the slot.
     private var showsLockActivity: Bool {
-        coordinator.expandingView.type == .lock && coordinator.expandingView.show && vm.notchState == .closed
+        vm.notchState == .closed && (showsLockAnimation || (
+            coordinator.isScreenLocked && Defaults[.lockScreenAnimation]
+                && !coordinator.expandingView.show && !coordinator.sneakPeek.show && !showsMusicActivity
+        ))
     }
 
     private var showsBatteryActivity: Bool {
@@ -65,7 +74,7 @@ struct ContentView: View {
     private var showsFace: Bool {
         !coordinator.expandingView.show && vm.notchState == .closed
             && (!musicManager.isPlaying && musicManager.isPlayerIdle) && Defaults[.showNotHumanFace]
-            && !vm.hideOnClosed
+            && !vm.hideOnClosed && !coordinator.isScreenLocked
     }
 
     // Visor: the square beside the closed notch (album art, face, padlock).
@@ -239,7 +248,7 @@ struct ContentView: View {
                 } else {
                     if showsLockActivity {
                         LockLiveActivity(
-                            isLocked: coordinator.expandingView.value == 1,
+                            isLocked: showsLockAnimation ? coordinator.expandingView.value == 1 : true,
                             side: wingSide,
                             centerWidth: vm.closedNotchSize.width + -cornerRadiusInsets.closed.top
                         )

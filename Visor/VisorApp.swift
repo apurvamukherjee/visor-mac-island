@@ -87,6 +87,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } else {
             cleanupWindows()
         }
+        coordinator.isScreenLocked = true
         if Defaults[.lockScreenAnimation] {
             coordinator.toggleExpandingView(status: true, type: .lock, value: 1)
         }
@@ -106,6 +107,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         if Defaults[.lockScreenAnimation] {
             coordinator.toggleExpandingView(status: true, type: .lock, value: 0)
+        }
+        // Queued behind the unlock animation's own main-actor task, so the held
+        // padlock hands straight to the open one without a blank frame between.
+        Task { @MainActor in
+            coordinator.isScreenLocked = false
         }
     }
 
