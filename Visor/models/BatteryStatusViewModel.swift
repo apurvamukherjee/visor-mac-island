@@ -12,9 +12,14 @@ final class BatteryStatusViewModel: ObservableObject {
     @Published private(set) var isInLowPowerMode: Bool = false
     @Published private(set) var timeToFullCharge: Int = 0
     @Published private(set) var statusText: String = ""
+    /// Low Power Mode is on or the Mac is running hot, so purely decorative
+    /// motion (the closed-notch visualizer, the slider's 10 Hz redraw) stops.
+    /// Kept apart from refresh(), which bails out on Macs with no battery.
+    @Published private(set) var shouldSaveEnergy: Bool = false
 
     private var powerSource: CFRunLoopSource?
     private var lowPowerObserver: NSObjectProtocol?
+    private var thermalObserver: NSObjectProtocol?
 
     private init() {
         refresh(showActivity: false)
@@ -35,8 +40,23 @@ final class BatteryStatusViewModel: ObservableObject {
         lowPowerObserver = NotificationCenter.default.addObserver(
             forName: .NSProcessInfoPowerStateDidChange, object: nil, queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated { self?.refresh(showActivity: true) }
+            MainActor.assumeIsolated {
+                self?.refresh(showActivity: true)
+                self?.updateEnergySaving()
+            }
         }
+        thermalObserver = NotificationCenter.default.addObserver(
+            forName: ProcessInfo.thermalStateDidChangeNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.updateEnergySaving() }
+        }
+        updateEnergySaving()
+    }
+
+    private func updateEnergySaving() {
+        let info = ProcessInfo.processInfo
+        let save = info.isLowPowerModeEnabled || info.thermalState.rawValue >= ProcessInfo.ThermalState.serious.rawValue
+        if save != shouldSaveEnergy { shouldSaveEnergy = save }
     }
 
     private func refresh(showActivity: Bool) {

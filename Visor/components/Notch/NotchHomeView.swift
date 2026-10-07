@@ -124,6 +124,7 @@ struct AlbumArtView: View {
 
 struct MusicControlsView: View {
     @ObservedObject var musicManager = MusicManager.shared
+    @ObservedObject private var battery = BatteryStatusViewModel.shared
         @EnvironmentObject var vm: VisorViewModel
         @ObservedObject var webcamManager = WebcamManager.shared
     @State private var sliderValue: Double = 0
@@ -206,7 +207,7 @@ struct MusicControlsView: View {
     private var musicSlider: some View {
         // Visor: `nil` means every display frame, so the paused slider used to
         // redraw at 60-120 Hz. Once a second still catches a seek made elsewhere.
-        TimelineView(.animation(minimumInterval: musicManager.isPlaying ? 0.1 : 1)) { timeline in
+        TimelineView(.animation(minimumInterval: musicManager.isPlaying && !battery.shouldSaveEnergy ? 0.1 : 1)) { timeline in
             MusicSliderView(
                 sliderValue: $sliderValue,
                 duration: $musicManager.songDuration,
