@@ -4,6 +4,7 @@ import { useNotch } from '../../notch/store';
 import { trackAt } from '../../notch/tracks';
 import { useLock } from '../../store/lock';
 import { useNow } from '../useNow';
+import avatar from './apurva.webp';
 import './LockScreen.css';
 
 export function LockScreen() {
@@ -44,8 +45,8 @@ export function LockScreen() {
         <button aria-label="Next track" onClick={() => skip(1)}>⏭</button>
       </div>
       <div className="lock-user">
-        <span className="lock-avatar" aria-hidden>👤</span>
-        <b>Visitor</b>
+        <img className="lock-avatar" src={avatar} alt="" width={72} height={72} />
+        <b>Apurva</b>
         <button className="lock-unlock" onClick={unlock}>Click or press any key to unlock</button>
       </div>
     </div>

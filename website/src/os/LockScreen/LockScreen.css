@@ -19,7 +19,8 @@
 .lock-player button { border: 0; background: none; color: #fff; font-size: 18px; cursor: pointer; }
 .lock-player .cover > img:first-child { border-radius: 9px; }
 .lock-user { margin-top: auto; margin-bottom: 70px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.lock-avatar { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font-size: 30px; background: rgb(255 255 255 / 0.25); }
+.lock-avatar { border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px rgb(255 255 255 / 0.35), 0 6px 20px rgb(0 0 0 / 0.3); }
+.lock-user b { font-size: 16px; }
 .lock-unlock { padding: 6px 16px; border: 0; border-radius: 999px; background: rgb(255 255 255 / 0.18); color: #fff; font: inherit; font-size: 13px; cursor: pointer; }
 .lock button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { .lock { animation: none; } }
