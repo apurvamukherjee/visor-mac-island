@@ -20,7 +20,7 @@ interface Windows {
   wins: Partial<Record<AppId, Win>>;
   top: number;
   focused: AppId | null;
-  open: (id: AppId) => void;
+  open: (id: AppId, frame?: Frame) => void;
   close: (id: AppId) => void;
   focus: (id: AppId) => void;
   minimize: (id: AppId) => void;
@@ -70,15 +70,12 @@ export const useWindows = create<Windows>()((set, get) => {
     wins: {},
     top: 10,
     focused: null,
-    open: (id) => {
+    open: (id, frame) => {
       const { wins, top } = get();
       const win = wins[id];
       const z = top + 1;
-      set({
-        top: z,
-        focused: id,
-        wins: { ...wins, [id]: win ? { ...win, z, minimized: false } : { id, frame: initialFrame(id, Object.keys(wins).length), z, minimized: false, zoomed: false } },
-      });
+      const fresh = { id, frame: frame ? clampFrame(frame) : initialFrame(id, Object.keys(wins).length), z, minimized: false, zoomed: false };
+      set({ top: z, focused: id, wins: { ...wins, [id]: win ? { ...win, z, minimized: false } : fresh } });
     },
     close: (id) =>
       set((s) => {
