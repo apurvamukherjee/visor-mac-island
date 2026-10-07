@@ -533,6 +533,12 @@ struct CalendarSettings: View {
             Defaults.Toggle(key: .showFullEventTitles) {
                 Text("Always show full event titles")
             }
+            Defaults.Toggle(key: .showWeather) {
+                Text("Show weather")
+            }
+            .onChange { enabled in
+                if enabled { WeatherManager.shared.refreshIfStale() }
+            }
             calendarSection(
                 "Calendars",
                 hasAccess: calendarManager.calendarAuthorizationStatus == .fullAccess,

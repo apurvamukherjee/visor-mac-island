@@ -174,6 +174,8 @@ struct WheelPicker: View {
 struct CalendarView: View {
     @EnvironmentObject var vm: VisorViewModel
     @ObservedObject private var calendarManager = CalendarManager.shared
+    @ObservedObject private var weather = WeatherManager.shared
+    @Default(.showWeather) private var showWeather
     @State private var selectedDate = Date()
 
     var body: some View {
@@ -188,6 +190,17 @@ struct CalendarView: View {
                         .font(.title3)
                         .fontWeight(.light)
                         .foregroundColor(Color(white: 0.65))
+                    if showWeather, let conditions = weather.conditions {
+                        HStack(spacing: 3) {
+                            Image(systemName: conditions.symbol)
+                                .symbolRenderingMode(.multicolor)
+                            Text(conditions.temperature.formatted(
+                                .measurement(width: .narrow, usage: .weather, numberFormatStyle: .number.precision(.fractionLength(0)))))
+                                .foregroundColor(.white)
+                        }
+                        .font(.caption)
+                        .fixedSize()
+                    }
                 }
 
                 ZStack(alignment: .top) {
@@ -227,12 +240,14 @@ struct CalendarView: View {
             // Visor: reset to today when the notch opens. Doing it on close too
             // fetched every event and reminder again for a view being hidden.
             guard newState == .open else { return }
+            weather.refreshIfStale()
             Task {
                 await calendarManager.updateCurrentDate(Date.now)
                 selectedDate = Date.now
             }
         }
         .onAppear {
+            weather.refreshIfStale()
             Task {
                 await calendarManager.updateCurrentDate(Date.now)
                 selectedDate = Date.now
