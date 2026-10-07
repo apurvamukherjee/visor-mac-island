@@ -4,6 +4,7 @@ import { AppStore } from './AppStore/AppStore';
 import { apps } from './apps';
 import { Call } from './Calls/Call';
 import { Chrome } from './Chrome/Chrome';
+import { Photos } from './Photos/Photos';
 import { Calendar } from './Calendar/Calendar';
 import { Weather } from './Weather/Weather';
 import { Clock } from './Clock/Clock';
@@ -37,4 +38,5 @@ export const views: Partial<Record<AppId, ComponentType>> = {
   clock: Clock,
   weather: Weather,
   calendar: Calendar,
+  photos: Photos,
 };
