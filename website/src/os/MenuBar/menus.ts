@@ -1,5 +1,6 @@
 import { apps, type AppId } from '../../apps/apps';
 import { links } from '../../links';
+import { useLock } from '../../store/lock';
 import { useWindows } from '../../store/windows';
 
 export type MenuItem =
@@ -19,11 +20,14 @@ const onFocused = (fn: (id: AppId) => void) => () => {
 };
 
 export const systemMenu: Menu = {
-  label: 'Visor menu',
+  label: 'Apple menu',
   items: () => [
-    { label: 'About Visor', run: open('visor') },
+    { label: 'About This Mac', run: open('visor') },
     'separator',
     { label: 'System Settings…', run: open('settings') },
+    { label: 'App Store…', run: open('appstore') },
+    'separator',
+    { label: 'Lock Screen', shortcut: '⌃⌘Q', run: () => useLock.getState().lock() },
     'separator',
     { label: 'Restart…', run: () => location.reload() },
   ],
