@@ -1,6 +1,7 @@
 import { Cover } from '../../notch/Cover';
 import { useNotch } from '../../notch/store';
 import { PREVIEW_S, formatTime, trackAt, tracks } from '../../notch/tracks';
+import cover from './ruined-by-her-hands.webp';
 import './Music.css';
 
 const sidebar: [string, string[]][] = [
@@ -42,7 +43,7 @@ export function Music() {
         </div>
         <div className="music-list">
           <header className="music-head">
-            <div className="music-mosaic">{tracks.slice(0, 4).map((t) => <img key={t.title} src={t.art} alt="" />)}</div>
+            <img className="music-cover" src={cover} alt="" width={150} height={150} />
             <div>
               <small>Playlist</small>
               <h1>ruined by her hands</h1>
