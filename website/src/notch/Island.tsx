@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { useBattery } from '../store/battery';
 import { Closed, closedWidth } from './Closed';
 import { Home } from './Home';
+import { Shelf } from './Shelf';
 import { useNotch, type Tab } from './store';
 import './audio';
 import './Island.css';
@@ -66,6 +67,7 @@ export function Island() {
         <div className="island-open">
           <Header />
           {tab === 'home' && <Home />}
+          {tab === 'shelf' && <Shelf />}
         </div>
       ) : (
         <button className="island-hit" aria-label="Open the notch" aria-expanded={false} onClick={enter}>
