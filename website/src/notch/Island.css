@@ -129,3 +129,11 @@
 .closed-lock { justify-content: flex-start; padding-left: 12px; }
 .closed-lock-shackle { transform-origin: 16px 11px; transition: transform 0.35s cubic-bezier(0.3, 1.4, 0.5, 1); }
 .closed-lock svg.is-open .closed-lock-shackle { transform: translateY(-2px) rotate(28deg); }
+
+.closed-download svg { margin-right: 2px; }
+.closed-download-ring { stroke-dasharray: 100; stroke-dashoffset: 100; animation: download-fill 2.6s ease-in-out forwards; }
+@keyframes download-fill { to { stroke-dashoffset: 0; } }
+.closed-join { gap: 12px; }
+.closed-join-title { flex: 1; font-size: 12px; color: rgb(255 255 255 / 0.8); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.closed-join-pill { padding: 2px 10px; border-radius: 10px; background: #34c759; font-size: 12px; font-weight: 700; }
+.closed-timer { font-size: 13px; font-weight: 600; color: #ff9f0a; font-variant-numeric: tabular-nums; }

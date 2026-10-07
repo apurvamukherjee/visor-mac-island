@@ -8,7 +8,8 @@ export type Transient =
   | { kind: 'hud'; hud: Hud; value: number }
   | { kind: 'battery'; charging: boolean; level: number }
   | { kind: 'peek' }
-  | { kind: 'download'; progress: number }
+  | { kind: 'download'; app: string }
+  | { kind: 'join'; app: string; title: string }
   | { kind: 'unlock' };
 
 interface Notch {
@@ -18,6 +19,8 @@ interface Notch {
   track: number;
   position: number;
   transient: Transient | null;
+  /** Epoch ms when the running timer rings, or null. */
+  timerEnd: number | null;
   setOpen: (open: boolean) => void;
   setTab: (tab: Tab) => void;
   togglePlay: () => void;
@@ -27,6 +30,8 @@ interface Notch {
   /** Set by the audio element as it plays; seek() is for the user moving the scrubber. */
   setPosition: (position: number) => void;
   flash: (t: Transient, ms?: number) => void;
+  startTimer: (minutes: number) => void;
+  stopTimer: () => void;
 }
 
 let clearTransient: ReturnType<typeof setTimeout> | undefined;
@@ -38,6 +43,7 @@ export const useNotch = create<Notch>()((set, get) => ({
   track: 0,
   position: 0,
   transient: null,
+  timerEnd: null,
   setOpen: (open) => set({ open }),
   setTab: (tab) => set({ tab, open: true }),
   togglePlay: () => set((s) => ({ playing: !s.playing })),
@@ -53,6 +59,8 @@ export const useNotch = create<Notch>()((set, get) => ({
   },
   seek: (position) => set({ position }),
   setPosition: (position) => set({ position }),
+  startTimer: (minutes) => set({ timerEnd: Date.now() + minutes * 60_000 }),
+  stopTimer: () => set({ timerEnd: null }),
   flash: (transient, ms = 1800) => {
     clearTimeout(clearTransient);
     set({ transient });

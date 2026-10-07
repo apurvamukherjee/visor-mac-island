@@ -47,6 +47,7 @@ export function Island() {
   const setOpen = useNotch((s) => s.setOpen);
   const transient = useNotch((s) => s.transient);
   const locked = useLock((s) => s.locked);
+  const timer = useNotch((s) => s.timerEnd !== null);
   const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const enter = () => {
@@ -57,7 +58,7 @@ export function Island() {
     closeTimer.current = setTimeout(() => setOpen(false), CLOSE_DELAY_MS);
   };
 
-  const size = open && !locked ? OPEN : { w: closedWidth(transient, locked), h: CLOSED_H };
+  const size = open && !locked ? OPEN : { w: closedWidth(transient, locked, timer), h: CLOSED_H };
   return (
     <div
       className={`island${open ? ' is-open' : ''}`}
