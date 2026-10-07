@@ -32,3 +32,14 @@ extension NSColor {
         return color
     }
 }
+
+extension Color {
+    /// Fill behind round controls in the open notch. On the black island the
+    /// controls sit on black discs; on Liquid Glass those discs would punch
+    /// holes in the glass, so they become a light wash instead (and not glass
+    /// of their own: glass can't sample glass, so stacking it looks muddy).
+    static func notchControlFill(glass: Bool) -> Color {
+        if #available(macOS 26, *), glass { return .white.opacity(0.12) }
+        return .black
+    }
+}

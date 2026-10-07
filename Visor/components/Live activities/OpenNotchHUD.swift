@@ -10,6 +10,7 @@ import Defaults
 struct OpenNotchHUD: View {
     @Binding var type: SneakContentType
     @Binding var value: CGFloat
+    @Default(.liquidGlass) private var liquidGlass
     @Default(.showOpenNotchHUDPercentage) var showPercentage
     
     var body: some View {
@@ -53,7 +54,7 @@ struct OpenNotchHUD: View {
         .padding(.vertical, 6)
         .background(
             Capsule()
-                .fill(Color.black)
+                .fill(Color.notchControlFill(glass: liquidGlass))
                 .stroke(Color.white.opacity(0.1), lineWidth: 1)
         )
     }

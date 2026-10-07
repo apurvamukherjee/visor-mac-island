@@ -10,6 +10,7 @@ struct VisorHeader: View {
     @StateObject var tvm = ShelfStateViewModel.shared
     @ObservedObject var timer = TimerManager.shared
     @State private var isChoosingTimer = false
+    @Default(.liquidGlass) private var liquidGlass
     var body: some View {
         HStack(spacing: 0) {
             HStack {
@@ -133,7 +134,7 @@ struct VisorHeader: View {
     private func headerButton(systemImage: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Capsule()
-                .fill(.black)
+                .fill(Color.notchControlFill(glass: liquidGlass))
                 .frame(width: 30, height: 30)
                 .overlay {
                     Image(systemName: systemImage)
