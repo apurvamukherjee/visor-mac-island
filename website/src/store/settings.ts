@@ -7,6 +7,8 @@ interface Settings {
   volume: number;
   backlight: number;
   appearance: 'light' | 'dark';
+  accent: string;
+  hoverOpen: boolean;
   set: (patch: Partial<Omit<Settings, 'set'>>) => void;
 }
 
@@ -18,6 +20,8 @@ export const useSettings = create<Settings>()(
       volume: 0.6,
       backlight: 0.7,
       appearance: 'light',
+      accent: '#ff2d55',
+      hoverOpen: true,
       set: (patch) => set(patch),
     }),
     { name: 'visor-site-settings' },

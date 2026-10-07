@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { useBattery } from '../store/battery';
 import { useLock } from '../store/lock';
+import { useSettings } from '../store/settings';
 import { Closed, closedWidth } from './Closed';
 import { Home } from './Home';
 import { Shelf } from './Shelf';
@@ -48,6 +49,8 @@ export function Island() {
   const transient = useNotch((s) => s.transient);
   const locked = useLock((s) => s.locked);
   const timer = useNotch((s) => s.timerEnd !== null);
+  const accent = useSettings((s) => s.accent);
+  const hoverOpen = useSettings((s) => s.hoverOpen);
   const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const enter = () => {
@@ -62,8 +65,8 @@ export function Island() {
   return (
     <div
       className={`island${open ? ' is-open' : ''}`}
-      style={{ width: size.w, height: size.h }}
-      onPointerEnter={(e) => e.pointerType === 'mouse' && enter()}
+      style={{ width: size.w, height: size.h, '--accent': accent } as React.CSSProperties}
+      onPointerEnter={(e) => hoverOpen && e.pointerType === 'mouse' && enter()}
       onPointerLeave={(e) => e.pointerType === 'mouse' && leave()}
     >
       {open && !locked ? (
