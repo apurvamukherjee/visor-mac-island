@@ -12,4 +12,5 @@ export default tseslint.config(
     languageOptions: { globals: globals.browser },
     rules: { '@typescript-eslint/no-explicit-any': 'error' },
   },
+  { files: ['scripts/**', '*.config.ts', 'release*.ts'], languageOptions: { globals: globals.node } },
 );
