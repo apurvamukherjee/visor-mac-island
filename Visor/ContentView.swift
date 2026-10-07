@@ -24,6 +24,8 @@ struct ContentView: View {
     @State private var anyDropDebounceTask: Task<Void, Never>?
 
     @State private var gestureProgress: CGFloat = .zero
+    /// One track change per swipe, however far it goes.
+    @State private var swipeSkipped = false
 
     @State private var haptics: Bool = false
 
@@ -253,6 +255,15 @@ struct ContentView: View {
                         view
                             .panGesture(direction: .down) { translation, phase in
                                 handleDownGesture(translation: translation, phase: phase)
+                            }
+                    }
+                    .conditionalModifier(Defaults[.swipeToSkip] && Defaults[.enableGestures]) { view in
+                        view
+                            .panGesture(direction: .left) { translation, phase in
+                                handleSkipGesture(translation: translation, phase: phase, forward: true)
+                            }
+                            .panGesture(direction: .right) { translation, phase in
+                                handleSkipGesture(translation: translation, phase: phase, forward: false)
                             }
                     }
                     .conditionalModifier(Defaults[.closeGestureEnabled] && Defaults[.enableGestures]) { view in
@@ -685,6 +696,25 @@ struct ContentView: View {
                 gestureProgress = .zero
             }
             doOpen()
+        }
+    }
+
+    // Visor: fingers left is the next track and right the previous, as on
+    // the iPhone's Dynamic Island. Only on the closed notch, so it never
+    // fights the calendar or shelf scrolling sideways in the open one.
+    private func handleSkipGesture(translation: CGFloat, phase: NSEvent.Phase, forward: Bool) {
+        if phase == .ended {
+            swipeSkipped = false
+            return
+        }
+        guard vm.notchState == .closed, !swipeSkipped,
+              musicManager.isPlaying || !musicManager.isPlayerIdle,
+              translation > Defaults[.gestureSensitivity] / 2
+        else { return }
+        swipeSkipped = true
+        forward ? musicManager.nextTrack() : musicManager.previousTrack()
+        if Defaults[.enableHaptics] {
+            haptics.toggle()
         }
     }
 

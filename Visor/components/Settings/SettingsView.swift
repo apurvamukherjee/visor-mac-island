@@ -42,7 +42,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
     // someone would type, not every label.
     var keywords: String {
         switch self {
-        case .general: "menu bar icon launch login displays screen gestures haptic hover peek delay notch height sizing scroll"
+        case .general: "menu bar icon launch login displays screen gestures swipe skip track haptic hover peek delay notch height sizing scroll"
         case .appearance: "tabs mirror camera microphone privacy indicator face timer download progress settings icon vinyl slider color tint blur spectrogram glass"
         case .media: "music source spotify apple lyrics sneak peek full screen controls buttons inactivity"
         case .calendar: "events reminders all-day weather meeting zoom meet teams join"
@@ -246,6 +246,10 @@ struct GeneralSettings: View {
             if enableGestures {
                 Defaults.Toggle(key: .closeGestureEnabled) {
                     Text("Close gesture")
+                }
+                Defaults.Toggle(key: .swipeToSkip) {
+                    Text("Swipe sideways to change track")
+                    Text("Two fingers left on the closed notch for the next track, right for the previous one.")
                 }
                 Slider(value: $gestureSensitivity, in: 100...300, step: 100) {
                     HStack {
