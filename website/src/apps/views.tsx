@@ -1,6 +1,8 @@
 import type { ComponentType } from 'react';
 import type { AppId } from './apps';
 import { AppStore } from './AppStore/AppStore';
+import { apps } from './apps';
+import { Call } from './Calls/Call';
 import { Chrome } from './Chrome/Chrome';
 import { Downloads } from './Downloads/Downloads';
 import { Messages } from './Messages/Messages';
@@ -27,4 +29,6 @@ export const views: Partial<Record<AppId, ComponentType>> = {
   whatsapp: WhatsApp,
   x: X,
   chrome: Chrome,
+  zoom: () => <Call app="Zoom" brand="#0b5cff" icon={apps.zoom.icon} />,
+  meet: () => <Call app="Meet" brand="#1a73e8" icon={apps.meet.icon} />,
 };
