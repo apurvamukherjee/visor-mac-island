@@ -11,7 +11,7 @@
 }
 
 /* Magnification without JS: the hovered icon and its two neighbours on each side grow. */
-.dock-item { --s: 1; position: relative; display: flex; flex-direction: column; align-items: center; transition: width 0.18s ease; width: calc(52px * var(--s)); }
+.dock-item { --s: 1; position: relative; display: flex; flex-direction: column; align-items: center; transition: width 0.18s ease; width: calc(min(52px, (100vw - 80px) / 23) * var(--s)); }
 @media (hover: hover) {
   .dock-item:hover { --s: 1.55; }
   .dock-item:hover + .dock-item, .dock-item:has(+ .dock-item:hover) { --s: 1.3; }
