@@ -11,6 +11,7 @@ struct ContentView: View {
     @ObservedObject var coordinator = VisorViewCoordinator.shared
     @ObservedObject var musicManager = MusicManager.shared
     @ObservedObject var batteryModel = BatteryStatusViewModel.shared
+    @ObservedObject var timer = TimerManager.shared
     // Visor: held, not observed. The root view reads neither, and observing
     // them re-rendered the whole notch on every system volume change.
     private let brightnessManager = BrightnessManager.shared
@@ -71,8 +72,20 @@ struct ContentView: View {
             && coordinator.musicLiveActivityEnabled && !vm.hideOnClosed
     }
 
+    private var wingAccessory: WingAccessory? {
+        if let start = timer.startDate, let end = timer.endDate { return .timer(start...end) }
+        if timer.isRinging { return .bell }
+        return nil
+    }
+
+    // Visor: a timer or download with nothing playing gets the wings to itself.
+    private var showsAccessoryActivity: Bool {
+        wingAccessory != nil && !coordinator.expandingView.show && vm.notchState == .closed
+            && !vm.hideOnClosed && !showsMusicActivity
+    }
+
     private var showsFace: Bool {
-        !coordinator.expandingView.show && vm.notchState == .closed
+        wingAccessory == nil && !coordinator.expandingView.show && vm.notchState == .closed
             && (!musicManager.isPlaying && musicManager.isPlayerIdle) && Defaults[.showNotHumanFace]
             && !vm.hideOnClosed && !coordinator.isScreenLocked
     }
@@ -80,6 +93,10 @@ struct ContentView: View {
     // Visor: the square beside the closed notch (album art, face, padlock).
     private var wingSide: CGFloat {
         max(0, vm.effectiveClosedNotchHeight - 12)
+    }
+
+    private var wingWidth: CGFloat {
+        wingAccessory?.needsTextWidth == true ? max(wingSide, WingAccessory.textWingWidth) : wingSide
     }
 
     // Visor: the music sneak peek in its inline style, which widens the notch.
@@ -91,8 +108,8 @@ struct ContentView: View {
     private var computedChinWidth: CGFloat {
         // Lock and battery are exclusive (one expanding view type), so battery can go first.
         if showsBatteryActivity { return 640 }
-        let hasWings = showsLockActivity || showsMusicActivity || showsFace
-        return vm.closedNotchSize.width + (hasWings ? 2 * wingSide + 20 : 0)
+        let hasWings = showsLockActivity || showsMusicActivity || showsAccessoryActivity || showsFace
+        return vm.closedNotchSize.width + (hasWings ? 2 * wingWidth + 20 : 0)
     }
 
     var body: some View {
@@ -286,6 +303,8 @@ struct ContentView: View {
                               .transition(.opacity)
                       } else if showsMusicActivity {
                           MusicLiveActivity()
+                      } else if showsAccessoryActivity, let accessory = wingAccessory {
+                          AccessoryLiveActivity(accessory)
                       } else if showsFace {
                           VisorFaceAnimation()
                        } else if vm.notchState == .open {
@@ -371,6 +390,23 @@ struct ContentView: View {
     }
 
     @ViewBuilder
+    func AccessoryLiveActivity(_ accessory: WingAccessory) -> some View {
+        HStack {
+            Image(systemName: accessory.leadingSymbol)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: wingWidth, height: wingSide)
+            Rectangle()
+                .fill(.black)
+                .frame(width: vm.closedNotchSize.width + -cornerRadiusInsets.closed.top)
+            WingAccessoryView(accessory: accessory)
+                .frame(width: wingWidth, height: wingSide)
+        }
+        .frame(height: vm.effectiveClosedNotchHeight, alignment: .center)
+        .transition(.blurReplace)
+    }
+
+    @ViewBuilder
     func MusicLiveActivity() -> some View {
         HStack {
             Image(nsImage: musicManager.albumArt)
@@ -382,6 +418,7 @@ struct ContentView: View {
                 )
                 .matchedGeometryEffect(id: "albumArt", in: albumArtNamespace)
                 .frame(width: wingSide, height: wingSide)
+                .frame(width: wingWidth, alignment: .leading)
 
             Rectangle()
                 .fill(.black)
@@ -415,23 +452,27 @@ struct ContentView: View {
                 .frame(width: inlineExpanded ? 380 : vm.closedNotchSize.width + -cornerRadiusInsets.closed.top)
 
             HStack {
-                Rectangle()
-                    .fill(
-                        Defaults[.coloredSpectrogram]
-                            ? Color(nsColor: musicManager.avgColor).gradient
-                            : Color.gray.gradient
-                    )
-                    .frame(width: 50, alignment: .center)
-                    .matchedGeometryEffect(id: "spectrum", in: albumArtNamespace)
-                    .mask {
-                        AudioSpectrumView(isPlaying: $musicManager.isPlaying)
-                            .frame(width: 16, height: 12)
-                    }
+                if let accessory = wingAccessory {
+                    WingAccessoryView(accessory: accessory)
+                } else {
+                    Rectangle()
+                        .fill(
+                            Defaults[.coloredSpectrogram]
+                                ? Color(nsColor: musicManager.avgColor).gradient
+                                : Color.gray.gradient
+                        )
+                        .frame(width: 50, alignment: .center)
+                        .matchedGeometryEffect(id: "spectrum", in: albumArtNamespace)
+                        .mask {
+                            AudioSpectrumView(isPlaying: $musicManager.isPlaying)
+                                .frame(width: 16, height: 12)
+                        }
+                }
             }
             .frame(
                 width: max(
                     0,
-                    vm.effectiveClosedNotchHeight - 12
+                    wingWidth
                         + gestureProgress / 2
                 ),
                 height: wingSide,

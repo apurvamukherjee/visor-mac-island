@@ -820,6 +820,9 @@ struct Appearance: View {
             }
 
             Section {
+                Defaults.Toggle(key: .showTimer) {
+                    Text("Show timer button")
+                }
                 Defaults.Toggle(key: .showMirror) {
                     Text("Enable mirror")
                 }
