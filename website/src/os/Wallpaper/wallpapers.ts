@@ -8,14 +8,17 @@ export interface Wallpaper {
 
 const commons = (file: string) => `https://commons.wikimedia.org/wiki/File:${file}`;
 
-// All public domain, from Wikimedia Commons.
+// Japanese woodblock prints and paintings, all public domain, from Wikimedia Commons.
 export const wallpapers: [Wallpaper, ...Wallpaper[]] = [
-  { file: 'starry-night.webp', title: 'The Starry Night', artist: 'Vincent van Gogh', year: '1889', source: commons('Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg') },
   { file: 'great-wave.webp', title: 'The Great Wave off Kanagawa', artist: 'Katsushika Hokusai', year: 'c. 1831', source: commons('Tsunami_by_hokusai_19th_century.jpg') },
-  { file: 'impression-sunrise.webp', title: 'Impression, Sunrise', artist: 'Claude Monet', year: '1872', source: commons('Monet_-_Impression,_Sunrise.jpg') },
-  { file: 'sierra-nevada.webp', title: 'Among the Sierra Nevada, California', artist: 'Albert Bierstadt', year: '1868', source: commons('Albert_Bierstadt_-_Among_the_Sierra_Nevada,_California_-_Google_Art_Project.jpg') },
-  { file: 'magpie.webp', title: 'The Magpie', artist: 'Claude Monet', year: '1868–69', source: commons('Claude_Monet_-_The_Magpie_-_Google_Art_Project.jpg') },
-  { file: 'ninth-wave.webp', title: 'The Ninth Wave', artist: 'Ivan Aivazovsky', year: '1850', source: commons('Hovhannes_Aivazovsky_-_The_Ninth_Wave_-_Google_Art_Project.jpg') },
+  { file: 'dragon.webp', title: 'Tamatori-hime and the Dragon King (detail)', artist: 'Utagawa Kuniyoshi', year: '1853', source: commons('Ryūgū_Tamatori-hime_no_Zu_(Detail_-_Dragon).jpg') },
+  { file: 'red-fuji.webp', title: 'Fine Wind, Clear Morning (Red Fuji)', artist: 'Katsushika Hokusai', year: 'c. 1831', source: commons('Katsushika_Hokusai_-_Fine_Wind,_Clear_Morning_(Gaifū_kaisei)_-_Google_Art_Project.jpg') },
+  { file: 'whirlpools-awa.webp', title: 'The Whirlpools of Awa', artist: 'Utagawa Hiroshige', year: '1857', source: commons('Awa_no_Naruto-雪月花_阿波鳴門之風景-The_Whirlpools_of_Awa_MET_DP146864.jpg') },
+  { file: 'storm-fuji.webp', title: 'Thunderstorm Beneath the Summit', artist: 'Katsushika Hokusai', year: 'c. 1831', source: commons('Lightnings_below_the_summit.jpg') },
+  { file: 'dragon-king.webp', title: 'Recovering the Jewel from the Dragon King’s Palace', artist: 'Utagawa Kuniyoshi', year: '1853', source: commons('Ryugu_Tamatori_Hime_no_su-Recovering_the_Stolen_Jewel_from_the_Palace_of_the_Dragon_King_MET_DP146820.jpg') },
+  { file: 'kajikazawa.webp', title: 'Kajikazawa in Kai Province', artist: 'Katsushika Hokusai', year: 'c. 1831', source: commons('Kajikazawa_in_Kai_province.jpg') },
+  { file: 'coast-moonlight.webp', title: 'Coastal Landscape in Moonlight', artist: 'Utagawa Hiroshige', year: '1857', source: commons('Hiroshige,_Coastal_landscape_in_moonlight.jpg') },
+  { file: 'dragon-cavern.webp', title: 'Pines and Waves at the Dragon Cavern', artist: 'Katsushika Hokusai', year: 'c. 1833', source: commons('Katsushika_Hokusai_Pines_and_Waves_at_the_Dragon_Cavern.jpeg') },
 ];
 
 export const wallpaperUrl = (w: Wallpaper) => `${import.meta.env.BASE_URL}wallpapers/${w.file}`;
