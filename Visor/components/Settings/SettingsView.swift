@@ -823,6 +823,9 @@ struct Appearance: View {
                 Defaults.Toggle(key: .showTimer) {
                     Text("Show timer button")
                 }
+                Defaults.Toggle(key: .showDownloadProgress) {
+                    Text("Show download progress")
+                }
                 Defaults.Toggle(key: .showMirror) {
                     Text("Enable mirror")
                 }
