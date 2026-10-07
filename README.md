@@ -50,7 +50,7 @@
 <tr>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/music.svg" width="40" align="center"> &nbsp;Now Playing</h3>
-Cover art, title, artist, a timeline you can scrub and the usual controls for whatever is playing. Any app that reports to macOS works, including YouTube Music in Chrome or Safari. Apple Music or Spotify can be the source instead.
+Cover art, title, artist, a timeline you can scrub and the usual controls for whatever is playing. Swipe sideways on the closed notch to change track, and switch between speakers, AirPods and displays from the player. Any app that reports to macOS works, including YouTube Music in Chrome or Safari. Apple Music or Spotify can be the source instead.
 </td>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/live.svg" width="40" align="center"> &nbsp;Live activity</h3>
@@ -84,7 +84,7 @@ Drag files onto the notch to park them, then drag them out wherever they need to
 </td>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/calendar.svg" width="40" align="center"> &nbsp;Calendar &amp; Reminders</h3>
-A week strip with today's events and reminders beside the player, and the current weather if you want it. Choose which calendars show, hide all-day events or finished reminders, and let it scroll to what's next.
+A week strip with today's events and reminders beside the player, and the current weather if you want it. Zoom, Meet, Teams and Webex calls get a Join button, and one appears beside the notch two minutes before the call. Choose which calendars show, hide all-day events or finished reminders, and let it scroll to what's next.
 </td>
 </tr>
 <tr>
@@ -104,7 +104,7 @@ Start a 1 to 60 minute timer from the open notch. The countdown sits beside the 
 </td>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/download.svg" width="40" align="center"> &nbsp;Downloads</h3>
-A ring fills beside the notch while Safari, Chrome or Firefox downloads into your Downloads folder.
+A ring fills beside the notch while Safari, Chrome or Firefox downloads into your Downloads folder. A green or orange dot shows when an app is using your camera or microphone.
 </td>
 </tr>
 <tr>
@@ -141,6 +141,7 @@ What changed in each version: [`CHANGELOG.md`](CHANGELOG.md).
 | Move the pointer away | closes |
 | Scroll down on the notch with two fingers | opens |
 | Scroll up on the open notch | closes |
+| Swipe left or right on the closed notch with two fingers | plays the next or previous track |
 | Drag a file toward the notch | opens the shelf for you to drop it |
 | Click the record icon in the menu bar | shows Settings, Restart and Quit |
 
