@@ -1,0 +1,15 @@
+.safari { display: flex; flex-direction: column; height: 100%; }
+.safari-bar { flex: none; padding: 0 10px 8px; display: flex; flex-direction: column; gap: 6px; }
+.safari-tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.safari-tabs button { flex: 1; min-width: 120px; max-width: 260px; padding: 5px 10px; border: 0; border-radius: 7px; background: rgb(0 0 0 / 0.05); font: inherit; font-size: 12px; color: rgb(0 0 0 / 0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.safari-tabs button[aria-selected='true'] { background: #fff; color: #1d1d1f; box-shadow: 0 1px 2px rgb(0 0 0 / 0.12); }
+.safari-url { display: flex; align-items: center; gap: 8px; align-self: center; width: min(560px, 100%); padding: 5px 12px; border-radius: 8px; background: rgb(0 0 0 / 0.06); font-size: 13px; }
+.safari-url span:nth-child(2) { flex: 1; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.safari-url a { color: #0a84ff; text-decoration: none; }
+.safari-page { flex: 1; min-height: 0; overflow: auto; background: #fff; }
+.safari-page iframe { display: block; width: 100%; height: 100%; border: 0; }
+.safari-start { padding: 40px; text-align: center; }
+.safari-start h2 { margin: 0 0 18px; font-size: 18px; }
+.safari-favs { display: flex; flex-wrap: wrap; justify-content: center; gap: 22px; }
+.safari-favs a, .safari-favs button { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 84px; border: 0; background: none; font: inherit; font-size: 12px; color: #1d1d1f; text-decoration: none; cursor: pointer; }
+.safari-favs span { width: 60px; height: 60px; border-radius: 14px; display: grid; place-items: center; color: #fff; font-size: 26px; font-weight: 700; box-shadow: 0 2px 6px rgb(0 0 0 / 0.15); }
