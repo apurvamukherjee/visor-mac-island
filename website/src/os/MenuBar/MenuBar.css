@@ -1,0 +1,44 @@
+.menubar {
+  position: fixed; inset: 0 0 auto; height: 28px; z-index: 9500;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 8px;
+  font-size: 13px; color: #fff; text-shadow: 0 0 4px rgb(0 0 0 / 0.25);
+  background: rgb(0 0 0 / 0.22);
+  backdrop-filter: blur(30px) saturate(1.5); -webkit-backdrop-filter: blur(30px) saturate(1.5);
+}
+.menubar-left, .menubar-right { display: flex; align-items: center; height: 100%; }
+.menubar-right { gap: 14px; padding-right: 6px; }
+.menubar-menu { position: relative; height: 100%; }
+
+.menubar-item {
+  height: 100%; padding: 0 10px; border: 0; border-radius: 5px; background: none;
+  color: inherit; font: inherit; cursor: default; display: flex; align-items: center;
+}
+.menubar-item.is-bold { font-weight: 700; }
+.menubar-item.is-open, .menubar-item:focus-visible { background: rgb(255 255 255 / 0.22); outline: none; }
+
+.menubar-status { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.menubar-backdrop { position: fixed; inset: 0; z-index: 9400; }
+
+.menubar-dropdown {
+  position: absolute; top: calc(100% + 2px); left: 0; min-width: 230px; margin: 0; padding: 5px;
+  list-style: none; border-radius: 10px; color: #1d1d1f; text-shadow: none;
+  background: rgb(240 240 244 / 0.82);
+  backdrop-filter: blur(40px) saturate(1.8); -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.2), 0 12px 36px rgb(0 0 0 / 0.3);
+}
+.menubar-dropdown button, .menubar-dropdown a {
+  display: flex; justify-content: space-between; gap: 24px; width: 100%; padding: 4px 10px;
+  border: 0; border-radius: 5px; background: none; font: inherit; color: inherit;
+  text-align: left; text-decoration: none; cursor: default;
+}
+.menubar-dropdown button:not(:disabled):hover, .menubar-dropdown a:hover,
+.menubar-dropdown button:focus-visible, .menubar-dropdown a:focus-visible { background: #0a84ff; color: #fff; outline: none; }
+.menubar-dropdown button:disabled { opacity: 0.35; }
+.menubar-shortcut { opacity: 0.55; }
+.menubar-sep { height: 1px; margin: 5px 10px; background: rgb(0 0 0 / 0.12); }
+
+@media (max-width: 768px) {
+  .menubar-menu:nth-child(n + 3) { display: none; }
+  .menubar-right .menubar-status:not(time) { display: none; }
+}
