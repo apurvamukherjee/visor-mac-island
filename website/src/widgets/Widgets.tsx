@@ -66,7 +66,7 @@ function WeatherWidget() {
   );
 }
 
-const CITIES = [
+export const CITIES = [
   { name: 'Kolkata', tz: 'Asia/Kolkata' },
   { name: 'Tokyo', tz: 'Asia/Tokyo' },
   { name: 'London', tz: 'Europe/London' },
@@ -91,14 +91,14 @@ function offsetLabel(now: Date, tz: string) {
   return { when, diff: `${sign}${Math.floor(abs / 60)}${abs % 60 ? `:${String(abs % 60).padStart(2, '0')}` : ''}` };
 }
 
-function Clock({ tz, name, now }: { tz: string; name: string; now: Date }) {
+export function Clock({ tz, name, now, size = 62 }: { tz: string; name: string; now: Date; size?: number }) {
   const { h, m, s } = zoned(now, tz);
   const night = h < 6 || h >= 18;
   const { when, diff } = offsetLabel(now, tz);
   const hand = (deg: number, len: number, w: number, color: string) => <line x1="50" y1="50" x2="50" y2={50 - len} stroke={color} strokeWidth={w} strokeLinecap="round" transform={`rotate(${deg} 50 50)`} />;
   return (
     <figure className="widget-clock">
-      <svg viewBox="0 0 100 100" width="62" height="62" aria-label={`${name} ${h}:${String(m).padStart(2, '0')}`}>
+      <svg viewBox="0 0 100 100" width={size} height={size} aria-label={`${name} ${h}:${String(m).padStart(2, '0')}`}>
         <circle cx="50" cy="50" r="49" fill={night ? '#1c1c1e' : '#fff'} />
         {Array.from({ length: 12 }, (_, i) => {
           const a = ((i + 1) * Math.PI) / 6;

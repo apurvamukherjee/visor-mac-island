@@ -1,0 +1,12 @@
+.clock-app { height: 100%; display: flex; flex-direction: column; color: #fff; }
+.clock-tabs { align-self: center; display: flex; padding: 2px; border-radius: 8px; background: rgb(255 255 255 / 0.1); }
+.clock-tabs button { padding: 4px 16px; border: 0; border-radius: 6px; background: none; color: inherit; font: inherit; font-size: 13px; cursor: pointer; }
+.clock-tabs button[aria-selected='true'] { background: rgb(255 255 255 / 0.2); }
+.clock-world { flex: 1; display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 28px; padding: 20px; }
+.clock-world .widget-clock figcaption { font-size: 14px; }
+.clock-timer { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 20px; text-align: center; }
+.clock-timer-left { font-size: 72px; font-weight: 200; font-variant-numeric: tabular-nums; }
+.clock-presets { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.clock-presets button, .clock-cancel { width: 72px; height: 72px; border: 0; border-radius: 50%; background: rgb(255 159 10 / 0.25); color: #ff9f0a; font: inherit; font-weight: 600; cursor: pointer; }
+.clock-cancel { background: rgb(255 255 255 / 0.15); color: #fff; }
+.clock-timer p { margin: 0; font-size: 12px; opacity: 0.6; }
