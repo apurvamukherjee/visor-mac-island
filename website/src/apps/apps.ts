@@ -1,12 +1,12 @@
-import finder from '../icons/finder.svg';
-import messages from '../icons/messages.svg';
-import notes from '../icons/notes.svg';
-import quicktime from '../icons/quicktime.svg';
-import settings from '../icons/settings.svg';
-import trash from '../icons/trash.svg';
-import downloads from '../icons/downloads.svg';
-import github from '../icons/github.svg';
-import terminal from '../icons/terminal.svg';
+import downloads from '../icons/apps/downloads.webp';
+import finder from '../icons/apps/finder.webp';
+import github from '../icons/apps/github.svg';
+import messages from '../icons/apps/messages.webp';
+import notes from '../icons/apps/notes.webp';
+import quicktime from '../icons/apps/quicktime.webp';
+import settings from '../icons/apps/settings.webp';
+import terminal from '../icons/apps/terminal.webp';
+import trash from '../icons/apps/trash.webp';
 
 const visor = `${import.meta.env.BASE_URL}icon.png`;
 
