@@ -104,3 +104,8 @@
 .calendar-empty span { color: rgb(255 255 255 / 0.55); font-size: 12px; }
 
 @media (max-width: 680px) { .calendar { display: none; } }
+
+.closed-hud { gap: 12px; }
+.closed-hud-icon { width: 22px; text-align: center; font-size: 14px; }
+.closed-hud-bar { width: 110px; height: 6px; border-radius: 3px; background: rgb(255 255 255 / 0.2); overflow: hidden; }
+.closed-hud-bar i { display: block; height: 100%; background: var(--accent); transition: width 0.08s linear; }
