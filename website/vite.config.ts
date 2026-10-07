@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { readRelease } from './release';
+import { readRelease } from './release.ts';
 
 export default defineConfig({
   base: '/visor-mac-island/',
