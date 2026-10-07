@@ -17,6 +17,7 @@ export interface AppMeta {
   icon: string;
   w: number;
   h: number;
+  dark?: boolean;
 }
 
 export const apps: Record<AppId, AppMeta> = {
@@ -27,7 +28,7 @@ export const apps: Record<AppId, AppMeta> = {
   notes: { name: 'Notes', icon: notes, w: 680, h: 480 },
   quicktime: { name: 'QuickTime Player', icon: quicktime, w: 640, h: 420 },
   downloads: { name: 'Downloads', icon: downloads, w: 460, h: 440 },
-  terminal: { name: 'Terminal', icon: terminal, w: 620, h: 380 },
+  terminal: { name: 'Terminal', icon: terminal, w: 620, h: 380, dark: true },
   settings: { name: 'System Settings', icon: settings, w: 700, h: 480 },
   trash: { name: 'Trash', icon: trash, w: 480, h: 300 },
 };

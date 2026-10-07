@@ -7,7 +7,6 @@ interface Props {
   id: AppId;
   children: ReactNode;
   title?: string;
-  dark?: boolean;
 }
 
 function track(e: PointerEvent<HTMLElement>, onMove: (dx: number, dy: number) => void) {
@@ -24,7 +23,7 @@ function track(e: PointerEvent<HTMLElement>, onMove: (dx: number, dy: number) =>
   el.addEventListener('pointerup', up);
 }
 
-export function Window({ id, children, title, dark }: Props) {
+export function Window({ id, children, title }: Props) {
   const win = useWindows((s) => s.wins[id]);
   const focused = useWindows((s) => s.focused === id);
   const { close, focus, minimize, toggleZoom, setFrame } = useWindows.getState();
@@ -58,7 +57,7 @@ export function Window({ id, children, title, dark }: Props) {
     <section
       role="dialog"
       aria-label={name}
-      className={`window${focused ? ' is-focused' : ''}${win.minimized ? ' is-minimized' : ''}${dark ? ' is-dark' : ''}`}
+      className={`window${focused ? ' is-focused' : ''}${win.minimized ? ' is-minimized' : ''}${apps[id].dark ? ' is-dark' : ''}`}
       style={{ left: frame.x, top: frame.y, width: frame.w, height: frame.h, zIndex: win.z }}
       onPointerDown={() => focus(id)}
       onKeyDown={(e) => e.key === 'Escape' && close(id)}

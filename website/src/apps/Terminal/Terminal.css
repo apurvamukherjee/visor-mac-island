@@ -1,0 +1,5 @@
+.terminal { min-height: 100%; padding: 6px 12px 14px; font: 12.5px/1.5 ui-monospace, 'SF Mono', Menlo, monospace; color: #e5e5e7; cursor: text; }
+.terminal p, .terminal pre { margin: 0; white-space: pre-wrap; font: inherit; }
+.terminal-prompt { color: #34d399; }
+.terminal-line { display: flex; gap: 0.6em; }
+.terminal-line input { flex: 1; min-width: 0; padding: 0; border: 0; outline: 0; background: none; color: inherit; font: inherit; caret-color: #e5e5e7; }
