@@ -22,7 +22,7 @@ class VisorViewModel: NSObject, ObservableObject {
     @Published var hideOnClosed: Bool = true
 
     @Published var isHoveringCalendar: Bool = false
-    @Published var isBatteryPopoverActive: Bool = false
+    @Published var isPopoverActive: Bool = false
 
     @Published var screenUUID: String?
 
@@ -172,7 +172,7 @@ class VisorViewModel: NSObject, ObservableObject {
         self.notchSize = getClosedNotchSize(screenUUID: self.screenUUID)
         self.closedNotchSize = self.notchSize
         self.notchState = .closed
-        self.isBatteryPopoverActive = false
+        self.isPopoverActive = false
         self.coordinator.sneakPeek.show = false
 
         // Set the current view to shelf if it contains files and the user enables openShelfByDefault

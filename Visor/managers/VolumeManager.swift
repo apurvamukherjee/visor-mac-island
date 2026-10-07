@@ -62,23 +62,7 @@ final class VolumeManager: NSObject, ObservableObject {
 
     // MARK: - CoreAudio Helpers
     private func systemOutputDeviceID() -> AudioObjectID {
-        var defaultDeviceID = kAudioObjectUnknown
-        var propertyAddress = AudioObjectPropertyAddress(
-            mSelector: kAudioHardwarePropertyDefaultOutputDevice,
-            mScope: kAudioObjectPropertyScopeGlobal,
-            mElement: kAudioObjectPropertyElementMain
-        )
-        var dataSize = UInt32(MemoryLayout<AudioObjectID>.size)
-        let status = AudioObjectGetPropertyData(
-            AudioObjectID(kAudioObjectSystemObject),
-            &propertyAddress,
-            0,
-            nil,
-            &dataSize,
-            &defaultDeviceID
-        )
-        if status != noErr { return kAudioObjectUnknown }
-        return defaultDeviceID
+        AudioOutputs.currentID()
     }
 
     private func fetchCurrentVolume() {

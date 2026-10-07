@@ -1,5 +1,6 @@
 
 
+import CoreAudio
 import Defaults
 import SwiftUI
 
@@ -289,6 +290,8 @@ struct MusicControlsView: View {
             HoverButton(icon: "goforward.15", scale: .medium) {
                 MusicManager.shared.skip(seconds: 15)
             }
+        case .output:
+            AudioOutputButton()
         case .none:
             Color.clear.frame(height: 1)
         }
@@ -312,6 +315,60 @@ struct FavoriteControlButton: View {
 
     private var iconColor: Color {
         musicManager.isFavoriteTrack ? .red : .primary
+    }
+}
+
+// MARK: - Audio Output
+
+/// Shows where sound is going and switches it from a popover. While the
+/// popover is up the notch stays open, the same way the battery menu does.
+struct AudioOutputButton: View {
+    @EnvironmentObject private var vm: VisorViewModel
+    @State private var devices: [AudioOutputDevice] = []
+    @State private var currentID = AudioOutputs.currentID()
+    @State private var showingPicker = false
+
+    var body: some View {
+        HoverButton(icon: devices.first { $0.id == currentID }?.symbol ?? "airplayaudio", scale: .medium) {
+            devices = AudioOutputs.list()
+            currentID = AudioOutputs.currentID()
+            showingPicker.toggle()
+        }
+        .help(MusicControlButton.output.label)
+        .popover(isPresented: $showingPicker, arrowEdge: .bottom) {
+            VStack(alignment: .leading, spacing: 2) {
+                ForEach(devices) { device in
+                    Button {
+                        AudioOutputs.select(device)
+                        currentID = AudioOutputs.currentID()
+                        showingPicker = false
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: device.symbol)
+                                .frame(width: 18)
+                            Text(device.name)
+                                .lineLimit(1)
+                            Spacer(minLength: 12)
+                            if device.id == currentID {
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(Color.effectiveAccent)
+                            }
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 5)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+            }
+            .padding(6)
+            .frame(minWidth: 220)
+        }
+        .onAppear { devices = AudioOutputs.list() }
+        .onChange(of: showingPicker) { _, showing in
+            vm.isPopoverActive = showing
+        }
+        .onDisappear { vm.isPopoverActive = false }
     }
 }
 

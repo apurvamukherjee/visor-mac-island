@@ -222,7 +222,7 @@ struct VisorBatteryView: View {
             }
         }
         .onChange(of: showPopupMenu) {
-            vm.isBatteryPopoverActive = showPopupMenu
+            vm.isPopoverActive = showPopupMenu
         }
         .onDisappear {
             hideTask?.cancel()

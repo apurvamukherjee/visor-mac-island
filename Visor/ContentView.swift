@@ -243,7 +243,7 @@ struct ContentView: View {
                             }
                     }
                     .onReceive(NotificationCenter.default.publisher(for: .sharingDidFinish)) { _ in
-                        if vm.notchState == .open && !isHovering && !vm.isBatteryPopoverActive {
+                        if vm.notchState == .open && !isHovering && !vm.isPopoverActive {
                             closeSoonIfIdle()
                         }
                     }
@@ -254,8 +254,8 @@ struct ContentView: View {
                             }
                         }
                     }
-                    .onChange(of: vm.isBatteryPopoverActive) {
-                        if !vm.isBatteryPopoverActive && !isHovering && vm.notchState == .open && !SharingStateManager.shared.preventNotchClose {
+                    .onChange(of: vm.isPopoverActive) {
+                        if !vm.isPopoverActive && !isHovering && vm.notchState == .open && !SharingStateManager.shared.preventNotchClose {
                             closeSoonIfIdle()
                         }
                     }
@@ -622,7 +622,7 @@ struct ContentView: View {
                     isPeeking = false
                 }
                 
-                if vm.notchState == .open && !vm.isBatteryPopoverActive && !SharingStateManager.shared.preventNotchClose {
+                if vm.notchState == .open && !vm.isPopoverActive && !SharingStateManager.shared.preventNotchClose {
                     vm.close()
                 }
             }
@@ -638,7 +638,7 @@ struct ContentView: View {
             guard !Task.isCancelled,
                   vm.notchState == .open,
                   !isHovering,
-                  !vm.isBatteryPopoverActive,
+                  !vm.isPopoverActive,
                   !SharingStateManager.shared.preventNotchClose else { return }
             vm.close()
         }
