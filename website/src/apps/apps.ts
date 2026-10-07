@@ -18,7 +18,6 @@ import preview from '../icons/apps/preview.webp';
 import quicktime from '../icons/apps/quicktime.webp';
 import safari from '../icons/apps/safari.webp';
 import settings from '../icons/apps/settings.webp';
-import spotify from '../icons/apps/spotify.svg';
 import terminal from '../icons/apps/terminal.webp';
 import trash from '../icons/apps/trash.webp';
 import weather from '../icons/apps/weather.webp';
@@ -55,7 +54,6 @@ const meta = {
   downloads: { name: 'Downloads', icon: downloads, w: 460, h: 470, category: 'Visor' },
   claude: { name: 'Claude', icon: claude, w: 520, h: 400, category: 'Productivity' },
   settings: { name: 'System Settings', icon: settings, w: 720, h: 500, category: 'Utilities' },
-  spotify: { name: 'Spotify', icon: spotify, w: 620, h: 420, category: 'Entertainment', dark: true },
   xcode: { name: 'Xcode', icon: xcode, w: 680, h: 460, category: 'Developer' },
   terminal: { name: 'Terminal', icon: terminal, w: 640, h: 400, category: 'Developer', dark: true },
   whatsapp: { name: 'WhatsApp', icon: whatsapp, w: 640, h: 460, category: 'Social' },
@@ -77,5 +75,5 @@ export const apps: Record<AppId, AppMeta> = meta;
 
 export const dockOrder: AppId[] = [
   'finder', 'launchpad', 'messages', 'facetime', 'visor', 'github', 'music', 'maps', 'appstore', 'notes', 'safari',
-  'downloads', 'claude', 'settings', 'spotify', 'xcode', 'terminal', 'whatsapp', 'x', 'chrome', 'zoom', 'meet',
+  'downloads', 'claude', 'settings', 'xcode', 'terminal', 'whatsapp', 'x', 'chrome', 'zoom', 'meet',
 ];

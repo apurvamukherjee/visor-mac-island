@@ -33,7 +33,6 @@ const glyph = (d, color, size = 54) => {
 const brands = {
   github: { slug: 'github', bg: '#0d1117', color: '#fff' },
   x: { slug: 'x', bg: '#000', color: '#fff', size: 46 },
-  spotify: { slug: 'spotify', bg: '#000', color: '#1ed760', size: 62 },
   zoom: { slug: 'zoom', bg: '#0b5cff', color: '#fff', size: 62 },
   claude: { slug: 'claude', bg: '#f0eee6', color: '#d97757', size: 58 },
 };
