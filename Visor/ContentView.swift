@@ -29,6 +29,10 @@ struct ContentView: View {
 
     @Default(.showNotHumanFace) var showNotHumanFace
     @Default(.liquidGlass) var liquidGlass
+    @Default(.hoverPeek) var hoverPeek
+    @State private var isPeeking = false
+    /// How long a peek stays before hovering on opens the notch fully.
+    private static let peekHold: Duration = .seconds(1)
 
     // Shared interactive spring for movement/resizing to avoid conflicting animations
     private let animationSpring = Animation.interactiveSpring(response: 0.38, dampingFraction: 0.8, blendDuration: 0)
@@ -46,6 +50,46 @@ struct ContentView: View {
                 ? cornerRadiusInsets.opened.bottom
                 : cornerRadiusInsets.closed.bottom
         )
+    }
+
+    // Visor: the one line a hover peek shows, most time-sensitive first.
+    private enum PeekLine {
+        case timer(ClosedRange<Date>)
+        case event(EventModel)
+        case music
+    }
+
+    private var peekLine: PeekLine? {
+        if let start = timer.startDate, let end = timer.endDate { return .timer(start...end) }
+        let now = Date()
+        if let next = CalendarManager.shared.events
+            .filter({ !$0.isAllDay && !$0.type.isReminder && $0.start > now && Calendar.current.isDateInToday($0.start) })
+            .min(by: { $0.start < $1.start }) {
+            return .event(next)
+        }
+        if musicManager.isPlaying { return .music }
+        return nil
+    }
+
+    @ViewBuilder
+    private func PeekLineView(_ line: PeekLine) -> some View {
+        HStack(spacing: 6) {
+            switch line {
+            case .timer(let range):
+                Image(systemName: "timer")
+                Text(timerInterval: range, countsDown: true).monospacedDigit()
+            case .event(let event):
+                Image(systemName: "calendar")
+                Text("\(event.start.formatted(date: .omitted, time: .shortened))  \(event.title)")
+            case .music:
+                Image(systemName: "music.note")
+                Text("\(musicManager.songTitle) – \(musicManager.artistName)")
+            }
+        }
+        .font(.subheadline)
+        .foregroundStyle(.gray)
+        .lineLimit(1)
+        .frame(maxWidth: computedChinWidth - 24)
     }
 
     // Visor: glass only while open. Closed, the island has to read as part of
@@ -361,9 +405,15 @@ struct ContentView: View {
                               }
                           }
                       }
+
+                      if isPeeking && vm.notchState == .closed, let line = peekLine {
+                          PeekLineView(line)
+                              .padding(.bottom, 10)
+                              .transition(.opacity.combined(with: .move(edge: .top)))
+                      }
                   }
               }
-              .conditionalModifier((coordinator.sneakPeek.show && (coordinator.sneakPeek.type == .music) && vm.notchState == .closed && !vm.hideOnClosed && Defaults[.sneakPeekStyles] == .standard) || (coordinator.sneakPeek.show && (coordinator.sneakPeek.type != .music) && (vm.notchState == .closed))) { view in
+              .conditionalModifier((coordinator.sneakPeek.show && (coordinator.sneakPeek.type == .music) && vm.notchState == .closed && !vm.hideOnClosed && Defaults[.sneakPeekStyles] == .standard) || (coordinator.sneakPeek.show && (coordinator.sneakPeek.type != .music) && (vm.notchState == .closed)) || (isPeeking && vm.notchState == .closed)) { view in
                   view
                       .fixedSize()
               }
@@ -522,6 +572,7 @@ struct ContentView: View {
 
     private func doOpen() {
         withAnimation(animationSpring) {
+            isPeeking = false
             vm.open()
         }
     }
@@ -551,7 +602,12 @@ struct ContentView: View {
                       vm.notchState == .closed,
                       isHovering,
                       !coordinator.sneakPeek.show else { return }
-                
+
+                if hoverPeek, peekLine != nil {
+                    withAnimation(animationSpring) { isPeeking = true }
+                    try? await Task.sleep(for: Self.peekHold)
+                    guard !Task.isCancelled, vm.notchState == .closed, isHovering else { return }
+                }
                 doOpen()
             }
         } else {
@@ -561,6 +617,7 @@ struct ContentView: View {
                 
                 withAnimation(animationSpring) {
                     isHovering = false
+                    isPeeking = false
                 }
                 
                 if vm.notchState == .open && !vm.isBatteryPopoverActive && !SharingStateManager.shared.preventNotchClose {

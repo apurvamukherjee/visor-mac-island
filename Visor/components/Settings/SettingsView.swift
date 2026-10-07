@@ -42,7 +42,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
     // someone would type, not every label.
     var keywords: String {
         switch self {
-        case .general: "menu bar icon launch login displays screen gestures haptic hover delay notch height sizing scroll"
+        case .general: "menu bar icon launch login displays screen gestures haptic hover peek delay notch height sizing scroll"
         case .appearance: "tabs mirror camera face timer download progress settings icon vinyl slider color tint blur spectrogram glass"
         case .media: "music source spotify apple lyrics sneak peek full screen controls buttons inactivity"
         case .calendar: "events reminders all-day weather"
@@ -285,6 +285,10 @@ struct GeneralSettings: View {
             }
             Toggle("Remember last tab", isOn: $coordinator.openLastTabByDefault)
             if openNotchOnHover {
+                Defaults.Toggle(key: .hoverPeek) {
+                    Text("Peek before opening")
+                    Text("Hovering first shows the timer, your next event or the song in a line under the notch. Click, or keep hovering, to open.")
+                }
                 Slider(value: $minimumHoverDuration, in: 0...1, step: 0.1) {
                     HStack {
                         Text("Hover delay")
