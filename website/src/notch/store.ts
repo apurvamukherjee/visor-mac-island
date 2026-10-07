@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { trackAt } from './tracks';
+
 
 export type Tab = 'home' | 'shelf';
 
@@ -21,7 +21,8 @@ interface Notch {
   togglePlay: () => void;
   skip: (by: 1 | -1) => void;
   seek: (position: number) => void;
-  tick: (seconds: number) => void;
+  /** Set by the audio element as it plays; seek() is for the user moving the scrubber. */
+  setPosition: (position: number) => void;
   flash: (t: Transient, ms?: number) => void;
 }
 
@@ -30,9 +31,9 @@ let clearTransient: ReturnType<typeof setTimeout> | undefined;
 export const useNotch = create<Notch>()((set, get) => ({
   open: false,
   tab: 'home',
-  playing: true,
+  playing: false,
   track: 0,
-  position: 42,
+  position: 0,
   transient: null,
   setOpen: (open) => set({ open }),
   setTab: (tab) => set({ tab, open: true }),
@@ -44,12 +45,7 @@ export const useNotch = create<Notch>()((set, get) => ({
     if (!get().open) get().flash({ kind: 'peek' }, 2500);
   },
   seek: (position) => set({ position }),
-  tick: (seconds) => {
-    const { playing, position, track } = get();
-    if (!playing) return;
-    if (position + seconds >= trackAt(track).duration) get().skip(1);
-    else set({ position: position + seconds });
-  },
+  setPosition: (position) => set({ position }),
   flash: (transient, ms = 1800) => {
     clearTimeout(clearTransient);
     set({ transient });

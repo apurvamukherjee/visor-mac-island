@@ -1,15 +1,15 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { useBattery } from '../store/battery';
 import { Closed, closedWidth } from './Closed';
 import { Home } from './Home';
 import { useNotch, type Tab } from './store';
+import './audio';
 import './Island.css';
 
 const OPEN = { w: 640, h: 196 };
 const CLOSED_H = 32;
 // Same feel as Visor's default: open on hover, close shortly after the pointer leaves.
 const CLOSE_DELAY_MS = 350;
-const TICK_S = 0.25;
 
 const tabs: { id: Tab; label: string; path: string }[] = [
   { id: 'home', label: 'Home', path: 'M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z' },
@@ -44,11 +44,6 @@ export function Island() {
   const tab = useNotch((s) => s.tab);
   const setOpen = useNotch((s) => s.setOpen);
   const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-
-  useEffect(() => {
-    const id = setInterval(() => useNotch.getState().tick(TICK_S), TICK_S * 1000);
-    return () => clearInterval(id);
-  }, []);
 
   const enter = () => {
     clearTimeout(closeTimer.current);

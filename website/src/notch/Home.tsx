@@ -1,7 +1,7 @@
 import { Calendar } from './Calendar';
 import { useNotch } from './store';
 import { Cover } from './Cover';
-import { formatTime, trackAt } from './tracks';
+import { PREVIEW_S, formatTime, trackAt } from './tracks';
 
 const icon = {
   prev: <path d="M11 6v12L2 12zM21 6v12l-9-6z" />,
@@ -23,7 +23,7 @@ export function Player() {
   const track = trackAt(index);
   return (
     <div className="player">
-      <Cover track={track} size={118} />
+      <Cover track={track} size={118} badge />
       <div className="player-main">
         <div className="player-title">{track.title}</div>
         <div className="player-artist">{track.artist}</div>
@@ -31,13 +31,13 @@ export function Player() {
           className="player-scrub"
           type="range"
           min={0}
-          max={track.duration}
+          max={PREVIEW_S}
           value={position}
           aria-label="Track position"
-          style={{ '--p': `${(position / track.duration) * 100}%` } as React.CSSProperties}
+          style={{ '--p': `${(position / PREVIEW_S) * 100}%` } as React.CSSProperties}
           onChange={(e) => seek(Number(e.target.value))}
         />
-        <div className="player-times"><span>{formatTime(position)}</span><span>{formatTime(track.duration)}</span></div>
+        <div className="player-times"><span>{formatTime(position)}</span><span>Preview · {formatTime(PREVIEW_S)}</span></div>
         <div className="player-controls">
           <Control label="Previous track" path={icon.prev} onClick={() => skip(-1)} />
           <Control label={playing ? 'Pause' : 'Play'} path={playing ? icon.pause : icon.play} big onClick={togglePlay} />

@@ -11,7 +11,7 @@ export function Closed() {
   const playing = useNotch((s) => s.playing);
   return (
     <div className="closed">
-      <Cover track={track} size={22} />
+      <Cover track={track} size={22} linked={false} />
       <Visualizer playing={playing} />
     </div>
   );
