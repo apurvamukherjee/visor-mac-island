@@ -44,12 +44,13 @@ button.cc-glass:active { transform: scale(0.96); }
 
 .cc-slider { border-radius: 30px; padding: 12px 18px; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
 .cc-wide { grid-column: span 4; min-height: calc(var(--u) + 14px); }
-.cc-keyboard { grid-column: span 2; }
+.cc-keyboard { grid-column: span 2; height: var(--u); padding: 9px 16px; gap: 6px; }
+.cc-keyboard b { font-size: 13px; }
 .cc-slider b { font-size: 14px; }
 .cc-slider-row { display: flex; align-items: center; gap: 10px; }
 .cc-slider-end { display: grid; flex: none; }
 .cc-slider input {
-  --v: 50%; flex: 1; appearance: none; height: 6px; margin: 0; border-radius: 3px; cursor: pointer;
+  --v: 50%; flex: 1; min-width: 0; appearance: none; height: 6px; margin: 0; border-radius: 3px; cursor: pointer;
   background: linear-gradient(to right, #fff var(--v), rgb(255 255 255 / 0.25) var(--v));
 }
 .cc-slider input::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; border-radius: 50%; background: transparent; }

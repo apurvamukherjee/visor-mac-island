@@ -6,7 +6,14 @@ const svg = (d: React.ReactNode, size = 22) => (
 );
 
 export const icons = {
-  wifi: svg(<><path d="M2.5 9a14 14 0 0 1 19 0" /><path d="M5.8 12.4a9.3 9.3 0 0 1 12.4 0" /><path d="M9.1 15.7a4.6 4.6 0 0 1 5.8 0" /><circle cx="12" cy="19" r="1.2" fill="currentColor" /></>),
+  // Filled fan like SF Symbols' wifi: three wedges narrowing to a dot.
+  wifi: (
+    <svg viewBox="0 0 24 18" width="22" height="17" fill="currentColor" aria-hidden>
+      <path d="M12 17.6l3.4-4.1a5.3 5.3 0 0 0-6.8 0z" />
+      <path d="M12 7.6a10.4 10.4 0 0 1 6.9 2.6l-1.8 2.2A7.6 7.6 0 0 0 12 10.5a7.6 7.6 0 0 0-5.1 1.9L5.1 10.2A10.4 10.4 0 0 1 12 7.6z" />
+      <path d="M12 2.2c4.1 0 7.9 1.5 10.8 4l-1.8 2.2A14 14 0 0 0 12 5.1 14 14 0 0 0 3 8.4L1.2 6.2c2.9-2.5 6.7-4 10.8-4z" />
+    </svg>
+  ),
   bluetooth: svg(<path d="M7 7l10 10-5 4V3l5 4L7 17" />),
   airdrop: svg(<><circle cx="12" cy="12" r="2" /><path d="M7.8 16.2a6 6 0 1 1 8.4 0" /><path d="M5 19a10 10 0 1 1 14 0" /></>),
   airdropOff: svg(<><circle cx="12" cy="12" r="2" /><path d="M7.8 16.2a6 6 0 1 1 8.4 0" /><path d="M5 19a10 10 0 1 1 14 0" /><path d="M4 4l16 16" /></>),
