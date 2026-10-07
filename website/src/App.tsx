@@ -1,3 +1,9 @@
+import { Wallpaper } from './os/Wallpaper/Wallpaper';
+
 export function App() {
-  return <main className="desktop">Visor {__RELEASE__.version}</main>;
+  return (
+    <main className="desktop">
+      <Wallpaper />
+    </main>
+  );
 }
