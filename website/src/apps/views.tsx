@@ -18,6 +18,7 @@ import { GitHub, Safari } from './Safari/Safari';
 import { WhatsApp } from './Share/WhatsApp';
 import { X } from './Share/X';
 import { Terminal } from './Terminal/Terminal';
+import { Trash } from './Trash/Trash';
 import { Visor } from './Visor/Visor';
 
 export const views: Partial<Record<AppId, ComponentType>> = {
@@ -41,4 +42,5 @@ export const views: Partial<Record<AppId, ComponentType>> = {
   calendar: Calendar,
   photos: Photos,
   finder: Finder,
+  trash: Trash,
 };
