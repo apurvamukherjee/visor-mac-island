@@ -1,0 +1,7 @@
+.weather-app { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 20px; color: #fff; text-align: center; background: linear-gradient(180deg, #2f6eb5, #6ea6dc); }
+.weather-pin { font-size: 12px; opacity: 0.8; }
+.weather-app h1 { margin: 4px 0 0; font-size: 30px; font-weight: 500; }
+.weather-temp { font-size: 96px; font-weight: 200; line-height: 1; }
+.weather-app p { margin: 2px 0; font-size: 16px; }
+.weather-cond { font-weight: 600; }
+.weather-app small { margin-top: 20px; font-size: 11px; opacity: 0.75; }
