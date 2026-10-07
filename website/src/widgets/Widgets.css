@@ -69,6 +69,12 @@ button.widget, a.widget { cursor: pointer; }
 .widget-sticky-pin { position: absolute; top: -12px; left: 50%; font-size: 20px; }
 .widget-sticky:hover { transform: rotate(-1deg) scale(1.02); }
 
+.widget-lock { display: flex; align-items: center; gap: 12px; padding: 10px 14px; }
+.widget-lock span { flex: 1; }
+.widget-lock b { font-size: 13px; }
+.widget-lock kbd { padding: 2px 7px; border-radius: 6px; background: rgb(255 255 255 / 0.14); font: inherit; font-size: 11px; }
+.widget-lock:hover { background: rgb(40 40 44 / 0.65); }
+
 @media (max-width: 1180px) { .widgets-left { display: none; } }
 @media (max-width: 768px) {
   .widgets-right { left: 8px; right: 8px; width: auto; grid-template-columns: 1fr; }
