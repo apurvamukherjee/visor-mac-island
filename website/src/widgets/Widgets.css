@@ -1,0 +1,76 @@
+/* macOS desktop widgets: frosted dark glass, 20px corners, small tiles 158px and wide 330px. */
+.widgets { position: fixed; top: 40px; z-index: 1; display: grid; gap: 14px; align-content: start; }
+.widgets-left { left: 14px; width: 300px; grid-template-columns: minmax(0, 1fr); }
+.widgets-right { right: 14px; width: 330px; grid-template-columns: 158px 158px; }
+
+.widget {
+  position: relative; display: block; border: 0; border-radius: 20px; padding: 14px; color: #fff; font: inherit; text-align: left; text-decoration: none;
+  background: rgb(28 28 30 / 0.55); backdrop-filter: blur(24px) saturate(1.6); -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.18), 0 8px 24px rgb(0 0 0 / 0.18);
+}
+button.widget, a.widget { cursor: pointer; }
+.widget:focus-visible { outline: 2px solid #0a84ff; outline-offset: 2px; }
+.widget small { display: block; font-size: 11px; color: rgb(255 255 255 / 0.6); }
+.widget-small { height: 152px; display: flex; flex-direction: column; }
+.widget-wide, .widget-download { grid-column: 1 / -1; }
+
+.widget-download-head { display: flex; gap: 12px; align-items: center; }
+.widget-download-head b { font-size: 17px; }
+.widget-download-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px; margin: 14px 0 10px; padding: 9px; border-radius: 10px;
+  background: linear-gradient(#34c759, #28a745); color: #fff; font-weight: 700; text-decoration: none; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.25);
+}
+.widget-download-btn:hover { filter: brightness(1.08); }
+.widget-download-meta { display: flex; justify-content: space-between; font-size: 11px; color: rgb(255 255 255 / 0.6); }
+.widget-download-meta a { color: rgb(255 255 255 / 0.8); text-decoration: none; }
+.widget-download-more { width: 100%; margin-top: 12px; padding-top: 10px; border: 0; border-top: 1px solid rgb(255 255 255 / 0.12); background: none; color: #fff; font: inherit; font-size: 13px; cursor: pointer; }
+
+.widget-calendar-day { font-size: 12px; font-weight: 700; color: #ff453a; }
+.widget-calendar-date { font-size: 42px; font-weight: 300; line-height: 1.05; }
+.widget-calendar-next { margin-top: auto; font-size: 10px; font-weight: 700; color: rgb(255 255 255 / 0.55); }
+.widget-calendar span:last-child { font-size: 12px; }
+
+.widget-weather { background: linear-gradient(180deg, rgb(48 102 170 / 0.75), rgb(84 140 200 / 0.6)); }
+.widget-weather b { font-size: 15px; }
+.widget-weather-temp { font-size: 42px; font-weight: 300; line-height: 1.05; }
+.widget-weather span:not(.widget-weather-temp) { font-size: 12px; }
+.widget-weather small { color: #fff; }
+
+.widget-clocks { display: flex; justify-content: space-between; padding: 14px 12px; }
+.widget-clock { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.widget-clock figcaption { text-align: center; font-size: 12px; }
+.widget-clock small { font-size: 10px; }
+
+.widget-battery { align-items: center; justify-content: center; gap: 4px; }
+.widget-battery b { font-size: 15px; }
+.widget-music { gap: 2px; }
+.widget-music .cover > img:first-child { border-radius: 10px; }
+.widget-music b { margin-top: 8px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.widget-music button { position: absolute; right: 12px; top: 14px; width: 30px; height: 30px; border: 0; border-radius: 50%; background: rgb(255 255 255 / 0.18); color: #fff; font-size: 11px; cursor: pointer; }
+
+.widget-portfolio { padding: 8px; }
+.widget-portfolio-frame { position: relative; width: 100%; height: 170px; overflow: hidden; border-radius: 13px; background: #fff; }
+/* Render the site at desktop width and scale it down, so the preview looks like the real page. */
+.widget-portfolio-frame iframe { width: 1200px; height: 680px; border: 0; transform: scale(0.237); transform-origin: 0 0; pointer-events: none; }
+.widget-portfolio-hit { position: absolute; inset: 0; border: 0; background: none; cursor: pointer; }
+.widget-portfolio-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 6px 4px; font-size: 13px; }
+.widget-portfolio-foot a { color: #64d2ff; text-decoration: none; font-size: 12px; white-space: nowrap; }
+
+.widget-star { display: flex; align-items: center; gap: 12px; }
+.widget-star span:nth-child(2) { flex: 1; min-width: 0; font-size: 13px; }
+.widget-star-btn { padding: 5px 10px; border-radius: 8px; background: rgb(255 255 255 / 0.14); font-size: 12px; font-weight: 600; }
+
+.widget-sticky {
+  position: relative; display: flex; flex-direction: column; gap: 2px; padding: 16px 18px; margin-top: 4px;
+  background: #fff3a0; color: #3a3420; text-decoration: none; transform: rotate(-2deg);
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.25); border-radius: 3px; font-size: 15px;
+}
+.widget-sticky span:last-child { font-weight: 700; color: #6b5a00; }
+.widget-sticky-pin { position: absolute; top: -12px; left: 50%; font-size: 20px; }
+.widget-sticky:hover { transform: rotate(-1deg) scale(1.02); }
+
+@media (max-width: 1180px) { .widgets-left { display: none; } }
+@media (max-width: 768px) {
+  .widgets-right { left: 8px; right: 8px; width: auto; grid-template-columns: 1fr; }
+  .widgets-right > :not(.widget-download) { display: none; }
+}
