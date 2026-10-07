@@ -1,0 +1,17 @@
+.wa { display: flex; height: 100%; font-size: 13px; background: #fff; }
+.wa-list { flex: none; width: 220px; border-right: 1px solid rgb(0 0 0 / 0.08); }
+.wa-list h3 { margin: 8px 14px; font-size: 18px; }
+.wa-list button { display: flex; gap: 10px; align-items: center; width: 100%; padding: 8px 12px; border: 0; background: none; text-align: left; font: inherit; color: inherit; }
+.wa-list button.is-active { background: #f0f2f5; }
+.wa-list span:last-child { min-width: 0; display: flex; flex-direction: column; }
+.wa-list small { color: #667781; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wa-avatar { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: #25d366; color: #fff; font-weight: 700; }
+.wa-chat { flex: 1; min-width: 0; display: flex; flex-direction: column; background: #efeae2; }
+.wa-chat header { display: flex; flex-direction: column; padding: 8px 14px; background: #f0f2f5; }
+.wa-chat header small { color: #667781; }
+.wa-thread { flex: 1; padding: 16px; overflow-y: auto; }
+.wa-bubble { display: inline-block; max-width: 75%; margin: 0; padding: 7px 10px; border-radius: 8px; background: #fff; box-shadow: 0 1px 1px rgb(0 0 0 / 0.1); }
+.wa-compose { display: flex; gap: 8px; align-items: flex-end; padding: 10px; background: #f0f2f5; }
+.wa-compose textarea { flex: 1; resize: none; padding: 8px 12px; border: 0; border-radius: 10px; font: inherit; }
+.wa-compose button { width: 40px; height: 40px; border: 0; border-radius: 50%; background: #25d366; color: #fff; font-size: 16px; cursor: pointer; }
+@media (max-width: 600px) { .wa-list { display: none; } }

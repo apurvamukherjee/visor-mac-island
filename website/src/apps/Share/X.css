@@ -1,0 +1,10 @@
+.x { height: 100%; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; background: #000; color: #e7e9ea; font-size: 15px; }
+.x-row { display: flex; gap: 12px; }
+.x-row img { border-radius: 50%; }
+.x-row textarea { flex: 1; resize: none; border: 0; background: none; color: inherit; font: inherit; font-size: 18px; line-height: 1.4; outline: none; }
+.x-foot { display: flex; justify-content: flex-end; align-items: center; gap: 14px; padding-top: 10px; border-top: 1px solid #2f3336; }
+.x-foot span { color: #71767b; font-size: 13px; }
+.x-foot span.is-over { color: #f4212e; }
+.x-foot button { padding: 8px 18px; border: 0; border-radius: 999px; background: #eff3f4; color: #0f1419; font: inherit; font-weight: 700; cursor: pointer; }
+.x-foot button:disabled { opacity: 0.5; }
+.x-note { margin: 0; color: #71767b; font-size: 12px; }
