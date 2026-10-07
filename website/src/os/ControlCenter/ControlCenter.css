@@ -1,0 +1,33 @@
+.cc {
+  position: absolute; top: calc(100% + 6px); right: 0; width: 320px; padding: 10px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; color: #fff; text-shadow: none; font-size: 12px;
+  border-radius: 18px; background: rgb(40 40 44 / 0.55);
+  backdrop-filter: blur(40px) saturate(1.8); -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.25), 0 16px 40px rgb(0 0 0 / 0.35);
+}
+.cc-tile { border-radius: 14px; background: rgb(255 255 255 / 0.12); padding: 8px; }
+.cc-network { display: flex; flex-direction: column; gap: 6px; }
+.cc-side { display: flex; flex-direction: column; gap: 10px; }
+.cc-toggle { display: flex; align-items: center; gap: 8px; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.cc-toggle span:last-child { display: flex; flex-direction: column; min-width: 0; }
+.cc-toggle small { opacity: 0.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc-dot { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: rgb(255 255 255 / 0.18); font-size: 13px; }
+.cc-dot.is-on { background: #0a84ff; }
+.cc-music { flex: 1; display: grid; grid-template-columns: 34px 1fr; grid-template-rows: auto auto; gap: 6px; align-items: center; }
+.cc-music-text { display: flex; flex-direction: column; min-width: 0; }
+.cc-music-text b, .cc-music-text small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc-music-text small { opacity: 0.6; }
+.cc-music button { grid-row: 2; padding: 0; border: 0; background: none; color: inherit; font-size: 14px; cursor: pointer; }
+.cc-music button:nth-of-type(1) { grid-column: 1; }
+.cc-music .cover > img:first-child { border-radius: 7px; }
+.cc-slider { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 6px; }
+.cc-slider label { position: relative; display: flex; align-items: center; }
+.cc-slider label span { position: absolute; left: 8px; z-index: 1; color: #555; font-size: 12px; pointer-events: none; }
+.cc-slider input {
+  --v: 50%; appearance: none; width: 100%; height: 24px; margin: 0; border-radius: 12px; cursor: pointer;
+  background: linear-gradient(to right, #fff var(--v), rgb(255 255 255 / 0.2) var(--v));
+}
+.cc-slider input::-webkit-slider-thumb { appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.2), 0 1px 4px rgb(0 0 0 / 0.3); }
+.cc-slider input::-moz-range-thumb { width: 24px; height: 24px; border: 0; border-radius: 50%; background: #fff; }
+.cc button:focus-visible, .cc input:focus-visible { outline: 2px solid #0a84ff; outline-offset: 2px; }
+@media (max-width: 400px) { .cc { width: calc(100vw - 16px); right: -8px; } }

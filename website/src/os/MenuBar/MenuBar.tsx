@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { apps } from '../../apps/apps';
 import { useBattery } from '../../store/battery';
 import { useWindows } from '../../store/windows';
+import { ControlCenter } from '../ControlCenter/ControlCenter';
 import { useNow } from '../useNow';
 import { appMenus, systemMenu, visorAppMenu, type Menu } from './menus';
 import './MenuBar.css';
@@ -19,6 +20,13 @@ const wifi = (
     <path d="M10 13.5l2.6-3.1a4 4 0 0 0-5.2 0z" />
     <path d="M10 5.6a8 8 0 0 1 5.3 2l1.4-1.7A10.2 10.2 0 0 0 10 3.4 10.2 10.2 0 0 0 3.3 5.9l1.4 1.7a8 8 0 0 1 5.3-2z" opacity=".95" />
     <path d="M10 0A14 14 0 0 0 .7 3.5L2 5.1A12 12 0 0 1 10 2.2a12 12 0 0 1 8 2.9l1.3-1.6A14 14 0 0 0 10 0z" opacity=".95" />
+  </svg>
+);
+
+const controlCenter = (
+  <svg viewBox="0 0 18 14" width="16" height="13" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.6">
+    <rect x="1" y="1" width="16" height="5" rx="2.5" /><circle cx="14.5" cy="3.5" r="1.4" fill="currentColor" />
+    <rect x="1" y="8" width="16" height="5" rx="2.5" /><circle cx="3.5" cy="10.5" r="1.4" fill="currentColor" />
   </svg>
 );
 
@@ -119,6 +127,12 @@ export function MenuBar() {
         <div className="menubar-right">
           <BatteryStatus />
           <span className="menubar-status" aria-hidden>{wifi}</span>
+          <div className="menubar-menu">
+            <button className={`menubar-item${open === 'cc' ? ' is-open' : ''}`} aria-label="Control Center" aria-expanded={open === 'cc'} onClick={() => setOpen(open === 'cc' ? null : 'cc')}>
+              {controlCenter}
+            </button>
+            {open === 'cc' && <ControlCenter />}
+          </div>
           <Clock />
         </div>
       </header>
