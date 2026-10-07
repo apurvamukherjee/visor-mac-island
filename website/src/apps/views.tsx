@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import type { AppId } from './apps';
 import { AppStore } from './AppStore/AppStore';
+import { Chrome } from './Chrome/Chrome';
 import { Downloads } from './Downloads/Downloads';
 import { Messages } from './Messages/Messages';
 import { Music } from './Music/Music';
@@ -25,4 +26,5 @@ export const views: Partial<Record<AppId, ComponentType>> = {
   messages: Messages,
   whatsapp: WhatsApp,
   x: X,
+  chrome: Chrome,
 };

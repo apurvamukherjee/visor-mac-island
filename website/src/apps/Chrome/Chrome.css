@@ -1,0 +1,12 @@
+.chrome { height: 100%; display: flex; flex-direction: column; background: #fff; font-size: 13px; }
+.chrome-tabs { padding: 0 10px; background: #dee1e6; }
+.chrome-tab { display: inline-block; padding: 7px 40px 7px 14px; border-radius: 9px 9px 0 0; background: #fff; }
+.chrome-omnibox { margin: 6px 10px; padding: 6px 14px; border-radius: 999px; background: #f1f3f4; color: #5f6368; }
+.chrome-page { flex: 1; overflow-y: auto; padding: 24px 30px; text-align: center; }
+.chrome-page h2 { margin: 0 0 8px; font-size: 20px; }
+.chrome-page p { margin: 0 auto 16px; max-width: 46ch; color: #5f6368; line-height: 1.5; }
+.chrome-download { display: inline-block; padding: 9px 20px; border-radius: 999px; background: #1a73e8; color: #fff; font-weight: 600; text-decoration: none; }
+.chrome-hint { margin-top: 10px !important; color: #1a73e8 !important; font-weight: 600; animation: bubble-in 0.3s ease; }
+.chrome-shortcuts { display: flex; justify-content: center; gap: 22px; margin-top: 26px; }
+.chrome-shortcuts a { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 72px; color: #202124; text-decoration: none; font-size: 12px; }
+.chrome-shortcuts span { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: #f1f3f4; font-weight: 700; font-size: 17px; }
