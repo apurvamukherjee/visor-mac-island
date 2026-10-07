@@ -8,6 +8,7 @@ import { Photos } from './Photos/Photos';
 import { Calendar } from './Calendar/Calendar';
 import { Weather } from './Weather/Weather';
 import { Clock } from './Clock/Clock';
+import { FaceTime } from './FaceTime/FaceTime';
 import { Finder } from './Finder/Finder';
 import { Downloads } from './Downloads/Downloads';
 import { Messages } from './Messages/Messages';
@@ -43,4 +44,5 @@ export const views: Partial<Record<AppId, ComponentType>> = {
   photos: Photos,
   finder: Finder,
   trash: Trash,
+  facetime: FaceTime,
 };
