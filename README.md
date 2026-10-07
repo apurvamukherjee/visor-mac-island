@@ -64,7 +64,7 @@ Trade the cover for a spinning record with the art on its label. The tonearm dro
 </td>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/lock.svg" width="40" align="center"> &nbsp;Lock &amp; unlock</h3>
-Lock or unlock your Mac and a padlock snaps shut or springs open in the notch for three seconds, then fades back to what's playing.
+Lock your Mac and a padlock snaps shut in the notch and stays until you unlock. Below the clock, the lock screen shows what's playing, with controls, and any running timer.
 </td>
 </tr>
 <tr>
@@ -80,11 +80,11 @@ Charge level and percentage next to the notch, plus a heads-up when you plug in 
 <tr>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/shelf.svg" width="40" align="center"> &nbsp;Shelf</h3>
-Drag files onto the notch to park them, then drag them out wherever they need to go. Send them with AirDrop or another share service, or preview them with Quick Look. They stay put across restarts.
+Drag files onto the notch to park them, then drag them out wherever they need to go. Send them with AirDrop or another share service, or preview them with Quick Look. Right-click to convert, shrink or zip images, turn images into a PDF or a PDF's pages into images. They stay put across restarts.
 </td>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/calendar.svg" width="40" align="center"> &nbsp;Calendar &amp; Reminders</h3>
-A week strip with today's events and reminders beside the player. Choose which calendars show, hide all-day events or finished reminders, and let it scroll to what's next.
+A week strip with today's events and reminders beside the player, and the current weather if you want it. Choose which calendars show, hide all-day events or finished reminders, and let it scroll to what's next.
 </td>
 </tr>
 <tr>
@@ -95,6 +95,16 @@ A camera check in one click before a call. Round or square.
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/gestures.svg" width="40" align="center"> &nbsp;Hover &amp; gestures</h3>
 Hover to open and move away to close, after a delay you choose. A two-finger scroll down on the notch opens it and a scroll up closes it, with a haptic tap on the trackpad.
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<h3><img src="assets/readme/icons/live.svg" width="40" align="center"> &nbsp;Timer</h3>
+Start a 1 to 60 minute timer from the open notch. The countdown sits beside the notch while it runs, and a bell rings when it's done.
+</td>
+<td width="50%" valign="top">
+<h3><img src="assets/readme/icons/download.svg" width="40" align="center"> &nbsp;Downloads</h3>
+A ring fills beside the notch while Safari, Chrome or Firefox downloads into your Downloads folder.
 </td>
 </tr>
 <tr>
@@ -151,6 +161,7 @@ Change either one in Settings → Shortcuts.
 | Calendars, Reminders | The calendar and reminders beside the player |
 | Camera | The mirror |
 | Automation | Controlling Apple Music and Spotify |
+| Location | The weather beside the calendar (off unless you turn it on) |
 
 Each one is optional. Skip it and only the feature that needs it stays off.
 
