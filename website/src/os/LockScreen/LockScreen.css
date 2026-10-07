@@ -1,0 +1,25 @@
+.lock {
+  position: fixed; inset: 0; z-index: 9550; display: flex; flex-direction: column; align-items: center;
+  padding-top: 70px; color: #fff; cursor: default;
+  background: rgb(0 0 0 / 0.15); backdrop-filter: blur(40px) saturate(1.3); -webkit-backdrop-filter: blur(40px) saturate(1.3);
+  animation: lock-in 0.4s ease both;
+}
+@keyframes lock-in { from { opacity: 0; } }
+.lock-clock { display: flex; flex-direction: column; align-items: center; text-shadow: 0 2px 20px rgb(0 0 0 / 0.25); }
+.lock-clock span { font-size: 22px; font-weight: 600; opacity: 0.9; }
+.lock-clock time { font-size: clamp(80px, 12vw, 150px); font-weight: 700; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.lock-player {
+  display: flex; align-items: center; gap: 12px; margin-top: 26px; padding: 10px 16px 10px 10px; width: min(380px, 90vw);
+  border-radius: 20px; background: rgb(255 255 255 / 0.16); box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.3);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+}
+.lock-player > span:not(.cover) { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.lock-player b, .lock-player small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lock-player small { opacity: 0.7; }
+.lock-player button { border: 0; background: none; color: #fff; font-size: 18px; cursor: pointer; }
+.lock-player .cover > img:first-child { border-radius: 9px; }
+.lock-user { margin-top: auto; margin-bottom: 70px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.lock-avatar { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font-size: 30px; background: rgb(255 255 255 / 0.25); }
+.lock-unlock { padding: 6px 16px; border: 0; border-radius: 999px; background: rgb(255 255 255 / 0.18); color: #fff; font: inherit; font-size: 13px; cursor: pointer; }
+.lock button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .lock { animation: none; } }

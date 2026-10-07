@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { useBattery } from '../store/battery';
+import { useLock } from '../store/lock';
 import { Closed, closedWidth } from './Closed';
 import { Home } from './Home';
 import { Shelf } from './Shelf';
@@ -45,6 +46,7 @@ export function Island() {
   const tab = useNotch((s) => s.tab);
   const setOpen = useNotch((s) => s.setOpen);
   const transient = useNotch((s) => s.transient);
+  const locked = useLock((s) => s.locked);
   const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const enter = () => {
@@ -55,7 +57,7 @@ export function Island() {
     closeTimer.current = setTimeout(() => setOpen(false), CLOSE_DELAY_MS);
   };
 
-  const size = open ? OPEN : { w: closedWidth(transient), h: CLOSED_H };
+  const size = open && !locked ? OPEN : { w: closedWidth(transient, locked), h: CLOSED_H };
   return (
     <div
       className={`island${open ? ' is-open' : ''}`}
@@ -63,7 +65,7 @@ export function Island() {
       onPointerEnter={(e) => e.pointerType === 'mouse' && enter()}
       onPointerLeave={(e) => e.pointerType === 'mouse' && leave()}
     >
-      {open ? (
+      {open && !locked ? (
         <div className="island-open">
           <Header />
           {tab === 'home' && <Home />}

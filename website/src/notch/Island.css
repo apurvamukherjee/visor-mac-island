@@ -125,3 +125,7 @@
 .closed-peek { gap: 10px; }
 .closed-peek-text { flex: 1; min-width: 0; padding-left: 4px; font-size: 12px; color: rgb(255 255 255 / 0.75); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
 .closed-peek-text b { color: #fff; }
+
+.closed-lock { justify-content: flex-start; padding-left: 12px; }
+.closed-lock-shackle { transform-origin: 16px 11px; transition: transform 0.35s cubic-bezier(0.3, 1.4, 0.5, 1); }
+.closed-lock svg.is-open .closed-lock-shackle { transform: translateY(-2px) rotate(28deg); }

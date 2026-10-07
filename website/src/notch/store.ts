@@ -8,7 +8,8 @@ export type Transient =
   | { kind: 'hud'; hud: Hud; value: number }
   | { kind: 'battery'; charging: boolean; level: number }
   | { kind: 'peek' }
-  | { kind: 'download'; progress: number };
+  | { kind: 'download'; progress: number }
+  | { kind: 'unlock' };
 
 interface Notch {
   open: boolean;

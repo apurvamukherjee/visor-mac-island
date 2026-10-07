@@ -1,6 +1,7 @@
 import { Island } from './notch/Island';
 import { DesktopIcons } from './os/Desktop/DesktopIcons';
 import { Dock } from './os/Dock/Dock';
+import { LockScreen } from './os/LockScreen/LockScreen';
 import { MenuBar } from './os/MenuBar/MenuBar';
 import { WindowLayer } from './os/WindowLayer';
 import { Wallpaper } from './os/Wallpaper/Wallpaper';
@@ -18,6 +19,7 @@ export function App() {
       <Island />
       <WindowLayer />
       <Dock />
+      <LockScreen />
     </main>
   );
 }
