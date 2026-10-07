@@ -14,11 +14,12 @@ const apple = (
   </svg>
 );
 
+// Same filled fan as SF Symbols' wifi: a dot and two arcs, all solid.
 const wifi = (
-  <svg viewBox="0 0 20 14" width="17" height="12" aria-hidden fill="currentColor">
-    <path d="M10 13.5l2.6-3.1a4 4 0 0 0-5.2 0z" />
-    <path d="M10 5.6a8 8 0 0 1 5.3 2l1.4-1.7A10.2 10.2 0 0 0 10 3.4 10.2 10.2 0 0 0 3.3 5.9l1.4 1.7a8 8 0 0 1 5.3-2z" opacity=".95" />
-    <path d="M10 0A14 14 0 0 0 .7 3.5L2 5.1A12 12 0 0 1 10 2.2a12 12 0 0 1 8 2.9l1.3-1.6A14 14 0 0 0 10 0z" opacity=".95" />
+  <svg viewBox="0 0 24 18" width="17" height="13" fill="currentColor" aria-hidden>
+    <path d="M12 17.6l3.4-4.1a5.3 5.3 0 0 0-6.8 0z" />
+    <path d="M12 7.6a10.4 10.4 0 0 1 6.9 2.6l-1.8 2.2A7.6 7.6 0 0 0 12 10.5a7.6 7.6 0 0 0-5.1 1.9L5.1 10.2A10.4 10.4 0 0 1 12 7.6z" />
+    <path d="M12 2.2c4.1 0 7.9 1.5 10.8 4l-1.8 2.2A14 14 0 0 0 12 5.1 14 14 0 0 0 3 8.4L1.2 6.2c2.9-2.5 6.7-4 10.8-4z" />
   </svg>
 );
 
