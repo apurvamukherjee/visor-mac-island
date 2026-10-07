@@ -1,4 +1,5 @@
 import { Island } from './notch/Island';
+import { DesktopIcons } from './os/Desktop/DesktopIcons';
 import { Dock } from './os/Dock/Dock';
 import { MenuBar } from './os/MenuBar/MenuBar';
 import { WindowLayer } from './os/WindowLayer';
@@ -12,6 +13,7 @@ export function App() {
     <main className={`desktop is-${appearance}`}>
       <Wallpaper />
       <Widgets />
+      <DesktopIcons />
       <MenuBar />
       <Island />
       <WindowLayer />
