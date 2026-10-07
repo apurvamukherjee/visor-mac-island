@@ -22,7 +22,7 @@ const onFocused = (fn: (id: AppId) => void) => () => {
 export const systemMenu: Menu = {
   label: 'Apple menu',
   items: () => [
-    { label: 'About This Mac', run: open('visor') },
+    { label: 'About This App', run: open('visor') },
     'separator',
     { label: 'System Settings…', run: open('settings') },
     { label: 'App Store…', run: open('appstore') },
