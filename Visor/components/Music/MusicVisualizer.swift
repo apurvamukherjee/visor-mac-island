@@ -4,9 +4,7 @@ import SwiftUI
 
 class AudioSpectrum: NSView {
     private var barLayers: [CAShapeLayer] = []
-    private var barScales: [CGFloat] = []
     private var isPlaying: Bool = true
-    private var animationTimer: Timer?
     
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -41,23 +39,35 @@ class AudioSpectrum: NSView {
                                     yRadius: barWidth / 2)
             barLayer.path = path.cgPath
             barLayers.append(barLayer)
-            barScales.append(0.35)
             layer?.addSublayer(barLayer)
         }
     }
     
+    // Visor: each bar gets one looping keyframe animation, so the render
+    // server moves the bars on its own and the app never wakes for them.
+    // It reproduces the old timer's look: a straight move to a new random
+    // height every 0.3 s. Sixteen steps make the loop too long to notice.
+    private static let stepDuration: CFTimeInterval = 0.3
+    private static let stepCount = 16
+    private static let animationKey = "scaleY"
+
     private func startAnimating() {
-        guard animationTimer == nil else { return }
-        animationTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { [weak self] _ in
-            self?.updateBars()
+        guard barLayers.first?.animation(forKey: Self.animationKey) == nil else { return }
+        for barLayer in barLayers {
+            var heights = (0..<Self.stepCount).map { _ in CGFloat.random(in: 0.35 ... 1.0) }
+            heights.append(heights[0])
+            let animation = CAKeyframeAnimation(keyPath: "transform.scale.y")
+            animation.values = heights
+            animation.duration = Self.stepDuration * Double(Self.stepCount)
+            animation.repeatCount = .infinity
+            animation.isRemovedOnCompletion = false
+            animation.preferredFrameRateRange = CAFrameRateRange(minimum: 24, maximum: 24, preferred: 24)
+            barLayer.add(animation, forKey: Self.animationKey)
         }
-        // Visor: lets the system coalesce the wakeup with others.
-        animationTimer?.tolerance = 0.03
     }
 
-    // Visor: the run loop, not this view, retains a scheduled timer, so without
-    // this every closed-notch player torn down while playing left one firing
-    // 3x a second for the life of the app.
+    // Visor: stopped when the view leaves its window and restarted when it
+    // returns, so a torn-down player leaves nothing animating.
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
         if window == nil {
@@ -68,33 +78,13 @@ class AudioSpectrum: NSView {
     }
 
     private func stopAnimating() {
-        animationTimer?.invalidate()
-        animationTimer = nil
         resetBars()
     }
-    
-    private func updateBars() {
-        for (i, barLayer) in barLayers.enumerated() {
-            let currentScale = barScales[i]
-            let targetScale = CGFloat.random(in: 0.35 ... 1.0)
-            barScales[i] = targetScale
-            let animation = CABasicAnimation(keyPath: "transform.scale.y")
-            animation.fromValue = currentScale
-            animation.toValue = targetScale
-            animation.duration = 0.3
-            animation.autoreverses = true
-            animation.fillMode = .forwards
-            animation.isRemovedOnCompletion = false
-            animation.preferredFrameRateRange = CAFrameRateRange(minimum: 24, maximum: 24, preferred: 24)
-            barLayer.add(animation, forKey: "scaleY")
-        }
-    }
-    
+
     private func resetBars() {
-        for (i, barLayer) in barLayers.enumerated() {
+        for barLayer in barLayers {
             barLayer.removeAllAnimations()
             barLayer.transform = CATransform3DMakeScale(1, 0.35, 1)
-            barScales[i] = 0.35
         }
     }
     
