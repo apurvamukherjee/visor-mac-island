@@ -7,10 +7,17 @@ import SwiftUI
 struct VisorApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @Default(.menubarIcon) var showMenuBarIcon
+    @ObservedObject private var updates = UpdateChecker.shared
 
     var body: some Scene {
         // Visor: a record, for the music-first island (and vinyl mode).
         MenuBarExtra("Visor", systemImage: "opticaldisc.fill", isInserted: $showMenuBarIcon) {
+            if let release = updates.available {
+                Button("Visor \(release.version) Is Available…") {
+                    NSWorkspace.shared.open(release.url)
+                }
+                Divider()
+            }
             Button("Settings") {
                 DispatchQueue.main.async {
                     SettingsWindowController.shared.showWindow()
@@ -276,6 +283,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        UpdateChecker.shared.startAutomaticChecks()
 
         NotificationCenter.default.addObserver(
             self,

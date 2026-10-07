@@ -631,6 +631,7 @@ func lighterColor(from nsColor: NSColor, amount: CGFloat = 0.14) -> Color {
 
 struct About: View {
     @State private var showBuildNumber: Bool = false
+    @ObservedObject private var updates = UpdateChecker.shared
     var body: some View {
         VStack {
             Form {
@@ -659,6 +660,34 @@ struct About: View {
                     }
                 } header: {
                     Text("Version info")
+                }
+
+                Section {
+                    Defaults.Toggle(key: .checkForUpdates) {
+                        Text("Check for updates automatically")
+                    }
+                    .onChange { enabled in
+                        if enabled {
+                            UpdateChecker.shared.startAutomaticChecks()
+                        } else {
+                            UpdateChecker.shared.stopAutomaticChecks()
+                        }
+                    }
+                    HStack {
+                        if let release = updates.available {
+                            Text("Visor \(release.version) is available.")
+                            Spacer()
+                            Button("Download") { NSWorkspace.shared.open(release.url) }
+                        } else {
+                            Text(updates.lastError.map { "Couldn't check: \($0)" } ?? "Asks GitHub once a day.")
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Button("Check Now") { Task { await updates.check() } }
+                                .disabled(updates.isChecking)
+                        }
+                    }
+                } header: {
+                    Text("Updates")
                 }
 
                 HStack(spacing: 30) {
