@@ -1,0 +1,25 @@
+.store { display: flex; height: 100%; font-size: 13px; }
+.store-side { flex: none; width: 190px; padding: 6px 10px; display: flex; flex-direction: column; gap: 2px; background: rgb(0 0 0 / 0.03); border-right: 1px solid rgb(0 0 0 / 0.06); }
+.store-search { margin-bottom: 10px; padding: 6px 10px; border-radius: 8px; background: rgb(0 0 0 / 0.06); color: rgb(0 0 0 / 0.45); }
+.store-side button { padding: 7px 10px; border: 0; border-radius: 8px; background: none; text-align: left; font: inherit; font-size: 14px; color: inherit; cursor: pointer; }
+.store-side button.is-active { background: rgb(10 132 255 / 0.12); color: #0a84ff; font-weight: 600; }
+.store-main { flex: 1; min-width: 0; overflow-y: auto; padding: 16px 28px 28px; background: #fff; }
+.store-head { display: flex; gap: 22px; align-items: center; padding-bottom: 18px; border-bottom: 1px solid rgb(0 0 0 / 0.08); }
+.store-head img { filter: drop-shadow(0 6px 14px rgb(0 0 0 / 0.2)); }
+.store-head h1 { margin: 0; font-size: 26px; }
+.store-head p { margin: 2px 0 12px; color: rgb(0 0 0 / 0.5); }
+.store-head small { display: block; margin-top: 8px; color: rgb(0 0 0 / 0.45); font-size: 11px; }
+.store-get { display: inline-block; padding: 5px 22px; border-radius: 999px; background: #0a84ff; color: #fff; font-weight: 700; text-decoration: none; }
+.store-get:hover { background: #0071e3; }
+.store-main section { padding: 16px 0; border-bottom: 1px solid rgb(0 0 0 / 0.08); }
+.store-main h2 { margin: 0 0 10px; font-size: 17px; }
+.store-main h2 small { font-size: 12px; font-weight: 400; color: rgb(0 0 0 / 0.45); margin-left: 8px; }
+.store-shots { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
+.store-shots img { flex: none; height: 170px; border-radius: 10px; scroll-snap-align: start; box-shadow: 0 2px 10px rgb(0 0 0 / 0.15); }
+.store-desc p { margin: 0; line-height: 1.55; }
+.store-new { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; line-height: 1.45; }
+.store-new code { font: 12px ui-monospace, Menlo, monospace; }
+.store-info { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin: 0; }
+.store-info dt { color: rgb(0 0 0 / 0.45); font-size: 12px; }
+.store-info dd { margin: 2px 0 0; }
+@media (max-width: 640px) { .store-side { display: none; } }
