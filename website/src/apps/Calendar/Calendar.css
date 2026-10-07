@@ -1,0 +1,10 @@
+.cal { height: 100%; display: flex; flex-direction: column; background: #fff; font-size: 12px; }
+.cal header { padding: 4px 16px 8px; }
+.cal h1 { margin: 0; font-size: 22px; font-weight: 400; }
+.cal-grid { flex: 1; display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: minmax(0, 1fr); border-top: 1px solid rgb(0 0 0 / 0.08); }
+.cal-wd { padding: 4px 8px; text-align: right; color: rgb(0 0 0 / 0.5); border-bottom: 1px solid rgb(0 0 0 / 0.08); }
+.cal-cell { display: flex; flex-direction: column; align-items: stretch; gap: 2px; padding: 4px 6px; overflow: hidden; border-right: 1px solid rgb(0 0 0 / 0.06); border-bottom: 1px solid rgb(0 0 0 / 0.06); }
+.cal-cell.is-out { background: rgb(0 0 0 / 0.02); }
+.cal-cell span { align-self: flex-end; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; }
+.cal-today { background: #ff3b30; color: #fff; font-weight: 700; }
+.cal-cell i { font-style: normal; padding: 1px 5px; border-radius: 4px; background: color-mix(in srgb, var(--c) 22%, transparent); border-left: 3px solid var(--c); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

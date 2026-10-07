@@ -4,6 +4,7 @@ import { AppStore } from './AppStore/AppStore';
 import { apps } from './apps';
 import { Call } from './Calls/Call';
 import { Chrome } from './Chrome/Chrome';
+import { Calendar } from './Calendar/Calendar';
 import { Weather } from './Weather/Weather';
 import { Clock } from './Clock/Clock';
 import { Downloads } from './Downloads/Downloads';
@@ -35,4 +36,5 @@ export const views: Partial<Record<AppId, ComponentType>> = {
   meet: () => <Call app="Meet" brand="#1a73e8" icon={apps.meet.icon} />,
   clock: Clock,
   weather: Weather,
+  calendar: Calendar,
 };
