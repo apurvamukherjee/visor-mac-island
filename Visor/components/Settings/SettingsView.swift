@@ -1001,6 +1001,9 @@ struct Advanced: View {
                 Defaults.Toggle(key: .lockScreenAnimation) {
                     Text("Lock and unlock animation")
                 }
+                Defaults.Toggle(key: .lockScreenWidgets) {
+                    Text("Now Playing and timer on the lock screen")
+                }
                 Defaults.Toggle(key: .hideFromScreenRecording) {
                     Text("Hide from screen recording")
                 }
