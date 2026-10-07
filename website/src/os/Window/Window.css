@@ -1,0 +1,50 @@
+.window {
+  position: fixed; display: flex; flex-direction: column;
+  background: rgb(246 246 248 / 0.92); color: #1d1d1f;
+  backdrop-filter: blur(30px) saturate(1.6); -webkit-backdrop-filter: blur(30px) saturate(1.6);
+  border-radius: 12px; overflow: hidden;
+  box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.25), 0 22px 70px rgb(0 0 0 / 0.45);
+  transform-origin: 50% 120%;
+  animation: window-open 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.window.is-dark { background: rgb(30 30 32 / 0.94); color: #f4f4f5; }
+.window:not(.is-focused) { box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.2), 0 12px 40px rgb(0 0 0 / 0.3); }
+.window.is-minimized { transform: translateY(60vh) scale(0.05); opacity: 0; pointer-events: none; }
+@keyframes window-open { from { transform: scale(0.9); opacity: 0; } }
+
+.window-bar {
+  position: relative; flex: none; height: 38px; display: flex; align-items: center;
+  padding: 0 14px; cursor: default; user-select: none; touch-action: none;
+}
+.window-title { flex: 1; margin: 0; text-align: center; font-size: 13px; font-weight: 600; opacity: 0.85; pointer-events: none; }
+.window:not(.is-focused) .window-title { opacity: 0.45; }
+
+.traffic { position: absolute; left: 14px; display: flex; gap: 8px; }
+.traffic button {
+  width: 12px; height: 12px; padding: 0; border: 0; border-radius: 50%;
+  box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.2); cursor: pointer;
+}
+.traffic-close { background: #ff5f57; }
+.traffic-min { background: #febc2e; }
+.traffic-zoom { background: #28c840; }
+.window:not(.is-focused) .traffic button { background: #c8c8cc; }
+.window.is-dark:not(.is-focused) .traffic button { background: #4a4a4e; }
+.traffic button:focus-visible { outline: 2px solid #0a84ff; outline-offset: 2px; }
+
+.window-body { flex: 1; min-height: 0; overflow: auto; }
+
+.window-resize {
+  position: absolute; right: 0; bottom: 0; width: 16px; height: 16px;
+  padding: 0; border: 0; background: transparent; cursor: nwse-resize; touch-action: none;
+}
+.window-resize:focus-visible { outline: 2px solid #0a84ff; }
+
+@media (max-width: 768px) {
+  .window, .window.is-focused {
+    left: 0 !important; top: 28px !important; width: 100% !important;
+    height: calc(100% - 28px - 76px) !important; border-radius: 12px 12px 0 0;
+  }
+  .window-resize { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .window { animation: none; transition: none; } }
