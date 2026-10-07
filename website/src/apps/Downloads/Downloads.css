@@ -1,0 +1,9 @@
+.downloads { padding: 12px 24px 22px; font-size: 13px; }
+.downloads-file { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
+.downloads-file div { display: flex; flex-direction: column; gap: 2px; }
+.downloads-file b { font-size: 16px; }
+.downloads-cta { width: 100%; }
+.downloads-steps { margin: 18px 0 12px; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; line-height: 1.45; }
+.downloads-steps .app-command { margin-top: 6px; }
+.downloads-foot { margin: 0; font-size: 12px; }
+.downloads-foot a { color: #0a84ff; }
