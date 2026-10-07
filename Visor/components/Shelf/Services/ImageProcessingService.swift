@@ -201,6 +201,29 @@ final class ImageProcessingService {
         return tempURL
     }
     
+    // MARK: - PDF to Images
+
+    /// Renders each page of a PDF to a PNG at twice its point size.
+    func renderPDFPages(from url: URL) async throws -> [URL] {
+        guard let document = PDFDocument(url: url), document.pageCount > 0 else {
+            throw ImageProcessingError.invalidImage
+        }
+        let baseName = url.deletingPathExtension().lastPathComponent
+        var results: [URL] = []
+        for index in 0..<document.pageCount {
+            guard let page = document.page(at: index) else { continue }
+            let bounds = page.bounds(for: .mediaBox)
+            let image = page.thumbnail(of: CGSize(width: bounds.width * 2, height: bounds.height * 2), for: .mediaBox)
+            guard let tiff = image.tiffRepresentation,
+                  let png = NSBitmapImageRep(data: tiff)?.representation(using: .png, properties: [:]),
+                  let tempURL = await TemporaryFileStorageService.shared.createTempFile(
+                      for: .data(png, suggestedName: "\(baseName)_page\(index + 1).png"))
+            else { throw ImageProcessingError.conversionFailed }
+            results.append(tempURL)
+        }
+        return results
+    }
+
     // MARK: - Helper Methods
     
     /// Checks if a URL is an image file
@@ -209,6 +232,10 @@ final class ImageProcessingService {
             return false
         }
         return contentType.conforms(to: .image)
+    }
+
+    func isPDFFile(_ url: URL) -> Bool {
+        (try? url.resourceValues(forKeys: [.contentTypeKey]).contentType)?.conforms(to: .pdf) ?? false
     }
 }
 

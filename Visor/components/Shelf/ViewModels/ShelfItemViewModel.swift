@@ -200,6 +200,7 @@ final class ShelfItemViewModel: ObservableObject {
                 imageSubmenu.addItem(NSMenuItem(title: "Remove Background", action: nil, keyEquivalent: ""))
                 imageSubmenu.addItem(NSMenuItem(title: "Convert Image…", action: nil, keyEquivalent: ""))
             }
+            imageSubmenu.addItem(NSMenuItem(title: "Shrink for Sharing", action: nil, keyEquivalent: ""))
 
             // Create PDF - for one or more images
             imageSubmenu.addItem(NSMenuItem(title: "Create PDF", action: nil, keyEquivalent: ""))
@@ -209,6 +210,10 @@ final class ShelfItemViewModel: ObservableObject {
             menu.addItem(NSMenuItem.separator())
         }
 
+        if selectedFileURLs.count == 1, let pdfURL = selectedFileURLs.first, ImageProcessingService.shared.isPDFFile(pdfURL) {
+            addMenuItem(title: "Export Pages as Images")
+        }
+
         // Add compression option for files/folders (single or multiple)
         if !selectedFileURLs.isEmpty { addMenuItem(title: "Compress") }
 
@@ -216,13 +221,7 @@ final class ShelfItemViewModel: ObservableObject {
 
         // Always show "Copy" for all item types
         addMenuItem(title: "Copy")
-        // If there are file URLs, add "Copy Path" as an alternate menu item (Option key)
-        if !selectedFileURLs.isEmpty {
-            let copyPathItem = NSMenuItem(title: "Copy Path", action: nil, keyEquivalent: "")
-            copyPathItem.isAlternate = true
-            copyPathItem.keyEquivalentModifierMask = [.option]
-            menu.addItem(copyPathItem)
-        }
+        if !selectedFileURLs.isEmpty { addMenuItem(title: "Copy Path") }
 
         menu.addItem(NSMenuItem.separator())
         addMenuItem(title: "Remove")
@@ -368,6 +367,12 @@ final class ShelfItemViewModel: ObservableObject {
                 
             case "Create PDF":
                 handleCreatePDF()
+
+            case "Shrink for Sharing":
+                handleShrinkImages()
+
+            case "Export Pages as Images":
+                handleExportPDFPages()
             
             case "Compress":
                 let selected = selectedShelfItems
@@ -473,6 +478,40 @@ final class ShelfItemViewModel: ObservableObject {
             }
         }
         
+        // Visor: 2048 px JPEG at 0.75 with metadata stripped is small enough
+        // for chat apps and email while still looking sharp on a Retina screen.
+        @MainActor
+        private func handleShrinkImages() {
+            let options = ImageConversionOptions(format: .jpeg, compressionQuality: 0.75, maxDimension: 2048, removeMetadata: true)
+            for imageURL in selectedImageURLs {
+                Task {
+                    do {
+                        let resultURL = try await imageURL.accessSecurityScopedResource { url in
+                            try await ImageProcessingService.shared.convertImage(from: url, options: options)
+                        }
+                        if let resultURL { addTemporaryItem(at: resultURL) }
+                    } catch {
+                        showErrorAlert(title: "Shrinking Failed", message: error.localizedDescription)
+                    }
+                }
+            }
+        }
+
+        @MainActor
+        private func handleExportPDFPages() {
+            guard let pdfURL = selectedShelfItems.compactMap({ $0.fileURL }).first else { return }
+            Task {
+                do {
+                    let pages = try await pdfURL.accessSecurityScopedResource { url in
+                        try await ImageProcessingService.shared.renderPDFPages(from: url)
+                    }
+                    pages.forEach { addTemporaryItem(at: $0) }
+                } catch {
+                    showErrorAlert(title: "Export Failed", message: error.localizedDescription)
+                }
+            }
+        }
+
         @MainActor
         private func showConvertImageDialog() {
             let imageURLs = selectedImageURLs
