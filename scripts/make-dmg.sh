@@ -253,5 +253,8 @@ cp "$DMG" "$RELEASE"
 echo "built $DMG ($(du -h "$DMG" | cut -f1))"
 echo "release copy: $RELEASE"
 echo
+echo "publish: attach both, so the README's latest/download/Visor.dmg link follows"
+echo "  gh release create v$VERSION $RELEASE $DMG --title \"Visor $VERSION\" --notes-file <notes>"
+echo
 echo "ad-hoc signed: on any other Mac, run"
 echo "  xattr -dr com.apple.quarantine /Applications/Visor.app"

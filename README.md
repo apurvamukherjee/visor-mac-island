@@ -21,7 +21,7 @@
 
 <br><br>
 
-<a href="https://github.com/apurvamukherjee/visor-mac-island/releases/latest"><img src="assets/readme/download.svg" height="64" alt="Download for macOS"></a>
+<a href="https://github.com/apurvamukherjee/visor-mac-island/releases/latest/download/Visor.dmg"><img src="assets/readme/download.svg" height="64" alt="Download for macOS"></a>
 
 </div>
 
@@ -121,7 +121,7 @@ System accent color, a preset or any color. Tint the player from the artwork, gl
 
 ## <img src="assets/readme/icons/download.svg" width="34" align="center"> &nbsp;Install
 
-1. Download the latest `.dmg` from **[Releases](https://github.com/apurvamukherjee/visor-mac-island/releases/latest)**.
+1. Download **[Visor.dmg](https://github.com/apurvamukherjee/visor-mac-island/releases/latest/download/Visor.dmg)** (always the latest release; older ones are under [Releases](https://github.com/apurvamukherjee/visor-mac-island/releases)).
 2. Open it and drag **Visor** into **Applications**.
 3. Builds are ad-hoc signed, so macOS quarantines them. Clear that once:
 
