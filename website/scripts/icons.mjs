@@ -1,9 +1,10 @@
 // Generates the dock tiles in src/icons. Original artwork in the macOS squircle style; run with `node scripts/icons.mjs`.
 import { writeFileSync } from 'node:fs';
 
+// The tile sits at ~82% of the canvas, matching Apple's icon grid and the Visor app icon.
 const SQUIRCLE = 'M50 2C88 2 98 12 98 50S88 98 50 98 2 88 2 50 12 2 50 2Z';
 
-const tile = (top, bottom, glyph, extraDefs = '') => `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+const tile = (top, bottom, glyph, extraDefs = '') => `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="-11 -11 122 122">
 <defs>
 <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${bottom}"/></linearGradient>
 <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
