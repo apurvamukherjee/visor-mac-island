@@ -1,0 +1,13 @@
+.visor-app { padding: 8px 28px 28px; }
+.visor-hero { display: flex; gap: 22px; align-items: center; }
+.visor-hero img { flex: none; filter: drop-shadow(0 6px 14px rgb(0 0 0 / 0.25)); }
+.visor-hero h1 { margin: 0; font-size: 30px; letter-spacing: -0.02em; }
+.visor-hero p { margin: 4px 0 14px; font-size: 14px; line-height: 1.45; max-width: 52ch; }
+.visor-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+.visor-hint { margin: 18px 0 10px; font-size: 12px; }
+.visor-features { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.visor-features li { display: flex; gap: 12px; padding: 12px; border-radius: 12px; background: rgb(0 0 0 / 0.04); }
+.visor-features img { flex: none; }
+.visor-features h3 { margin: 0 0 3px; font-size: 13px; }
+.visor-features p { margin: 0; font-size: 12px; line-height: 1.4; color: rgb(0 0 0 / 0.6); }
+@media (max-width: 560px) { .visor-hero { flex-direction: column; align-items: flex-start; } }
