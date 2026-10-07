@@ -46,6 +46,7 @@ struct AlbumArtView: View {
             .scaleEffect(x: 1.3, y: 1.4)
             .rotationEffect(.degrees(92))
             .blur(radius: 40)
+            .flattenedBlur(spill: 150)
             .opacity(musicManager.isPlaying ? 0.5 : 0)
     }
 
@@ -74,8 +75,9 @@ struct AlbumArtView: View {
         Rectangle()
             .aspectRatio(1, contentMode: .fit)
             .foregroundColor(Color.black)
-            .opacity(musicManager.isPlaying ? 0 : 0.8)
             .blur(radius: 50)
+            .flattenedBlur(spill: 150)
+            .opacity(musicManager.isPlaying ? 0 : 0.8)
     }
                 
 
@@ -549,5 +551,16 @@ struct CustomSlider: View {
             )
             .animation(.spring(response: 0.35, dampingFraction: 0.7), value: dragging)
         }
+    }
+}
+
+private extension View {
+    // Visor: a blur is re-run every frame anything near it redraws, and the
+    // player's slider redraws ten times a second. Flattened, the blur runs
+    // once per cover (or size change) and the result is composited as a
+    // plain bitmap. drawingGroup clips to the view's frame, so the frame is
+    // grown by `spill` first to keep the soft edge (about 3x the radius).
+    func flattenedBlur(spill: CGFloat) -> some View {
+        padding(spill).drawingGroup().padding(-spill)
     }
 }
