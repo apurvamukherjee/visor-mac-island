@@ -4,9 +4,9 @@ import notes from '../icons/notes.svg';
 import quicktime from '../icons/quicktime.svg';
 import settings from '../icons/settings.svg';
 import trash from '../icons/trash.svg';
-import downloads from '../../../assets/readme/icons/download.svg';
-import github from '../../../assets/readme/icons/opensource.svg';
-import terminal from '../../../assets/readme/icons/terminal.svg';
+import downloads from '../icons/downloads.svg';
+import github from '../icons/github.svg';
+import terminal from '../icons/terminal.svg';
 
 const visor = `${import.meta.env.BASE_URL}icon.png`;
 
