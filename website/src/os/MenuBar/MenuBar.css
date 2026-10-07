@@ -7,7 +7,7 @@
    and the menus and Control Center inside it could then only blur the bar, not the desktop. */
 .menubar::before {
   content: ''; position: absolute; inset: 0; z-index: -1; background: rgb(0 0 0 / 0.22);
-  backdrop-filter: blur(30px) saturate(1.5); -webkit-backdrop-filter: blur(30px) saturate(1.5);
+  backdrop-filter: blur(30px) saturate(1.5);
 }
 .menubar-left, .menubar-right { display: flex; align-items: center; height: 100%; }
 .menubar-right { gap: 6px; padding-right: 6px; }
@@ -29,7 +29,7 @@
   position: absolute; top: calc(100% + 2px); left: 0; min-width: 230px; margin: 0; padding: 5px;
   list-style: none; border-radius: 10px; color: #1d1d1f; text-shadow: none;
   background: rgb(240 240 244 / 0.82);
-  backdrop-filter: blur(40px) saturate(1.8); -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  backdrop-filter: blur(40px) saturate(1.8);
   box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.2), 0 12px 36px rgb(0 0 0 / 0.3);
 }
 .menubar-dropdown button, .menubar-dropdown a {

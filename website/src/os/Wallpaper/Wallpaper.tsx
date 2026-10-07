@@ -24,7 +24,7 @@ export function Wallpaper() {
     <>
       <div className="wallpaper" aria-hidden>
         {/* Keyed so each change mounts a fresh layer that fades in over the last one. */}
-        <img key={current.file} className="wallpaper-layer" src={wallpaperUrl(current)} alt="" />
+        <img key={current.file} className="wallpaper-layer" src={wallpaperUrl(current)} alt="" fetchPriority="high" />
         <link rel="prefetch" href={wallpaperUrl(next)} />
       </div>
       {/* Above everything, like the real display: Control Center's brightness dims windows and the dock too. */}

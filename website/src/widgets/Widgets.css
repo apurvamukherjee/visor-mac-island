@@ -5,7 +5,7 @@
 
 .widget {
   position: relative; display: block; border: 0; border-radius: 20px; padding: 14px; color: #fff; font: inherit; text-align: left; text-decoration: none;
-  background: rgb(28 28 30 / 0.55); backdrop-filter: blur(24px) saturate(1.6); -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  background: rgb(28 28 30 / 0.55); backdrop-filter: blur(24px) saturate(1.6);
   box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.18), 0 8px 24px rgb(0 0 0 / 0.18);
 }
 button.widget, a.widget { cursor: pointer; }

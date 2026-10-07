@@ -12,8 +12,36 @@
     <meta property="og:image" content="https://apurvamukherjee.github.io/visor-mac-island/og.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/png" href="%BASE_URL%icon.png" />
+    <!-- Inline so the boot screen paints before the bundle arrives; it covers the download like a Mac starting up. -->
+    <style>
+      #boot { position: fixed; inset: 0; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 56px; background: #000; transition: opacity 0.5s ease; }
+      .boot-bar { width: 180px; height: 5px; border-radius: 3px; background: rgb(255 255 255 / 0.22); overflow: hidden; }
+      .boot-bar i { display: block; width: 0; height: 100%; border-radius: inherit; background: #fff; transition: width 8s cubic-bezier(0.1, 0.6, 0.3, 1); }
+      /* ponytail: timed, not real progress (a module script's download isn't observable); stalls at 85% until the app mounts. */
+      #boot.is-loading .boot-bar i { width: 85%; }
+      #boot.is-done .boot-bar i { width: 100%; transition-duration: 0.3s; }
+      #boot.is-done { opacity: 0; transition-delay: 0.35s; }
+    </style>
   </head>
   <body>
+    <div id="boot" aria-hidden="true">
+      <img src="%BASE_URL%icon.png" alt="" width="96" height="96" />
+      <div class="boot-bar"><i></i></div>
+    </div>
+    <script>
+      {
+        const boot = document.getElementById('boot');
+        let welcomed = true;
+        try {
+          welcomed = localStorage.getItem('visor.welcomed') !== null;
+        } catch {
+          // Storage blocked: src/store/lock.ts treats this visitor as returning too.
+        }
+        // Returning visitors have the assets cached, so they skip the boot and the welcome.
+        if (welcomed) boot.remove();
+        else requestAnimationFrame(() => requestAnimationFrame(() => boot.classList.add('is-loading')));
+      }
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
