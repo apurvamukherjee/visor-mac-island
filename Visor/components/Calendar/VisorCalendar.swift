@@ -321,12 +321,25 @@ struct EventListView: View {
         ScrollViewReader { proxy in
             List {
                 ForEach(filteredEvents) { event in
+                    // Visor: an event with a video call joins it; the calendar
+                    // stays a right-click away.
                     Button(action: {
-                        if let url = event.calendarAppURL() {
+                        if let url = event.meetingURL ?? event.calendarAppURL() {
                             openURL(url)
                         }
                     }) {
                         eventRow(event)
+                    }
+                    .contextMenu {
+                        if let url = event.calendarAppURL() {
+                            Button("Open in Calendar") { openURL(url) }
+                        }
+                        if let link = event.meetingURL {
+                            Button("Copy Meeting Link") {
+                                NSPasteboard.general.clearContents()
+                                NSPasteboard.general.setString(link.absoluteString, forType: .string)
+                            }
+                        }
                     }
                     .id(event.id)
                     .padding(.leading, -5)
@@ -410,7 +423,11 @@ struct EventListView: View {
                         .foregroundColor(.white)
                         .lineLimit(showFullEventTitles ? nil : 2)
 
-                    if let location = event.location, !location.isEmpty {
+                    if event.meetingURL != nil {
+                        Label("Join", systemImage: "video.fill")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(Color.effectiveAccent)
+                    } else if let location = event.location, !location.isEmpty {
                         Text(location)
                             .font(.caption)
                             .foregroundColor(Color(white: 0.65))

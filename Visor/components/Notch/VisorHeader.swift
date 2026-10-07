@@ -9,6 +9,7 @@ struct VisorHeader: View {
     @ObservedObject var coordinator = VisorViewCoordinator.shared
     @StateObject var tvm = ShelfStateViewModel.shared
     @ObservedObject var timer = TimerManager.shared
+    @ObservedObject var meetings = MeetingMonitor.shared
     @State private var isChoosingTimer = false
     @Default(.liquidGlass) private var liquidGlass
     var body: some View {
@@ -41,6 +42,20 @@ struct VisorHeader: View {
                     } else if isChoosingTimer {
                         timerPresets
                     } else {
+                        if let meeting = meetings.active {
+                            Button {
+                                meetings.join()
+                            } label: {
+                                Label("Join", systemImage: "video.fill")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundStyle(.white)
+                                    .padding(.horizontal, 10)
+                                    .frame(height: 30)
+                                    .background(Capsule().fill(Color.effectiveAccent))
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .help("Join \(meeting.title)")
+                        }
                         if Defaults[.showTimer] {
                             timerControl
                         }

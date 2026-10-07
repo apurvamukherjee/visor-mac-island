@@ -45,7 +45,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
         case .general: "menu bar icon launch login displays screen gestures haptic hover peek delay notch height sizing scroll"
         case .appearance: "tabs mirror camera face timer download progress settings icon vinyl slider color tint blur spectrogram glass"
         case .media: "music source spotify apple lyrics sneak peek full screen controls buttons inactivity"
-        case .calendar: "events reminders all-day weather"
+        case .calendar: "events reminders all-day weather meeting zoom meet teams join"
         case .huds: "volume brightness keyboard backlight accessibility percentage glow gradient option key"
         case .battery: "charge charging power percentage notifications"
         case .shelf: "files drag drop airdrop share quick share copy"
@@ -569,6 +569,11 @@ struct CalendarSettings: View {
             Defaults.Toggle(key: .showFullEventTitles) {
                 Text("Always show full event titles")
             }
+            Defaults.Toggle(key: .meetingAlerts) {
+                Text("Join button before video calls")
+                Text("Two minutes before a Zoom, Meet, Teams or Webex event, a Join button appears beside the notch.")
+            }
+            .onChange { _ in MeetingMonitor.shared.reschedule() }
             Defaults.Toggle(key: .showWeather) {
                 Text("Show weather")
             }

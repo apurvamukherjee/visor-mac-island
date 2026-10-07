@@ -284,6 +284,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         UpdateChecker.shared.startAutomaticChecks()
+        MeetingMonitor.shared.reschedule()
 
         NotificationCenter.default.addObserver(
             self,

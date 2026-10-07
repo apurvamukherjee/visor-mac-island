@@ -10,6 +10,8 @@ struct EventModel: Equatable, Identifiable {
     let type: EventType
     let calendar: CalendarModel
     let hasRecurrenceRules: Bool
+    /// The Zoom, Meet, Teams or Webex link, when the event has one.
+    var meetingURL: URL? = nil
 }
 
 enum EventType: Equatable {

@@ -13,6 +13,7 @@ struct ContentView: View {
     @ObservedObject var batteryModel = BatteryStatusViewModel.shared
     @ObservedObject var timer = TimerManager.shared
     @ObservedObject var downloads = DownloadMonitor.shared
+    @ObservedObject var meetings = MeetingMonitor.shared
     // Visor: held, not observed. The root view reads neither, and observing
     // them re-rendered the whole notch on every system volume change.
     private let brightnessManager = BrightnessManager.shared
@@ -135,6 +136,7 @@ struct ContentView: View {
     }
 
     private var wingAccessory: WingAccessory? {
+        if meetings.active != nil { return .meeting }
         if let fraction = downloads.fraction { return .download(fraction) }
         if let start = timer.startDate, let end = timer.endDate { return .timer(start...end) }
         if timer.isRinging { return .bell }

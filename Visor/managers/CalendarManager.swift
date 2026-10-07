@@ -33,6 +33,7 @@ class CalendarManager: ObservableObject {
             Task {
                 await self?.reloadCalendarAndReminderLists()
             }
+            MainActor.assumeIsolated { MeetingMonitor.shared.reschedule() }
         }
     }
 
@@ -148,6 +149,22 @@ class CalendarManager: ObservableObject {
         self.events = events.sorted { $0.start < $1.start }
     }
 
+    /// The earliest timed event with a meeting link that hasn't been over
+    /// for `grace` yet, looking 12 hours ahead, in the selected calendars.
+    func nextMeeting(grace: TimeInterval) -> EventModel? {
+        guard EKEventStore.authorizationStatus(for: .event) == .fullAccess else { return nil }
+        let ids = Set(selectedCalendars.map { $0.id })
+        let now = Date()
+        let calendars = store.calendars(for: .event).filter { ids.isEmpty || ids.contains($0.calendarIdentifier) }
+        let predicate = store.predicateForEvents(withStart: now.addingTimeInterval(-grace), end: now.addingTimeInterval(12 * 60 * 60), calendars: calendars)
+        return store.events(matching: predicate)
+            .lazy
+            .filter { !$0.isAllDay && $0.startDate.addingTimeInterval(grace) > now }
+            .compactMap { EventModel(from: $0) }
+            .filter { $0.meetingURL != nil }
+            .min { $0.start < $1.start }
+    }
+
     func setReminderCompleted(reminderID: String, completed: Bool) async {
         if let reminder = store.calendarItem(withIdentifier: reminderID) as? EKReminder {
             reminder.isCompleted = completed
@@ -187,7 +204,8 @@ extension EventModel {
             isAllDay: event.shouldBeAllDay,
             type: .event,
             calendar: .init(from: calendar),
-            hasRecurrenceRules: event.hasRecurrenceRules || event.isDetached
+            hasRecurrenceRules: event.hasRecurrenceRules || event.isDetached,
+            meetingURL: MeetingLink.find(url: event.url, location: event.location, notes: event.notes)
         )
     }
     
