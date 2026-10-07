@@ -4,6 +4,7 @@ import { AppStore } from './AppStore/AppStore';
 import { apps } from './apps';
 import { Call } from './Calls/Call';
 import { Chrome } from './Chrome/Chrome';
+import { Preview } from './Preview/Preview';
 import { Xcode } from './Xcode/Xcode';
 import { Claude } from './Claude/Claude';
 import { Maps } from './Maps/Maps';
@@ -51,4 +52,5 @@ export const views: Partial<Record<AppId, ComponentType>> = {
   maps: Maps,
   claude: Claude,
   xcode: Xcode,
+  preview: Preview,
 };

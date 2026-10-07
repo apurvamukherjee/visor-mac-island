@@ -1,0 +1,8 @@
+.preview { display: flex; height: 100%; }
+.preview-thumbs { flex: none; width: 150px; padding: 8px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: rgb(0 0 0 / 0.04); border-right: 1px solid rgb(0 0 0 / 0.06); }
+.preview-thumbs button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px; border: 0; border-radius: 8px; background: none; font: inherit; font-size: 11px; color: inherit; cursor: pointer; }
+.preview-thumbs button.is-active { background: rgb(10 132 255 / 0.15); }
+.preview-thumbs img { width: 100%; border-radius: 4px; box-shadow: 0 1px 4px rgb(0 0 0 / 0.2); }
+.preview-page { flex: 1; min-width: 0; display: grid; place-items: center; padding: 16px; background: #d9d9de; overflow: auto; }
+.preview-page img { max-width: 100%; max-height: 100%; box-shadow: 0 4px 18px rgb(0 0 0 / 0.25); }
+@media (max-width: 560px) { .preview-thumbs { display: none; } }
