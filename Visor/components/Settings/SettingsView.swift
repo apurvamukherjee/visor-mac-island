@@ -38,6 +38,23 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
         }
     }
 
+    // Visor: what each pane holds, for the sidebar search. Kept to the words
+    // someone would type, not every label.
+    var keywords: String {
+        switch self {
+        case .general: "menu bar icon launch login displays screen gestures haptic hover delay notch height sizing scroll"
+        case .appearance: "tabs mirror camera face timer download progress settings icon vinyl slider color tint blur spectrogram glass"
+        case .media: "music source spotify apple lyrics sneak peek full screen controls buttons inactivity"
+        case .calendar: "events reminders all-day weather"
+        case .huds: "volume brightness keyboard backlight accessibility percentage glow gradient option key"
+        case .battery: "charge charging power percentage notifications"
+        case .shelf: "files drag drop airdrop share quick share copy"
+        case .shortcuts: "keyboard hotkey sneak peek toggle"
+        case .advanced: "accent color shadow corner radius lock screen title bar screen recording animation"
+        case .about: "version updates github"
+        }
+    }
+
     @ViewBuilder var content: some View {
         switch self {
         case .general: GeneralSettings()
@@ -56,6 +73,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
 
 struct SettingsView: View {
     @State private var selectedTab: SettingsTab = .general
+    @State private var search = ""
     // Visor: these re-render the tint in place. Re-keying the view with .id used to
     // rebuild the ColorPicker on every change, which cut it off from the colour panel.
     @Default(.useCustomAccentColor) private var useCustomAccentColor
@@ -63,12 +81,18 @@ struct SettingsView: View {
 
     var body: some View {
         NavigationSplitView {
-            List(SettingsTab.allCases, selection: $selectedTab) { tab in
+            List(matchingTabs, selection: $selectedTab) { tab in
                 NavigationLink(value: tab) {
                     Label(tab.rawValue, systemImage: tab.systemImage)
                 }
             }
             .listStyle(SidebarListStyle())
+            .searchable(text: $search, placement: .sidebar, prompt: "Search")
+            .onChange(of: search) {
+                if let first = matchingTabs.first, !matchingTabs.contains(selectedTab) {
+                    selectedTab = first
+                }
+            }
             .toolbar(removing: .sidebarToggle)
             .navigationSplitViewColumnWidth(200)
         } detail: {
@@ -88,6 +112,14 @@ struct SettingsView: View {
         .frame(width: 700)
         .background(Color(NSColor.windowBackgroundColor))
         .tint(.effectiveAccent)
+    }
+
+    private var matchingTabs: [SettingsTab] {
+        let query = search.trimmingCharacters(in: .whitespaces).lowercased()
+        guard !query.isEmpty else { return SettingsTab.allCases }
+        return SettingsTab.allCases.filter {
+            $0.rawValue.lowercased().contains(query) || $0.keywords.contains(query)
+        }
     }
 }
 
