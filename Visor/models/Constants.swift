@@ -79,6 +79,7 @@ extension Defaults.Keys {
     static let vinylMode = Key<Bool>("vinylMode", default: false)
     static let enableShadow = Key<Bool>("enableShadow", default: true)
     static let cornerRadiusScaling = Key<Bool>("cornerRadiusScaling", default: true)
+    static let liquidGlass = Key<Bool>("liquidGlass", default: false)
 
     static let showNotHumanFace = Key<Bool>("showNotHumanFace", default: false)
     static let showCalendar = Key<Bool>("showCalendar", default: false)

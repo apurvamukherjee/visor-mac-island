@@ -860,6 +860,12 @@ struct Appearance: View {
                 Defaults.Toggle(key: .settingsIconInNotch) {
                     Text("Show settings icon in notch")
                 }
+                if #available(macOS 26, *) {
+                    Defaults.Toggle(key: .liquidGlass) {
+                        Text("Liquid Glass when open")
+                        Text("The closed notch stays black so it still blends into the camera housing.")
+                    }
+                }
 
             } header: {
                 Text("General")

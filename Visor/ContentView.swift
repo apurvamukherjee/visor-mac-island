@@ -28,6 +28,7 @@ struct ContentView: View {
     @Namespace var albumArtNamespace
 
     @Default(.showNotHumanFace) var showNotHumanFace
+    @Default(.liquidGlass) var liquidGlass
 
     // Shared interactive spring for movement/resizing to avoid conflicting animations
     private let animationSpring = Animation.interactiveSpring(response: 0.38, dampingFraction: 0.8, blendDuration: 0)
@@ -45,6 +46,22 @@ struct ContentView: View {
                 ? cornerRadiusInsets.opened.bottom
                 : cornerRadiusInsets.closed.bottom
         )
+    }
+
+    // Visor: glass only while open. Closed, the island has to read as part of
+    // the hardware notch, so the black layer fades back in over it.
+    @ViewBuilder
+    private var notchBackground: some View {
+        if #available(macOS 26, *), liquidGlass {
+            ZStack {
+                if vm.notchState == .open {
+                    Color.clear.glassEffect(.regular.tint(.black.opacity(0.35)), in: currentNotchShape)
+                }
+                Color.black.opacity(vm.notchState == .open ? 0 : 1)
+            }
+        } else {
+            Color.black
+        }
     }
 
     // Visor: the closed-notch activities, shared by the chin width and the
@@ -134,7 +151,7 @@ struct ContentView: View {
                         : cornerRadiusInsets.closed.bottom
                     )
                     .padding([.horizontal, .bottom], vm.notchState == .open ? 12 : 0)
-                    .background(.black)
+                    .background { notchBackground }
                     .clipShape(currentNotchShape)
                     .overlay(alignment: .top) {
                         Rectangle()
