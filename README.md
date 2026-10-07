@@ -54,17 +54,17 @@ Cover art, title, artist, a timeline you can scrub and the usual controls for wh
 </td>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/live.svg" width="40" align="center"> &nbsp;Live activity</h3>
-With the notch closed, the cover sits on one side and a visualizer bounces on the other. Sneak peek flashes the new track when the song changes, and lyrics can run under the artist name (beta). Bring your own Lottie animation for the visualizer.
+With the notch closed, the cover sits on one side and a visualizer bounces on the other. Sneak peek flashes the new track when the song changes, and lyrics can run under the artist name (beta). The same wings carry a running timer, a download ring or a Join button for your next call.
 </td>
 </tr>
 <tr>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/vinyl.svg" width="40" align="center"> &nbsp;Vinyl mode</h3>
-Trade the cover for a spinning record with the art on its label. The tonearm drops when you hit play and swings back when you pause. Settings → Media → Vinyl mode.
+Trade the cover for a spinning record with the art on its label. The tonearm drops when you hit play and swings back when you pause. Settings → Appearance → Vinyl mode.
 </td>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/lock.svg" width="40" align="center"> &nbsp;Lock &amp; unlock</h3>
-Lock your Mac and a padlock snaps shut in the notch and stays until you unlock. Below the clock, the lock screen shows what's playing, with controls, and any running timer.
+Lock your Mac and a padlock snaps shut in the notch and stays until you unlock. Below the clock, the lock screen shows what's playing, with previous, play/pause and next, and any running timer.
 </td>
 </tr>
 <tr>
@@ -94,7 +94,7 @@ A camera check in one click before a call. Round or square.
 </td>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/gestures.svg" width="40" align="center"> &nbsp;Hover &amp; gestures</h3>
-Hover to open and move away to close, after a delay you choose. A two-finger scroll down on the notch opens it and a scroll up closes it, with a haptic tap on the trackpad.
+Hover to open and move away to close, after a delay you choose, or turn on Peek before opening to see the timer, your next event or the song first. A two-finger scroll down opens the notch and a scroll up closes it; swipe sideways on the closed notch to change track. Each comes with a haptic tap on the trackpad.
 </td>
 </tr>
 <tr>
@@ -104,7 +104,7 @@ Start a 1 to 60 minute timer from the open notch. The countdown sits beside the 
 </td>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/download.svg" width="40" align="center"> &nbsp;Downloads</h3>
-A ring fills beside the notch while Safari, Chrome or Firefox downloads into your Downloads folder. A green or orange dot shows when an app is using your camera or microphone.
+A ring fills beside the notch while Safari, Chrome or Firefox downloads into your Downloads folder, and closes a moment after the last one finishes.
 </td>
 </tr>
 <tr>
@@ -114,7 +114,17 @@ Made for notched MacBooks; other screens get a floating island. Show it on every
 </td>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/custom.svg" width="40" align="center"> &nbsp;Make it yours</h3>
-System accent color, a preset or any color. Tint the player from the artwork, glow behind the cover, choose the player's buttons (shuffle, repeat, volume, favorite, 15-second skips) and hide the notch from screen recordings.
+System accent color, a preset or any color. Liquid Glass for the open notch on macOS 26. Tint the player from the artwork, glow behind the cover, choose the player's buttons (shuffle, repeat, volume, favorite, 15-second skips, audio output) and hide the notch from screen recordings. Settings has a search field.
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<h3><img src="assets/readme/icons/shield.svg" width="40" align="center"> &nbsp;Camera &amp; mic</h3>
+A green dot inside the notch while any app uses a camera, orange while one uses the microphone. A headset that's only playing music doesn't count.
+</td>
+<td width="50%" valign="top">
+<h3><img src="assets/readme/icons/chip.svg" width="40" align="center"> &nbsp;Light &amp; up to date</h3>
+The visualizer and record spin run in the system's renderer, so Visor barely wakes while music plays, and it calms down further in Low Power Mode. It checks GitHub once a day and tells you when a new version is out.
 </td>
 </tr>
 </table>
@@ -142,6 +152,8 @@ What changed in each version: [`CHANGELOG.md`](CHANGELOG.md).
 | Scroll down on the notch with two fingers | opens |
 | Scroll up on the open notch | closes |
 | Swipe left or right on the closed notch with two fingers | plays the next or previous track |
+| Click **Join** beside the notch before a call | opens the Zoom, Meet, Teams or Webex link |
+| Click the timer icon in the open notch | starts a 1 to 60 minute timer |
 | Drag a file toward the notch | opens the shelf for you to drop it |
 | Click the record icon in the menu bar | shows Settings, Restart and Quit |
 
@@ -184,6 +196,12 @@ Package a styled `.dmg`:
 
 ```bash
 bash scripts/make-dmg.sh
+```
+
+It writes `dist/Visor.dmg` and a dated copy in `new-releases/`. Attach both to the GitHub release; the README's download button points at `releases/latest/download/Visor.dmg`, so it always fetches the newest one:
+
+```bash
+gh release create vX.Y.Z new-releases/Visor-X.Y.Z-build….dmg dist/Visor.dmg --title "Visor X.Y.Z" --notes-file notes.md
 ```
 
 ## <img src="assets/readme/icons/opensource.svg" width="34" align="center"> &nbsp;Open source
