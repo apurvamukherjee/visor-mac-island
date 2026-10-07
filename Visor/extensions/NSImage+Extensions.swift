@@ -3,8 +3,24 @@
 import SwiftUI
 import AppKit
 import CoreImage.CIFilterBuiltins
+import ImageIO
 
 extension NSImage {
+    /// Decodes image data at no more than `maxPixelSize` on its longer side.
+    /// NSImage(data:) keeps the full bitmap once drawn, and cover art is often
+    /// 1000-3000 px for a view a few hundred pixels wide.
+    static func downsampled(from data: Data, maxPixelSize: Int) -> NSImage? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, [kCGImageSourceShouldCache: false] as CFDictionary),
+              let image = CGImageSourceCreateThumbnailAtIndex(source, 0, [
+                  kCGImageSourceCreateThumbnailFromImageAlways: true,
+                  kCGImageSourceCreateThumbnailWithTransform: true,
+                  kCGImageSourceShouldCacheImmediately: true,
+                  kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
+              ] as CFDictionary)
+        else { return nil }
+        return NSImage(cgImage: image, size: NSSize(width: image.width, height: image.height))
+    }
+
     // Visor: one hop back to main for every exit, instead of one per failure.
     func averageColor(completion: @escaping (NSColor?) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async {

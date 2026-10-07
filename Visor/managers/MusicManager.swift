@@ -359,7 +359,9 @@ class MusicManager: ObservableObject {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self = self else { return }
 
-            if let artworkImage = NSImage(data: artworkData) {
+            // 600 px covers the largest place the cover is drawn, the
+            // lighting glow at 1.4x of the open player, on a Retina screen.
+            if let artworkImage = NSImage.downsampled(from: artworkData, maxPixelSize: 600) {
                 DispatchQueue.main.async { [weak self] in
                     self?.usingAppIconForArtwork = false
                     self?.updateAlbumArt(newAlbumArt: artworkImage)
