@@ -1,0 +1,75 @@
+.island {
+  --accent: #ff2d55;
+  --ease: cubic-bezier(0.32, 0.72, 0.24, 1.02);
+  position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 9600;
+  max-width: calc(100vw - 16px);
+  background: #000; color: #fff; border-radius: 0 0 12px 12px;
+  transition: width 0.45s var(--ease), height 0.45s var(--ease), border-radius 0.45s var(--ease), box-shadow 0.3s;
+}
+.island.is-open { border-radius: 0 0 26px 26px; box-shadow: 0 12px 40px rgb(0 0 0 / 0.45); }
+
+/* The concave "ears" where the notch meets the top edge of the screen. */
+.island::before, .island::after {
+  content: ''; position: absolute; top: 0; width: 10px; height: 10px; pointer-events: none;
+}
+.island::before { left: -10px; background: radial-gradient(circle at 0 100%, transparent 9.5px, #000 10px); }
+.island::after { right: -10px; background: radial-gradient(circle at 100% 100%, transparent 9.5px, #000 10px); }
+
+.island-hit { all: unset; position: absolute; inset: 0; cursor: pointer; }
+.island-hit:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: inherit; }
+
+.island-open { position: absolute; inset: 0; padding: 6px 22px 16px; display: flex; flex-direction: column; animation: island-in 0.35s 0.08s both; }
+@keyframes island-in { from { opacity: 0; filter: blur(6px); } }
+
+/* Closed live activity: cover on the left wing, visualizer on the right. */
+.closed { position: absolute; inset: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; animation: island-in 0.3s both; }
+
+.cover { display: block; flex: none; border-radius: 22%; box-shadow: 0 2px 8px rgb(0 0 0 / 0.4); }
+.closed .cover { border-radius: 6px; }
+
+.visualizer { display: flex; align-items: center; gap: 2px; height: 14px; }
+.visualizer i { width: 3px; height: 100%; border-radius: 2px; background: var(--accent); animation: viz 0.9s ease-in-out infinite alternate; transform-origin: center; }
+.visualizer i:nth-child(2) { animation-duration: 0.7s; animation-delay: -0.3s; }
+.visualizer i:nth-child(3) { animation-duration: 1.1s; animation-delay: -0.5s; }
+.visualizer i:nth-child(4) { animation-duration: 0.8s; animation-delay: -0.2s; }
+.visualizer.is-paused i { animation-play-state: paused; transform: scaleY(0.25); }
+@keyframes viz { from { transform: scaleY(0.25); } to { transform: scaleY(1); } }
+
+.island-header { display: flex; justify-content: space-between; align-items: center; height: 30px; }
+.island-tabs { display: flex; gap: 4px; }
+.island-tab { width: 38px; height: 24px; border: 0; border-radius: 12px; background: none; color: rgb(255 255 255 / 0.55); cursor: pointer; display: grid; place-items: center; }
+.island-tab svg { width: 16px; height: 16px; }
+.island-tab[aria-selected='true'] { background: rgb(255 255 255 / 0.12); color: #fff; }
+.island-tab:focus-visible, .player-btn:focus-visible { outline: 2px solid var(--accent); }
+
+.island-battery { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.island-battery-cell { position: relative; width: 26px; height: 12px; border: 1.5px solid rgb(255 255 255 / 0.5); border-radius: 4px; padding: 1.5px; }
+.island-battery-cell i { display: block; height: 100%; border-radius: 1.5px; background: #fff; }
+.island-battery-cell.is-charging i { background: #34c759; }
+
+.home { flex: 1; display: flex; gap: 22px; padding-top: 8px; min-height: 0; }
+.player { display: flex; gap: 18px; flex: 1.15; min-width: 0; align-items: center; }
+.player-main { flex: 1; min-width: 0; }
+.player-title { font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.player-artist { font-size: 14px; color: rgb(255 255 255 / 0.55); margin-bottom: 10px; }
+
+.player-scrub {
+  --p: 0%; appearance: none; width: 100%; height: 5px; margin: 0; border-radius: 3px; cursor: pointer;
+  background: linear-gradient(to right, #fff var(--p), rgb(255 255 255 / 0.2) var(--p));
+}
+.player-scrub::-webkit-slider-thumb { appearance: none; width: 0; height: 0; }
+.player-scrub::-moz-range-thumb { width: 0; height: 0; border: 0; }
+.player-scrub:hover::-webkit-slider-thumb { width: 11px; height: 11px; border-radius: 50%; background: #fff; }
+.player-times { display: flex; justify-content: space-between; font-size: 11px; color: rgb(255 255 255 / 0.5); margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+.player-controls { display: flex; justify-content: center; align-items: center; gap: 18px; margin-top: 6px; }
+.player-btn { width: 30px; height: 30px; padding: 4px; border: 0; border-radius: 50%; background: none; color: #fff; cursor: pointer; opacity: 0.9; }
+.player-btn.is-big { width: 38px; height: 38px; }
+.player-btn:hover { background: rgb(255 255 255 / 0.1); opacity: 1; }
+.player-btn:active { transform: scale(0.92); }
+
+@media (prefers-reduced-motion: reduce) {
+  .island { transition: none; }
+  .island-open, .closed { animation: none; }
+  .visualizer i { animation: none; transform: scaleY(0.6); }
+}
