@@ -26,6 +26,15 @@ export function Closed() {
   const transient = useNotch((s) => s.transient);
 
   if (transient?.kind === 'hud') return <Hud hud={transient.hud} value={transient.value} />;
+  if (transient?.kind === 'peek') {
+    return (
+      <div className="closed closed-peek" role="status" aria-label={`Now playing ${track.title} by ${track.artist}`}>
+        <Cover track={track} size={22} linked={false} />
+        <span className="closed-peek-text"><b>{track.title}</b> · {track.artist}</span>
+        <Visualizer playing={playing} />
+      </div>
+    );
+  }
   return (
     <div className="closed">
       <Cover track={track} size={22} linked={false} />

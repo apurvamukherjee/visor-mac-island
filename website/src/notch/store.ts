@@ -21,6 +21,7 @@ interface Notch {
   setTab: (tab: Tab) => void;
   togglePlay: () => void;
   skip: (by: 1 | -1) => void;
+  playTrack: (index: number) => void;
   seek: (position: number) => void;
   /** Set by the audio element as it plays; seek() is for the user moving the scrubber. */
   setPosition: (position: number) => void;
@@ -43,6 +44,10 @@ export const useNotch = create<Notch>()((set, get) => ({
     // Like Music: going back mid-song restarts it instead of jumping a track.
     if (by === -1 && get().position > 3) return set({ position: 0 });
     set((s) => ({ track: s.track + by, position: 0 }));
+    if (!get().open) get().flash({ kind: 'peek' }, 2500);
+  },
+  playTrack: (index) => {
+    set({ track: index, position: 0, playing: true });
     if (!get().open) get().flash({ kind: 'peek' }, 2500);
   },
   seek: (position) => set({ position }),
