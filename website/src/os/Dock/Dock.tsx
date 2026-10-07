@@ -16,9 +16,10 @@ function DockItem({ id }: { id: AppId }) {
 
   return (
     <li className="dock-item">
-      <button className="dock-button" aria-label={name} onClick={launch}>
+      {/* Keyed so each launch remounts the button and restarts the bounce. */}
+      <button key={bounce} className={bounce ? 'dock-button is-bouncing' : 'dock-button'} aria-label={name} onClick={launch}>
         <span className="dock-label" aria-hidden>{name}</span>
-        <img key={bounce} className={bounce ? 'dock-icon is-bouncing' : 'dock-icon'} src={icon} alt="" draggable={false} />
+        <img className="dock-icon" src={icon} alt="" draggable={false} />
       </button>
       {running && <span className="dock-dot" aria-hidden />}
     </li>
