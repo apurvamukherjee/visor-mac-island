@@ -43,7 +43,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
     var keywords: String {
         switch self {
         case .general: "menu bar icon launch login displays screen gestures haptic hover peek delay notch height sizing scroll"
-        case .appearance: "tabs mirror camera face timer download progress settings icon vinyl slider color tint blur spectrogram glass"
+        case .appearance: "tabs mirror camera microphone privacy indicator face timer download progress settings icon vinyl slider color tint blur spectrogram glass"
         case .media: "music source spotify apple lyrics sneak peek full screen controls buttons inactivity"
         case .calendar: "events reminders all-day weather meeting zoom meet teams join"
         case .huds: "volume brightness keyboard backlight accessibility percentage glow gradient option key"
@@ -907,6 +907,10 @@ struct Appearance: View {
                 }
                 Defaults.Toggle(key: .showDownloadProgress) {
                     Text("Show download progress")
+                }
+                Defaults.Toggle(key: .showPrivacyIndicators) {
+                    Text("Show camera and microphone indicators")
+                    Text("A green dot in the notch while an app uses a camera, orange while one uses the microphone.")
                 }
                 Defaults.Toggle(key: .showMirror) {
                     Text("Enable mirror")

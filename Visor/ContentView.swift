@@ -14,6 +14,7 @@ struct ContentView: View {
     @ObservedObject var timer = TimerManager.shared
     @ObservedObject var downloads = DownloadMonitor.shared
     @ObservedObject var meetings = MeetingMonitor.shared
+    @ObservedObject var privacy = PrivacyMonitor.shared
     // Visor: held, not observed. The root view reads neither, and observing
     // them re-rendered the whole notch on every system volume change.
     private let brightnessManager = BrightnessManager.shared
@@ -91,6 +92,23 @@ struct ContentView: View {
         .foregroundStyle(.gray)
         .lineLimit(1)
         .frame(maxWidth: computedChinWidth - 24)
+    }
+
+    // Visor: the camera and microphone dots, inside the right end of the
+    // hardware notch's black, clear of the wings whatever they hold.
+    @ViewBuilder
+    private var privacyDots: some View {
+        if vm.notchState == .closed, vm.effectiveClosedNotchHeight > 0,
+           privacy.cameraInUse || privacy.micInUse {
+            HStack(spacing: 3) {
+                if privacy.cameraInUse { Circle().fill(.green).frame(width: 6, height: 6) }
+                if privacy.micInUse { Circle().fill(.orange).frame(width: 6, height: 6) }
+            }
+            .frame(height: vm.effectiveClosedNotchHeight)
+            .offset(x: vm.closedNotchSize.width / 2 - 22)
+            .transition(.opacity)
+            .allowsHitTesting(false)
+        }
     }
 
     // Visor: glass only while open. Closed, the island has to read as part of
@@ -215,6 +233,7 @@ struct ContentView: View {
                     )
                 
                 mainLayout
+                    .overlay(alignment: .top) { privacyDots }
                     .frame(height: vm.notchState == .open ? vm.notchSize.height : nil)
                     .animation(
                         vm.notchState == .open
