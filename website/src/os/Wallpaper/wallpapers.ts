@@ -19,6 +19,11 @@ export const wallpapers: [Wallpaper, ...Wallpaper[]] = [
   { file: 'kajikazawa.webp', title: 'Kajikazawa in Kai Province', artist: 'Katsushika Hokusai', year: 'c. 1831', source: commons('Kajikazawa_in_Kai_province.jpg') },
   { file: 'coast-moonlight.webp', title: 'Coastal Landscape in Moonlight', artist: 'Utagawa Hiroshige', year: '1857', source: commons('Hiroshige,_Coastal_landscape_in_moonlight.jpg') },
   { file: 'dragon-cavern.webp', title: 'Pines and Waves at the Dragon Cavern', artist: 'Katsushika Hokusai', year: 'c. 1833', source: commons('Katsushika_Hokusai_Pines_and_Waves_at_the_Dragon_Cavern.jpeg') },
+  { file: 'kanaya.webp', title: 'Fuji from Kanaya on the Tōkaidō', artist: 'Katsushika Hokusai', year: 'c. 1831', source: commons('The_Fuji_from_Kanaya_on_the_Tokaido.jpg') },
+  { file: 'musashi-whale.webp', title: 'Miyamoto Musashi Attacking a Giant Whale', artist: 'Utagawa Kuniyoshi', year: '1847', source: commons('Miyamoto-Musashi-Attacking-Giant-Whale-Utagawa-Kuniyoshi.png') },
+  { file: 'ejiri.webp', title: 'Ejiri in Suruga Province', artist: 'Katsushika Hokusai', year: 'c. 1831', source: commons('Ejiri_in_the_Suruga_province.jpg') },
+  { file: 'kanbara-snow.webp', title: 'Night Snow at Kanbara', artist: 'Utagawa Hiroshige', year: 'c. 1833', source: commons('Kanbara_LCCN2008660619.jpg') },
+  { file: 'tago-bay.webp', title: 'Tago Bay near Ejiri on the Tōkaidō', artist: 'Katsushika Hokusai', year: 'c. 1831', source: commons('Shore_of_Tago_Bay,_Ejiri_at_Tokaido.jpg') },
 ];
 
 export const wallpaperUrl = (w: Wallpaper) => `${import.meta.env.BASE_URL}wallpapers/${w.file}`;
