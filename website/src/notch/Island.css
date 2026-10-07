@@ -73,3 +73,31 @@
   .island-open, .closed { animation: none; }
   .visualizer i { animation: none; transform: scaleY(0.6); }
 }
+
+.calendar { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.calendar-top { display: flex; gap: 12px; align-items: center; }
+.calendar-month { display: flex; flex-direction: column; line-height: 1.15; }
+.calendar-month b { font-size: 16px; }
+.calendar-month span { font-size: 15px; color: rgb(255 255 255 / 0.55); }
+.calendar-days { display: flex; gap: 2px; flex: 1; justify-content: space-between; }
+.calendar-day {
+  display: flex; flex-direction: column; align-items: center; gap: 3px; width: 34px; padding: 4px 0 5px;
+  border: 0; border-radius: 9px; background: none; color: rgb(255 255 255 / 0.85); cursor: pointer; font: inherit;
+}
+.calendar-day small { font-size: 10.5px; color: rgb(255 255 255 / 0.5); }
+.calendar-day span { font-size: 14px; font-weight: 600; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; }
+.calendar-day[aria-selected='true'] { background: color-mix(in srgb, var(--accent) 35%, transparent); }
+.calendar-day.is-today span { background: var(--accent); color: #fff; }
+.calendar-day:focus-visible, .calendar-join:focus-visible { outline: 2px solid var(--accent); }
+
+.calendar-events { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; font-size: 12px; }
+.calendar-events li { display: flex; align-items: center; gap: 8px; }
+.calendar-events li.is-past { opacity: 0.4; }
+.calendar-events i { width: 3px; height: 14px; border-radius: 2px; flex: none; }
+.calendar-event-title { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.calendar-events time { color: rgb(255 255 255 / 0.5); font-variant-numeric: tabular-nums; }
+.calendar-join { padding: 2px 9px; border: 0; border-radius: 10px; background: #34c759; color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+.calendar-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; font-size: 13px; }
+.calendar-empty span { color: rgb(255 255 255 / 0.55); font-size: 12px; }
+
+@media (max-width: 680px) { .calendar { display: none; } }

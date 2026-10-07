@@ -1,3 +1,4 @@
+import { Calendar } from './Calendar';
 import { useNotch } from './store';
 import { Cover } from './Cover';
 import { formatTime, trackAt } from './tracks';
@@ -51,6 +52,7 @@ export function Home() {
   return (
     <div className="home">
       <Player />
+      <Calendar />
     </div>
   );
 }
