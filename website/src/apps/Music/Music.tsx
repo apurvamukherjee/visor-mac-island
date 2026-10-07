@@ -6,7 +6,7 @@ import './Music.css';
 const sidebar: [string, string[]][] = [
   ['Apple Music', ['Home', 'New', 'Radio']],
   ['Library', ['Recently Added', 'Artists', 'Albums', 'Songs']],
-  ['Playlists', ['Visor Mix']],
+  ['Playlists', ['ruined by her hands']],
 ];
 
 export function Music() {
@@ -20,7 +20,7 @@ export function Music() {
         {sidebar.map(([group, items]) => (
           <section key={group}>
             <h4>{group}</h4>
-            {items.map((i) => <button key={i} className={i === 'Visor Mix' ? 'is-active' : ''}>{i}</button>)}
+            {items.map((i) => <button key={i} className={i === 'ruined by her hands' ? 'is-active' : ''}>{i}</button>)}
           </section>
         ))}
       </nav>
@@ -45,8 +45,8 @@ export function Music() {
             <div className="music-mosaic">{tracks.slice(0, 4).map((t) => <img key={t.title} src={t.art} alt="" />)}</div>
             <div>
               <small>Playlist</small>
-              <h1>Visor Mix</h1>
-              <p>Chase Atlantic, The Weeknd · {tracks.length} songs · 30-second previews</p>
+              <h1>ruined by her hands</h1>
+              <p>Apurva · {tracks.length} songs · 30-second previews</p>
               <button className="music-play" onClick={() => playTrack(playing ? index + 1 : index)}>▶ Play</button>
             </div>
           </header>
