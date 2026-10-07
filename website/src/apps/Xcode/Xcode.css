@@ -1,0 +1,11 @@
+.xcode { display: flex; height: 100%; font-size: 13px; background: #fff; }
+.xcode-welcome { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 20px 28px; text-align: center; }
+.xcode-welcome h1 { margin: 6px 0 0; font-size: 26px; font-weight: 600; }
+.xcode-welcome p { margin: 0 0 10px; }
+.xcode-steps { display: flex; flex-direction: column; gap: 6px; width: 100%; text-align: left; }
+.xcode-recent { flex: none; width: 210px; padding: 12px; background: rgb(0 0 0 / 0.03); border-left: 1px solid rgb(0 0 0 / 0.06); }
+.xcode-recent h4 { margin: 0 0 8px; font-size: 11px; color: rgb(0 0 0 / 0.45); }
+.xcode-recent a { display: flex; flex-direction: column; padding: 8px; border-radius: 8px; color: inherit; text-decoration: none; }
+.xcode-recent a:hover { background: rgb(0 0 0 / 0.05); }
+.xcode-recent small { color: rgb(0 0 0 / 0.45); }
+@media (max-width: 600px) { .xcode-recent { display: none; } }

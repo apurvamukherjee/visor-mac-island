@@ -4,6 +4,7 @@ import { AppStore } from './AppStore/AppStore';
 import { apps } from './apps';
 import { Call } from './Calls/Call';
 import { Chrome } from './Chrome/Chrome';
+import { Xcode } from './Xcode/Xcode';
 import { Claude } from './Claude/Claude';
 import { Maps } from './Maps/Maps';
 import { Photos } from './Photos/Photos';
@@ -49,4 +50,5 @@ export const views: Partial<Record<AppId, ComponentType>> = {
   facetime: FaceTime,
   maps: Maps,
   claude: Claude,
+  xcode: Xcode,
 };
