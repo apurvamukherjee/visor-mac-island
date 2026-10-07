@@ -43,3 +43,6 @@
   .menubar-menu:nth-child(n + 3) { display: none; }
   .menubar-right .menubar-status:not(time) { display: none; }
 }
+
+.desktop.is-dark .menubar-dropdown { background: rgb(40 40 44 / 0.82); color: #f4f4f5; }
+.desktop.is-dark .menubar-sep { background: rgb(255 255 255 / 0.14); }

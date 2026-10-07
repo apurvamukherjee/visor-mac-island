@@ -131,7 +131,7 @@ export function MenuBar() {
             <button className={`menubar-item${open === 'cc' ? ' is-open' : ''}`} aria-label="Control Center" aria-expanded={open === 'cc'} onClick={() => setOpen(open === 'cc' ? null : 'cc')}>
               {controlCenter}
             </button>
-            {open === 'cc' && <ControlCenter />}
+            {open === 'cc' && <ControlCenter onClose={() => setOpen(null)} />}
           </div>
           <Clock />
         </div>

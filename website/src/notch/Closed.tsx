@@ -1,4 +1,4 @@
-import { useNotch, type Transient } from './store';
+import { useNotch, type Hud as HudKind, type Transient } from './store';
 import { Cover, Visualizer } from './Cover';
 import { trackAt } from './tracks';
 
@@ -9,9 +9,9 @@ export function closedWidth(transient: Transient | null) {
   return { hud: 380, battery: 360, peek: 420, download: 300 }[transient.kind];
 }
 
-const hudIcon = { volume: '🔊', brightness: '☀' };
+const hudIcon: Record<HudKind, string> = { volume: '🔊', brightness: '☀', backlight: '⌨' };
 
-function Hud({ hud, value }: { hud: 'volume' | 'brightness'; value: number }) {
+function Hud({ hud, value }: { hud: HudKind; value: number }) {
   return (
     <div className="closed closed-hud" role="status" aria-label={`${hud} ${Math.round(value * 100)}%`}>
       <span className="closed-hud-icon" aria-hidden>{hudIcon[hud]}</span>

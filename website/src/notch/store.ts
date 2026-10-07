@@ -2,9 +2,10 @@ import { create } from 'zustand';
 
 
 export type Tab = 'home' | 'shelf';
+export type Hud = 'volume' | 'brightness' | 'backlight';
 
 export type Transient =
-  | { kind: 'hud'; hud: 'volume' | 'brightness'; value: number }
+  | { kind: 'hud'; hud: Hud; value: number }
   | { kind: 'battery'; charging: boolean; level: number }
   | { kind: 'peek' }
   | { kind: 'download'; progress: number };

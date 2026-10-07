@@ -8,7 +8,7 @@
   animation: window-open 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2);
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
-.window.is-dark { background: rgb(30 30 32 / 0.94); color: #f4f4f5; }
+.window.is-dark, .desktop.is-dark .window { background: rgb(30 30 32 / 0.94); color: #f4f4f5; }
 .window:not(.is-focused) { box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.2), 0 12px 40px rgb(0 0 0 / 0.3); }
 .window.is-minimized { transform: translateY(60vh) scale(0.05); opacity: 0; pointer-events: none; }
 @keyframes window-open { from { transform: scale(0.9); opacity: 0; } }
@@ -29,7 +29,7 @@
 .traffic-min { background: #febc2e; }
 .traffic-zoom { background: #28c840; }
 .window:not(.is-focused) .traffic button { background: #c8c8cc; }
-.window.is-dark:not(.is-focused) .traffic button { background: #4a4a4e; }
+.window.is-dark:not(.is-focused) .traffic button, .desktop.is-dark .window:not(.is-focused) .traffic button { background: #4a4a4e; }
 .traffic button:focus-visible { outline: 2px solid #0a84ff; outline-offset: 2px; }
 
 .window-body { flex: 1; min-height: 0; overflow: auto; }

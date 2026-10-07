@@ -8,7 +8,7 @@
 .app-btn.is-primary:hover { background: #0071e3; }
 .app-btn.is-big { padding: 10px 20px; font-size: 14px; border-radius: 10px; }
 .app-btn:focus-visible { outline: 2px solid #0a84ff; outline-offset: 2px; }
-.is-dark .app-btn { background: rgb(255 255 255 / 0.1); }
+.is-dark .app-btn, .desktop.is-dark .app-btn { background: rgb(255 255 255 / 0.1); }
 .is-dark .app-btn:hover { background: rgb(255 255 255 / 0.16); }
 .is-dark .app-btn.is-primary { background: #0a84ff; }
 
@@ -19,4 +19,4 @@
 .app-command code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font: 12px ui-monospace, Menlo, monospace; }
 .app-command .app-btn { background: rgb(255 255 255 / 0.12); color: #fff; }
 .app-muted { color: rgb(0 0 0 / 0.5); }
-.is-dark .app-muted { color: rgb(255 255 255 / 0.5); }
+.is-dark .app-muted, .desktop.is-dark .app-muted { color: rgb(255 255 255 / 0.5); }
