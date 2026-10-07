@@ -1,7 +1,7 @@
 .lock {
   position: fixed; inset: 0; z-index: 9550; display: flex; flex-direction: column; align-items: center;
   padding-top: 70px; color: #fff; cursor: default;
-  background: rgb(0 0 0 / 0.15); backdrop-filter: blur(40px) saturate(1.3); -webkit-backdrop-filter: blur(40px) saturate(1.3);
+  background: rgb(0 0 0 / 0.35); backdrop-filter: blur(80px) saturate(1.4); -webkit-backdrop-filter: blur(80px) saturate(1.4);
   animation: lock-in 0.4s ease both;
 }
 @keyframes lock-in { from { opacity: 0; } }
