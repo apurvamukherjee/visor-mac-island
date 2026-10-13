@@ -4,6 +4,10 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.6.2 (build 47) · 2026-10-13
+
+- **Updates keep the HUD working.** Visor is now signed with its own certificate instead of a one-off signature, so macOS recognises each update as the same app and keeps the Accessibility permission. Coming from 3.6.1 or earlier, do it once more: Settings → HUDs → **Reset and Ask Again**, then allow Visor.
+
 ## 3.6.1 (build 46) · 2026-10-13
 
 - **HUD turns on again after an update.** macOS keeps showing Visor as allowed under Accessibility after an update but no longer honours it. Settings → HUDs now explains this and has a **Reset and Ask Again** button, and Visor no longer switches the HUD setting off while it waits for access.
