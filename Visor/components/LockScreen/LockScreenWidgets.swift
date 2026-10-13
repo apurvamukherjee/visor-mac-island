@@ -69,12 +69,50 @@ private struct LockScreenWidgetsView: View {
     }
 
     private var mediaCard: some View {
+        VStack(spacing: 10) {
+            mediaRow
+            if Defaults[.enableLyrics] { lyricLine }
+        }
+        .padding(12)
+        .background(card)
+        .background(glow)
+        .transition(.move(edge: .bottom).combined(with: .opacity).combined(with: .scale(scale: 0.95)))
+    }
+
+    // Lyrics matter only while locked and playing; a paused track's line is static.
+    private var lyricLine: some View {
+        TimelineView(.animation(minimumInterval: 0.25, paused: !music.isPlaying)) { timeline in
+            let line = music.lyricLine(at: music.estimatedPlaybackPosition(at: timeline.date))
+            Text(line)
+                .id(line)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(.white.opacity(0.85))
+                .lineLimit(1)
+                .frame(maxWidth: .infinity)
+                .transition(.asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity), removal: .opacity))
+                .animation(.smooth(duration: 0.35), value: line)
+        }
+        .frame(height: 18)
+        .clipped()
+    }
+
+    private var glow: some View {
+        RoundedRectangle(cornerRadius: 22, style: .continuous)
+            .fill(Color(nsColor: music.avgColor))
+            .blur(radius: 28)
+            .opacity(music.isPlaying ? 0.45 : 0.15)
+            .animation(.easeInOut(duration: 1.2), value: music.isPlaying)
+    }
+
+    private var mediaRow: some View {
         HStack(spacing: 12) {
             Image(nsImage: music.albumArt)
                 .resizable()
                 .aspectRatio(1, contentMode: .fill)
                 .frame(width: 56, height: 56)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
+                .scaleEffect(music.isPlaying ? 1 : 0.92)
+                .animation(.spring(duration: 0.5, bounce: 0.3), value: music.isPlaying)
             VStack(alignment: .leading, spacing: 2) {
                 Text(music.songTitle)
                     .font(.headline)
@@ -91,9 +129,6 @@ private struct LockScreenWidgetsView: View {
                 controlButton("forward.fill") { music.nextTrack() }
             }
         }
-        .padding(12)
-        .background(card)
-        .transition(.opacity.combined(with: .scale(scale: 0.95)))
     }
 
     private func timerCard(_ range: ClosedRange<Date>) -> some View {
