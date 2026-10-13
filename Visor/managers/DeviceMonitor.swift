@@ -43,6 +43,7 @@ final class DeviceMonitor: ObservableObject {
         let system = AudioObjectID(kAudioObjectSystemObject)
         if enabled {
             guard listener == nil else { return }
+            DeviceModels.prewarm()
             // Seeded first, so whatever is already connected at launch is not announced.
             known = Set(AudioOutputs.list().map(\.name))
             let block: AudioObjectPropertyListenerBlock = { _, _ in
