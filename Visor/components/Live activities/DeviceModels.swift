@@ -28,13 +28,44 @@ enum DeviceKind: CaseIterable {
         }
     }
 
+    var hasBattery: Bool { self != .jblBar }
+
     /// How far the model sits from the camera's frame: the soundbar is a
     /// metre wide where the earbuds are a thumb tall.
     fileprivate var scale: Float {
         switch self {
-        case .airpods, .oneplusBuds: 1.45
+        case .airpods, .oneplusBuds: 1.35
         case .jblBar: 0.95
         }
+    }
+}
+
+/// Battery levels as macOS reports them, 0–100. AirPods give left, right and
+/// case; most other headsets give one level for the pair.
+struct DeviceBattery: Equatable {
+    var left: Int?
+    var right: Int?
+    var caseLevel: Int?
+    var main: Int?
+
+    var isEmpty: Bool { left == nil && right == nil && caseLevel == nil && main == nil }
+
+    /// Reads `system_profiler SPBluetoothDataType -json` output for the
+    /// connected device called `name`.
+    static func parse(_ json: Data, name: String) -> DeviceBattery? {
+        guard let root = try? JSONSerialization.jsonObject(with: json) as? [String: Any],
+              let controller = (root["SPBluetoothDataType"] as? [[String: Any]])?.first,
+              let connected = controller["device_connected"] as? [[String: [String: Any]]],
+              let info = connected.lazy.compactMap({ $0[name] }).first
+        else { return nil }
+        func level(_ key: String) -> Int? {
+            (info[key] as? String).flatMap { Int($0.replacingOccurrences(of: "%", with: "")) }
+        }
+        let battery = DeviceBattery(
+            left: level("device_batteryLevelLeft"), right: level("device_batteryLevelRight"),
+            caseLevel: level("device_batteryLevelCase"), main: level("device_batteryLevelMain")
+        )
+        return battery.isEmpty ? nil : battery
     }
 }
 
@@ -73,45 +104,44 @@ enum DeviceModels {
 
     // MARK: AirPods
 
+    // The buds are the subject; the case sits small beneath them.
     private static func airpods() -> SCNNode {
-        let white = material(NSColor(white: 0.97, alpha: 1), roughness: 0.28)
+        let white = material(NSColor(white: 0.97, alpha: 1), roughness: 0.18)
+        let tip = material(NSColor(white: 0.86, alpha: 1), roughness: 0.75)
         let root = SCNNode()
-        root.addChildNode(earCase(width: 0.78, height: 0.56, depth: 0.3, chamfer: 0.14, body: white, seam: 0.1))
-        for side: Float in [-1, 1] {
-            let bud = earbud(head: white, stem: white, grille: NSColor(white: 0.12, alpha: 1))
-            bud.position = SCNVector3(0.2 * side, 0.62, 0)
-            bud.eulerAngles.z = CGFloat(side) * -0.18
+        let shell = earCase(width: 0.62, height: 0.46, depth: 0.24, chamfer: 0.11, body: white, seam: 0.1)
+        shell.position.y = -0.42
+        root.addChildNode(shell)
+        for side: CGFloat in [-1, 1] {
+            let bud = earbud(side: side, shell: white, tip: tip, stemLength: 0.34, stemFlatten: 1)
+            bud.position = SCNVector3(0.4 * side, 0.3, 0)
             root.addChildNode(bud)
         }
-        root.position.y = -0.35
         return wrapped(root)
     }
 
     // MARK: OnePlus Buds 3
 
     private static func oneplusBuds() -> SCNNode {
-        let blue = material(NSColor(red: 0.12, green: 0.38, blue: 0.95, alpha: 1), metalness: 0.95, roughness: 0.2)
-        let silver = material(NSColor(white: 0.85, alpha: 1), metalness: 1, roughness: 0.15)
+        // Mirror-polished steel blue: the buds read as chrome, the case as matte.
+        let chrome = material(NSColor(red: 0.58, green: 0.7, blue: 0.88, alpha: 1), metalness: 1, roughness: 0.07)
+        let tip = material(NSColor(red: 0.42, green: 0.58, blue: 0.78, alpha: 1), roughness: 0.7)
+        let matte = material(NSColor(red: 0.47, green: 0.64, blue: 0.84, alpha: 1), roughness: 0.42)
         let root = SCNNode()
-        // Wider and flatter than the AirPods case, with a ring on the lid.
-        let body = earCase(width: 0.86, height: 0.5, depth: 0.42, chamfer: 0.2, body: blue, seam: 0.08)
-        let ring = SCNNode(geometry: SCNTorus(ringRadius: 0.1, pipeRadius: 0.012))
-        ring.geometry?.firstMaterial = silver
-        ring.position = SCNVector3(0, 0.02, 0.215)
-        ring.eulerAngles.x = .pi / 2
-        body.addChildNode(ring)
-        root.addChildNode(body)
-        for side: Float in [-1, 1] {
-            let bud = earbud(head: blue, stem: blue, grille: NSColor(white: 0.1, alpha: 1))
-            let band = SCNNode(geometry: SCNTorus(ringRadius: 0.052, pipeRadius: 0.01))
-            band.geometry?.firstMaterial = silver
-            band.position = SCNVector3(0, -0.2, 0)
-            bud.addChildNode(band)
-            bud.position = SCNVector3(0.22 * side, 0.6, 0)
-            bud.eulerAngles.z = CGFloat(side) * -0.22
+        let shell = earCase(width: 0.7, height: 0.46, depth: 0.36, chamfer: 0.12, body: matte, seam: -0.15)
+        let logo = SCNNode(geometry: SCNPlane(width: 0.4, height: 0.06))
+        logo.geometry?.firstMaterial = unlit(oneplusLogo)
+        logo.geometry?.firstMaterial?.transparencyMode = .aOne
+        logo.position = SCNVector3(0, 0.04, 0.181)
+        shell.addChildNode(logo)
+        shell.position.y = -0.44
+        root.addChildNode(shell)
+        for side: CGFloat in [-1, 1] {
+            let bud = earbud(side: side, shell: chrome, tip: tip, stemLength: 0.44, stemFlatten: 0.7)
+            // Staggered like the product shot, one bud a little lower.
+            bud.position = SCNVector3(0.42 * side, side < 0 ? 0.36 : 0.26, 0)
             root.addChildNode(bud)
         }
-        root.position.y = -0.33
         return wrapped(root)
     }
 
@@ -178,27 +208,50 @@ enum DeviceModels {
 
         let led = SCNNode(geometry: SCNSphere(radius: 0.016))
         led.geometry?.firstMaterial = unlit(NSColor(red: 0.45, green: 1, blue: 0.55, alpha: 1))
-        led.position = SCNVector3(0, seam - 0.07, depth / 2 + 0.003)
+        // Below a high seam, above a low one: either way on the flat front.
+        led.position = SCNVector3(0, seam > 0 ? seam - 0.07 : seam + 0.06, depth / 2 + 0.003)
         shell.addChildNode(led)
         return shell
     }
 
-    private static func earbud(head: SCNMaterial, stem: SCNMaterial, grille: NSColor) -> SCNNode {
+    /// A stemmed earbud seen side-on: the stem drops from a rounded head
+    /// whose silicone tip points toward the other bud (`side` is -1 left, 1 right).
+    private static func earbud(side: CGFloat, shell: SCNMaterial, tip: SCNMaterial,
+                               stemLength: CGFloat, stemFlatten: CGFloat) -> SCNNode {
         let bud = SCNNode()
-        let top = SCNNode(geometry: SCNSphere(radius: 0.13))
-        top.geometry?.firstMaterial = head
-        top.scale = SCNVector3(1, 0.95, 1.15)
-        bud.addChildNode(top)
+        let inward = -side
 
-        let shaft = SCNNode(geometry: SCNCapsule(capRadius: 0.042, height: 0.36))
-        shaft.geometry?.firstMaterial = stem
-        shaft.position = SCNVector3(0, -0.17, -0.02)
-        bud.addChildNode(shaft)
+        let stem = SCNNode(geometry: SCNCapsule(capRadius: 0.055, height: stemLength))
+        stem.geometry?.firstMaterial = shell
+        stem.scale = SCNVector3(1, 1, stemFlatten)
+        stem.position.y = -stemLength / 2 + 0.06
+        bud.addChildNode(stem)
 
-        let mesh = SCNNode(geometry: SCNSphere(radius: 0.04))
-        mesh.geometry?.firstMaterial = material(grille, roughness: 0.7)
-        mesh.position = SCNVector3(0, 0.0, 0.11)
-        bud.addChildNode(mesh)
+        let head = SCNNode(geometry: SCNSphere(radius: 0.12))
+        head.geometry?.firstMaterial = shell
+        head.scale = SCNVector3(1.2, 0.92, 1)
+        head.position = SCNVector3(0.05 * inward, 0.07, 0)
+        bud.addChildNode(head)
+
+        let nozzle = SCNNode(geometry: SCNCylinder(radius: 0.045, height: 0.08))
+        nozzle.geometry?.firstMaterial = shell
+        nozzle.eulerAngles.z = .pi / 2
+        nozzle.position = SCNVector3(0.18 * inward, 0.06, 0.01)
+        bud.addChildNode(nozzle)
+
+        let ear = SCNNode(geometry: SCNSphere(radius: 0.085))
+        ear.geometry?.firstMaterial = tip
+        ear.scale = SCNVector3(0.62, 1, 1)
+        ear.position = SCNVector3(0.23 * inward, 0.06, 0.01)
+        bud.addChildNode(ear)
+
+        let slot = SCNNode(geometry: SCNCapsule(capRadius: 0.012, height: 0.1))
+        slot.geometry?.firstMaterial = material(NSColor(white: 0.05, alpha: 1), roughness: 0.8)
+        slot.eulerAngles.z = .pi / 2
+        slot.position = SCNVector3(0.06 * inward, 0.172, 0)
+        bud.addChildNode(slot)
+
+        bud.eulerAngles.z = 0.12 * side
         return bud
     }
 
@@ -229,6 +282,9 @@ enum DeviceModels {
                 .draw(in: rect, angle: 90)
             NSColor(white: 1, alpha: 0.95).setFill()
             NSBezierPath(roundedRect: NSRect(x: 60, y: 150, width: 120, height: 70), xRadius: 18, yRadius: 18).fill()
+            // A thin band for the chrome to catch as it turns.
+            NSColor(white: 1, alpha: 0.9).setFill()
+            NSRect(x: 0, y: 128, width: 512, height: 6).fill()
             NSColor(white: 0.8, alpha: 0.8).setFill()
             NSBezierPath(roundedRect: NSRect(x: 330, y: 120, width: 90, height: 100), xRadius: 18, yRadius: 18).fill()
             return true
@@ -241,6 +297,19 @@ enum DeviceModels {
             rect.fill()
             NSColor(white: 0.04, alpha: 1).setFill()
             NSBezierPath(ovalIn: NSRect(x: 2, y: 2, width: 4, height: 4)).fill()
+            return true
+        }
+    }()
+
+    private static let oneplusLogo: NSImage = {
+        NSImage(size: NSSize(width: 400, height: 60), flipped: false) { rect in
+            let text = NSAttributedString(string: "ONEPLUS", attributes: [
+                .font: NSFont.systemFont(ofSize: 44, weight: .semibold),
+                .foregroundColor: NSColor(white: 0.92, alpha: 1),
+                .kern: 6,
+            ])
+            let size = text.size()
+            text.draw(at: NSPoint(x: (rect.width - size.width) / 2, y: (rect.height - size.height) / 2))
             return true
         }
     }()
