@@ -914,7 +914,7 @@ struct Appearance: View {
                 }
                 Defaults.Toggle(key: .catchScreenshots) {
                     Text("Catch screenshots in the shelf")
-                    Text("New screenshots appear in the notch's shelf as they are saved.")
+                    Text("New screenshots appear in the notch's shelf as they are saved. macOS asks for access to your screenshot folder the first time.")
                 }
                 Defaults.Toggle(key: .showPrivacyIndicators) {
                     Text("Show camera and microphone indicators")

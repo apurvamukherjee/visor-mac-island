@@ -6,7 +6,7 @@ Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
 ## 3.5.0 (build 43) · 2026-10-13
 
-- **Screenshots land in the notch.** Each new screenshot appears on the shelf the moment it is saved, and the notch opens to show it. A Clear button empties the shelf when you are done; the files themselves are kept. Turn it off in Settings → Appearance.
+- **Screenshots land in the notch.** Each new screenshot appears on the shelf the moment it is saved, and the notch opens to show it. A Clear button empties the shelf when you are done; the files themselves are kept. Turn it on in Settings → Appearance.
 - **A livelier lock-screen player.** Synced lyrics (when Lyrics is on) change line under the player, the card slides in, and a glow in the cover's colour fades with playback.
 
 ## 3.4.0 (build 42) · 2026-10-08

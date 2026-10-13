@@ -73,7 +73,7 @@ extension Defaults.Keys {
     static let showMirror = Key<Bool>("showMirror", default: false)
     static let showTimer = Key<Bool>("showTimer", default: true)
     static let showDownloadProgress = Key<Bool>("showDownloadProgress", default: true)
-    static let catchScreenshots = Key<Bool>("catchScreenshots", default: true)
+    static let catchScreenshots = Key<Bool>("catchScreenshots", default: false)
     static let showPrivacyIndicators = Key<Bool>("showPrivacyIndicators", default: true)
     static let mirrorShape = Key<MirrorShapeEnum>("mirrorShape", default: MirrorShapeEnum.rectangle)
     static let settingsIconInNotch = Key<Bool>("settingsIconInNotch", default: true)
