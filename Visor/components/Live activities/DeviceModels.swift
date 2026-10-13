@@ -14,10 +14,15 @@ enum DeviceKind: CaseIterable {
 
     init?(deviceName: String) {
         let name = deviceName.lowercased()
-        if name.contains("airpods") { self = .airpods }
-        else if name.contains("oneplus buds") { self = .oneplusBuds }
-        else if name.contains("jbl cinema") || name.contains("jbl bar") { self = .jblBar }
-        else { return nil }
+        if name.contains("airpods") {
+            self = .airpods
+        } else if name.contains("oneplus buds") {
+            self = .oneplusBuds
+        } else if name.contains("jbl cinema") || name.contains("jbl bar") {
+            self = .jblBar
+        } else {
+            return nil
+        }
     }
 
     var glow: Color {
@@ -109,7 +114,7 @@ enum DeviceModels {
         let white = material(NSColor(white: 0.97, alpha: 1), roughness: 0.18)
         let tip = material(NSColor(white: 0.86, alpha: 1), roughness: 0.75)
         let root = SCNNode()
-        let shell = earCase(width: 0.62, height: 0.46, depth: 0.24, chamfer: 0.11, body: white, seam: 0.1)
+        let shell = earCase(size: SCNVector3(0.62, 0.46, 0.24), chamfer: 0.11, body: white, seam: 0.1)
         shell.position.y = -0.42
         root.addChildNode(shell)
         for side: CGFloat in [-1, 1] {
@@ -128,7 +133,7 @@ enum DeviceModels {
         let tip = material(NSColor(red: 0.42, green: 0.58, blue: 0.78, alpha: 1), roughness: 0.7)
         let matte = material(NSColor(red: 0.47, green: 0.64, blue: 0.84, alpha: 1), roughness: 0.42)
         let root = SCNNode()
-        let shell = earCase(width: 0.7, height: 0.46, depth: 0.36, chamfer: 0.12, body: matte, seam: -0.15)
+        let shell = earCase(size: SCNVector3(0.7, 0.46, 0.36), chamfer: 0.12, body: matte, seam: -0.15)
         let logo = SCNNode(geometry: SCNPlane(width: 0.4, height: 0.06))
         logo.geometry?.firstMaterial = unlit(oneplusLogo)
         logo.geometry?.firstMaterial?.transparencyMode = .aOne
@@ -172,10 +177,10 @@ enum DeviceModels {
         badge.position = SCNVector3(-1.0, 0, 0.224)
         root.addChildNode(badge)
 
-        for x: Float in [-1.1, 1.1] {
+        for offset: Float in [-1.1, 1.1] {
             let foot = SCNNode(geometry: SCNBox(width: 0.18, height: 0.03, length: 0.3, chamferRadius: 0.01))
             foot.geometry?.firstMaterial = material(NSColor(white: 0.04, alpha: 1), roughness: 0.8)
-            foot.position = SCNVector3(x, -0.165, 0)
+            foot.position = SCNVector3(offset, -0.165, 0)
             root.addChildNode(foot)
         }
         return wrapped(root)
@@ -191,8 +196,8 @@ enum DeviceModels {
         return holder
     }
 
-    private static func earCase(width: CGFloat, height: CGFloat, depth: CGFloat, chamfer: CGFloat,
-                                body: SCNMaterial, seam: CGFloat) -> SCNNode {
+    private static func earCase(size: SCNVector3, chamfer: CGFloat, body: SCNMaterial, seam: CGFloat) -> SCNNode {
+        let (width, height, depth) = (size.x, size.y, size.z)
         let shell = SCNNode(geometry: SCNBox(width: width, height: height, length: depth, chamferRadius: chamfer))
         shell.geometry?.firstMaterial = body
 

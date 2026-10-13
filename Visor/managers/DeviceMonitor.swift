@@ -61,8 +61,9 @@ final class DeviceMonitor: ObservableObject {
         let names = Set(AudioOutputs.list().map(\.name))
         let arrived = names.subtracting(known)
         known = names
-        guard let name = arrived.first(where: { DeviceKind(deviceName: $0) != nil }),
-              let kind = DeviceKind(deviceName: name) else { return }
+        guard let (name, kind) = arrived.lazy
+            .compactMap({ name in DeviceKind(deviceName: name).map { (name, $0) } }).first
+        else { return }
         connected = Connected(kind: kind, name: name)
         VisorViewCoordinator.shared.toggleExpandingView(status: true, type: .device)
         batteryTask?.cancel()
