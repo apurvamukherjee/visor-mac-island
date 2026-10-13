@@ -19,7 +19,8 @@ struct MarqueeText: View {
     @State private var textSize: CGSize = .zero
     @State private var offset: CGFloat = 0
 
-    init(_ text: Binding<String>, font: Font = .body, nsFont: NSFont.TextStyle = .body, textColor: Color = .primary, backgroundColor: Color = .clear, minDuration: Double = 3.0, frameWidth: CGFloat = 200) {
+    init(_ text: Binding<String>, font: Font = .body, nsFont: NSFont.TextStyle = .body, textColor: Color = .primary,
+         backgroundColor: Color = .clear, minDuration: Double = 3.0, frameWidth: CGFloat = 200) {
         _text = text
         self.font = font
         self.nsFont = nsFont
@@ -55,7 +56,7 @@ struct MarqueeText: View {
                 )
                 .background(backgroundColor)
                 // Visor: fires on first layout and on change, like the preference key did.
-                .onGeometryChange(for: CGSize.self, of: { $0.size }) { size in
+                .onGeometryChange(for: CGSize.self) { $0.size } action: { size in
                     self.textSize = CGSize(width: size.width / 2, height: NSFont.preferredFont(forTextStyle: nsFont).pointSize)
                     self.animate = false
                     self.offset = 0

@@ -43,7 +43,8 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
     var keywords: String {
         switch self {
         case .general: "menu bar icon launch login displays screen gestures swipe skip track haptic hover peek delay notch height sizing scroll"
-        case .appearance: "tabs mirror camera microphone privacy indicator face timer download progress settings icon vinyl slider color tint blur spectrogram glass"
+        case .appearance: "tabs mirror camera microphone privacy indicator face timer download progress settings icon "
+            + "vinyl slider color tint blur spectrogram glass"
         case .media: "music source spotify apple lyrics sneak peek full screen controls buttons inactivity"
         case .calendar: "events reminders all-day weather meeting zoom meet teams join"
         case .huds: "volume brightness keyboard backlight accessibility percentage glow gradient option key"
@@ -657,7 +658,7 @@ struct CalendarSettings: View {
 
 func lighterColor(from nsColor: NSColor, amount: CGFloat = 0.14) -> Color {
     let srgb = nsColor.usingColorSpace(.sRGB) ?? nsColor
-    var (r, g, b, a): (CGFloat, CGFloat, CGFloat, CGFloat) = (0, 0, 0, 0)
+    var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
     srgb.getRed(&r, green: &g, blue: &b, alpha: &a)
 
     func lighten(_ c: CGFloat) -> CGFloat {
@@ -848,6 +849,7 @@ struct Shelf: View {
             } header: {
                 Text("Quick Share")
             } footer: {
+                // swiftlint:disable:next line_length
                 Text("Choose which service to use when sharing files from the shelf. Click the shelf button to select files, or drag files onto it to share immediately.")
                     .font(.caption)
                     .foregroundColor(.secondary)

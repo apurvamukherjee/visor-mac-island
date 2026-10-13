@@ -320,11 +320,11 @@ struct EventListView: View {
                 ForEach(filteredEvents) { event in
                     // Visor: an event with a video call joins it; the calendar
                     // stays a right-click away.
-                    Button(action: {
+                    Button {
                         if let url = event.meetingURL ?? event.calendarAppURL() {
                             openURL(url)
                         }
-                    }) {
+                    } label: {
                         eventRow(event)
                     }
                     .contextMenu {
@@ -461,9 +461,9 @@ struct ReminderToggle: View {
     var color: Color
 
     var body: some View {
-        Button(action: {
+        Button {
             isOn.toggle()
-        }) {
+        } label: {
             ZStack {
                 // Outer ring
                 Circle()

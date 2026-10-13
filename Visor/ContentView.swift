@@ -401,8 +401,10 @@ struct ContentView: View {
                             .frame(width: 76, alignment: .trailing)
                         }
                         .frame(height: vm.effectiveClosedNotchHeight, alignment: .center)
-                      } else if coordinator.sneakPeek.show && Defaults[.inlineHUD] && (coordinator.sneakPeek.type != .music) && (coordinator.sneakPeek.type != .battery) && vm.notchState == .closed {
-                          InlineHUD(type: $coordinator.sneakPeek.type, value: $coordinator.sneakPeek.value, hoverAnimation: $isHovering, gestureProgress: $gestureProgress)
+                      } else if coordinator.sneakPeek.show && Defaults[.inlineHUD] && (coordinator.sneakPeek.type != .music)
+                                    && (coordinator.sneakPeek.type != .battery) && vm.notchState == .closed {
+                          InlineHUD(type: $coordinator.sneakPeek.type, value: $coordinator.sneakPeek.value,
+                                    hoverAnimation: $isHovering, gestureProgress: $gestureProgress)
                               .transition(.opacity)
                       } else if showsMusicActivity {
                           MusicLiveActivity()
@@ -419,7 +421,8 @@ struct ContentView: View {
                        }
 
                       if coordinator.sneakPeek.show {
-                          if (coordinator.sneakPeek.type != .music) && (coordinator.sneakPeek.type != .battery) && !Defaults[.inlineHUD] && vm.notchState == .closed {
+                          if (coordinator.sneakPeek.type != .music) && (coordinator.sneakPeek.type != .battery)
+                              && !Defaults[.inlineHUD] && vm.notchState == .closed {
                               SystemEventIndicatorModifier(
                                   eventType: $coordinator.sneakPeek.type,
                                   value: $coordinator.sneakPeek.value,
@@ -437,7 +440,13 @@ struct ContentView: View {
                                   HStack(alignment: .center) {
                                       Image(systemName: "music.note")
                                       GeometryReader { geo in
-                                          MarqueeText(.constant(musicManager.songTitle + " - " + musicManager.artistName), textColor: Defaults[.playerColorTinting] ? Color(nsColor: musicManager.avgColor).ensureMinimumBrightness(factor: 0.6) : .gray, minDuration: 1, frameWidth: geo.size.width)
+                                          MarqueeText(
+                                              .constant(musicManager.songTitle + " - " + musicManager.artistName),
+                                              textColor: Defaults[.playerColorTinting]
+                                                  ? Color(nsColor: musicManager.avgColor).ensureMinimumBrightness(factor: 0.6) : .gray,
+                                              minDuration: 1,
+                                              frameWidth: geo.size.width
+                                          )
                                       }
                                   }
                                   .foregroundStyle(.gray)
@@ -453,7 +462,12 @@ struct ContentView: View {
                       }
                   }
               }
-              .conditionalModifier((coordinator.sneakPeek.show && (coordinator.sneakPeek.type == .music) && vm.notchState == .closed && !vm.hideOnClosed && Defaults[.sneakPeekStyles] == .standard) || (coordinator.sneakPeek.show && (coordinator.sneakPeek.type != .music) && (vm.notchState == .closed)) || (isPeeking && vm.notchState == .closed)) { view in
+              .conditionalModifier(
+                  (coordinator.sneakPeek.show && (coordinator.sneakPeek.type == .music) && vm.notchState == .closed
+                      && !vm.hideOnClosed && Defaults[.sneakPeekStyles] == .standard)
+                  || (coordinator.sneakPeek.show && (coordinator.sneakPeek.type != .music) && (vm.notchState == .closed))
+                  || (isPeeking && vm.notchState == .closed)
+              ) { view in
                   view
                       .fixedSize()
               }
@@ -719,7 +733,7 @@ struct ContentView: View {
               translation > Defaults[.gestureSensitivity] / 2
         else { return }
         swipeSkipped = true
-        forward ? musicManager.nextTrack() : musicManager.previousTrack()
+        if forward { musicManager.nextTrack() } else { musicManager.previousTrack() }
         if Defaults[.enableHaptics] {
             haptics.toggle()
         }

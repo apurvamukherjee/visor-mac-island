@@ -171,11 +171,11 @@ struct VisorBatteryView: View {
     @EnvironmentObject var vm: VisorViewModel
 
     var body: some View {
-        Button(action: {
+        Button {
             withAnimation {
                 showPopupMenu.toggle()
             }
-        }) {
+        } label: {
             HStack {
                 if Defaults[.showBatteryPercentage] {
                     Text("\(Int32(levelBattery))%")

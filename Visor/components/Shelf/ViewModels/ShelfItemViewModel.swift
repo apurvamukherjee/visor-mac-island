@@ -233,11 +233,9 @@ final class ShelfItemViewModel: ObservableObject {
             menuItem.action = #selector(MenuActionTarget.handle(_:))
 
             if let submenu = menuItem.submenu {
-                for subItem in submenu.items {
-                    if !subItem.isSeparatorItem {
-                        subItem.target = actionTarget
-                        subItem.action = #selector(MenuActionTarget.handle(_:))
-                    }
+                for subItem in submenu.items where !subItem.isSeparatorItem {
+                    subItem.target = actionTarget
+                    subItem.action = #selector(MenuActionTarget.handle(_:))
                 }
             }
         }

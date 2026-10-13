@@ -109,12 +109,12 @@ struct ShelfItem: Identifiable, Codable, Equatable {
 }
 
 private extension ShelfItem {
-   static func thumbnailSymbolImage(
+    static func thumbnailSymbolImage(
         systemName: String,
-    size: CGSize = CGSize(width: 64, height: 80),
-    symbolPointSize: CGFloat = 38,
-    backgroundColor: NSColor = NSColor.white,
-    symbolColor: NSColor = NSColor.labelColor
+        size: CGSize = CGSize(width: 64, height: 80),
+        symbolPointSize: CGFloat = 38,
+        backgroundColor: NSColor = NSColor.white,
+        symbolColor: NSColor = NSColor.labelColor
     ) -> NSImage? {
         let image = NSImage(size: size)
         image.lockFocus()

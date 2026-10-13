@@ -56,8 +56,7 @@ class QuickShareService: ObservableObject {
         }
 
         if let idx = providers.firstIndex(where: { $0.id == "AirDrop" }) {
-            let ad = providers.remove(at: idx)
-            providers.insert(ad, at: 0)
+            providers.insert(providers.remove(at: idx), at: 0)
         }
 
         if !providers.contains(where: { $0.id == QuickShareProvider.systemShareMenu.id }) {

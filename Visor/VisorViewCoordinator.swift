@@ -24,7 +24,7 @@ enum SneakContentType {
     }
 }
 
-struct sneakPeek {
+struct SneakPeek {
     var show: Bool = false
     var type: SneakContentType = .music
     var value: CGFloat = 0
@@ -177,7 +177,7 @@ class VisorViewCoordinator: ObservableObject {
         }
     }
 
-    @Published var sneakPeek: sneakPeek = .init() {
+    @Published var sneakPeek: SneakPeek = .init() {
         didSet {
             if sneakPeek.show {
                 scheduleSneakPeekHide(after: sneakPeekDuration)

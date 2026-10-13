@@ -144,6 +144,8 @@ class AppleMusicController: MediaControllerProtocol {
     }
 
     private func fetchPlaybackInfoAsync() async throws -> NSAppleEventDescriptor? {
+        // AppleScript returns its record on one line; breaking it changes the script.
+        // swiftlint:disable line_length
         let script = """
         tell application "Music"
             set isRunning to true
@@ -178,6 +180,7 @@ class AppleMusicController: MediaControllerProtocol {
             end try
         end tell
         """
+        // swiftlint:enable line_length
 
         return try await AppleScriptHelper.execute(script)
     }

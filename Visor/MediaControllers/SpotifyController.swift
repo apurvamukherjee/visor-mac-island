@@ -165,6 +165,8 @@ class SpotifyController: MediaControllerProtocol {
     }
 
     private func fetchPlaybackInfoAsync() async throws -> NSAppleEventDescriptor? {
+        // AppleScript returns its record on one line; breaking it changes the script.
+        // swiftlint:disable line_length
         let script = """
         tell application "Spotify"
             set isRunning to true
@@ -185,6 +187,7 @@ class SpotifyController: MediaControllerProtocol {
             end try
         end tell
         """
+        // swiftlint:enable line_length
 
         return try await AppleScriptHelper.execute(script)
     }

@@ -12,20 +12,20 @@ struct InlineHUD: View {
             HStack(spacing: 5) {
                 Group {
                     switch type {
-                        case .volume:
-                            Image(systemName: value.isZero ? "speaker.slash" : "speaker.wave.3", variableValue: value)
-                                .contentTransition(.interpolate)
-                                .frame(width: 20, height: 15, alignment: .leading)
-                        case .brightness:
-                            Image(systemName: BrightnessSymbol(value))
-                                .contentTransition(.interpolate)
-                                .frame(width: 20, height: 15, alignment: .center)
-                        case .backlight:
-                            Image(systemName: value > 0.5 ? "light.max" : "light.min")
-                                .contentTransition(.interpolate)
-                                .frame(width: 20, height: 15, alignment: .center)
-                        default:
-                            EmptyView()
+                    case .volume:
+                        Image(systemName: value.isZero ? "speaker.slash" : "speaker.wave.3", variableValue: value)
+                            .contentTransition(.interpolate)
+                            .frame(width: 20, height: 15, alignment: .leading)
+                    case .brightness:
+                        Image(systemName: BrightnessSymbol(value))
+                            .contentTransition(.interpolate)
+                            .frame(width: 20, height: 15, alignment: .center)
+                    case .backlight:
+                        Image(systemName: value > 0.5 ? "light.max" : "light.min")
+                            .contentTransition(.interpolate)
+                            .frame(width: 20, height: 15, alignment: .center)
+                    default:
+                        EmptyView()
                     }
                 }
                 .foregroundStyle(.white)
@@ -65,32 +65,33 @@ struct InlineHUD: View {
                     }
             }
             .padding(.trailing, 4)
-            .frame(width: 100 - (hoverAnimation ? 0 : 12) + gestureProgress / 2, height: vm.closedNotchSize.height - (hoverAnimation ? 0 : 12), alignment: .center)
+            .frame(width: 100 - (hoverAnimation ? 0 : 12) + gestureProgress / 2,
+                   height: vm.closedNotchSize.height - (hoverAnimation ? 0 : 12), alignment: .center)
         }
         .frame(height: vm.closedNotchSize.height + (hoverAnimation ? 8 : 0), alignment: .center)
     }
 
     func BrightnessSymbol(_ value: CGFloat) -> String {
         switch value {
-            case 0...0.6:
-                return "sun.min"
-            case 0.6...1:
-                return "sun.max"
-            default:
-                return "sun.min"
+        case 0...0.6:
+            return "sun.min"
+        case 0.6...1:
+            return "sun.max"
+        default:
+            return "sun.min"
         }
     }
 
     func Type2Name(_ type: SneakContentType) -> String {
         switch type {
-            case .volume:
-                return "Volume"
-            case .brightness:
-                return "Brightness"
-            case .backlight:
-                return "Backlight"
-            default:
-                return ""
+        case .volume:
+            return "Volume"
+        case .brightness:
+            return "Brightness"
+        case .backlight:
+            return "Backlight"
+        default:
+            return ""
         }
     }
 }

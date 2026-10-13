@@ -99,8 +99,8 @@ enum DisplayBrightness {
 
     private static func displayServicesGetBrightness(displayID: CGDirectDisplayID, out: inout Float) -> Bool {
         guard let sym = dlsym(displayServicesHandle, "DisplayServicesGetBrightness") else { return false }
-        typealias Fn = @convention(c) (CGDirectDisplayID, UnsafeMutablePointer<Float>) -> Int32
-        let fn = unsafeBitCast(sym, to: Fn.self)
+        typealias Getter = @convention(c) (CGDirectDisplayID, UnsafeMutablePointer<Float>) -> Int32
+        let fn = unsafeBitCast(sym, to: Getter.self)
         var tmp: Float = 0
         let r = fn(displayID, &tmp)
         if r == 0 { out = tmp; return true }
@@ -109,8 +109,8 @@ enum DisplayBrightness {
 
     private static func displayServicesSetBrightness(displayID: CGDirectDisplayID, value: Float) -> Bool {
         guard let sym = dlsym(displayServicesHandle, "DisplayServicesSetBrightness") else { return false }
-        typealias Fn = @convention(c) (CGDirectDisplayID, Float) -> Int32
-        let fn = unsafeBitCast(sym, to: Fn.self)
+        typealias Setter = @convention(c) (CGDirectDisplayID, Float) -> Int32
+        let fn = unsafeBitCast(sym, to: Setter.self)
         return fn(displayID, value) == 0
     }
 

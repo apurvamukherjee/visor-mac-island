@@ -15,22 +15,22 @@ struct SystemEventIndicatorModifier: View {
     var body: some View {
         HStack(spacing: 14) {
             switch eventType {
-                case .volume:
-                    Image(systemName: value.isZero ? "speaker.slash" : "speaker.wave.3", variableValue: value)
-                        .contentTransition(.interpolate)
-                        .frame(width: 20, height: 15, alignment: .leading)
-                case .brightness:
-                    Image(systemName: "sun.max.fill")
-                        .contentTransition(.symbolEffect)
-                        .frame(width: 20, height: 15)
-                        .foregroundStyle(.white)
-                case .backlight:
-                    Image(systemName: value > 0.5 ? "light.max" : "light.min")
-                        .contentTransition(.interpolate)
-                        .frame(width: 20, height: 15)
-                        .foregroundStyle(.white)
-                default:
-                    EmptyView()
+            case .volume:
+                Image(systemName: value.isZero ? "speaker.slash" : "speaker.wave.3", variableValue: value)
+                    .contentTransition(.interpolate)
+                    .frame(width: 20, height: 15, alignment: .leading)
+            case .brightness:
+                Image(systemName: "sun.max.fill")
+                    .contentTransition(.symbolEffect)
+                    .frame(width: 20, height: 15)
+                    .foregroundStyle(.white)
+            case .backlight:
+                Image(systemName: value > 0.5 ? "light.max" : "light.min")
+                    .contentTransition(.interpolate)
+                    .frame(width: 20, height: 15)
+                    .foregroundStyle(.white)
+            default:
+                EmptyView()
             }
             // Visor: a didSet on a @Binding never fires, so dragging never reached the system
             DraggableProgressBar(value: $value, onChange: sendEventBack)

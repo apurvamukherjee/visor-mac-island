@@ -1,5 +1,8 @@
 import SwiftUI
 
+// The hello lettering is traced path data; its points do not wrap usefully.
+// swiftlint:disable line_length
+
 struct HelloShape: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
@@ -115,3 +118,4 @@ extension View where Self: Shape {
             }
     }
 }
+// swiftlint:enable line_length

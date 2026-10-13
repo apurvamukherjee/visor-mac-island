@@ -380,13 +380,13 @@ struct VolumeControlView: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            Button(action: {
+            Button {
                 if musicManager.volumeControlSupported {
                     withAnimation(.easeInOut(duration: 0.12)) {
                         showVolumeSlider.toggle()
                     }
                 }
-            }) {
+            } label: {
                 Image(systemName: volumeIcon, variableValue: volumeSliderValue)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(musicManager.volumeControlSupported ? .white : .gray)
