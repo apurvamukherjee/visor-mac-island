@@ -132,8 +132,9 @@ class VisorViewCoordinator: ObservableObject {
             // An update can leave the grant stale until it is reset, so the
             // choice is kept and the HUD starts once access comes back,
             // rather than switching the setting off behind the user's back.
+            // The tolerance lets macOS fold this wake-up into others.
             while Defaults[.hudReplacement] && !AXIsProcessTrusted() {
-                try? await Task.sleep(for: .seconds(2))
+                try? await Task.sleep(for: .seconds(2), tolerance: .seconds(1))
             }
             if Defaults[.hudReplacement] {
                 await MediaKeyInterceptor.shared.start(promptIfNeeded: false)
