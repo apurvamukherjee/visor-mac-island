@@ -4,6 +4,11 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.5.0 (build 43) · 2026-10-13
+
+- **Screenshots land in the notch.** Each new screenshot appears on the shelf the moment it is saved, and the notch opens to show it. A Clear button empties the shelf when you are done; the files themselves are kept. Turn it off in Settings → Appearance.
+- **A livelier lock-screen player.** Synced lyrics (when Lyrics is on) change line under the player, the card slides in, and a glow in the cover's colour fades with playback.
+
 ## 3.4.0 (build 42) · 2026-10-08
 
 - **Join video calls in one click.** Zoom, Google Meet, Teams and Webex events get a Join button in the calendar. Two minutes before the call, a Join button also appears beside the notch and stays until five minutes in. Settings → Calendar.
