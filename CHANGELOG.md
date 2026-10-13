@@ -4,6 +4,10 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.6.0 (build 45) · 2026-10-13
+
+- **Your earbuds and soundbar turn in the notch when they connect.** AirPods, OnePlus Buds and JBL Cinema/Bar soundbars get a slowly spinning 3D model under the notch for a few seconds, with the device's name. AirPods also show left, right and case battery. Turn it off in Settings → Appearance → "Show audio devices connecting".
+
 ## 3.5.1 (build 44) · 2026-10-13
 
 - **Screenshot catching now works and is opt-in.** It is off until you turn on "Catch screenshots in the shelf" in Settings → Appearance. macOS asks once for access to your screenshot folder (Desktop or Documents hid new screenshots from Visor before, so 3.5.0 caught nothing there).
