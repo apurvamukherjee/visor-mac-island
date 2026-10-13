@@ -63,6 +63,18 @@ struct ShelfView: View {
             .transaction { transaction in
                 transaction.animation = vm.animation
             }
+            .overlay(alignment: .topTrailing) {
+                if !tvm.isEmpty {
+                    Button("Clear", systemImage: "trash") {
+                        tvm.removeAll()
+                        selection.clear()
+                    }
+                    .buttonStyle(.plain)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.7))
+                    .padding(8)
+                }
+            }
             .contentShape(Rectangle())
             .onTapGesture { selection.clear() }
     }

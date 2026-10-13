@@ -285,6 +285,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         UpdateChecker.shared.startAutomaticChecks()
         MeetingMonitor.shared.reschedule()
+        ScreenshotMonitor.shared.onCapture = { [weak self] in
+            guard let self else { return }
+            let target = Defaults[.showOnAllDisplays] ? Array(self.viewModels.values) : [self.vm]
+            target.forEach { $0.open() }
+            self.coordinator.currentView = .shelf
+        }
 
         NotificationCenter.default.addObserver(
             self,

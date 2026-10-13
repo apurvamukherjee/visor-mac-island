@@ -912,6 +912,10 @@ struct Appearance: View {
                 Defaults.Toggle(key: .showDownloadProgress) {
                     Text("Show download progress")
                 }
+                Defaults.Toggle(key: .catchScreenshots) {
+                    Text("Catch screenshots in the shelf")
+                    Text("New screenshots appear in the notch's shelf as they are saved.")
+                }
                 Defaults.Toggle(key: .showPrivacyIndicators) {
                     Text("Show camera and microphone indicators")
                     Text("A green dot in the notch while an app uses a camera, orange while one uses the microphone.")
