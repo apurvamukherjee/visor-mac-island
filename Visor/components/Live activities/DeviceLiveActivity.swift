@@ -3,6 +3,7 @@
 //  Visor
 //
 
+import SceneKit
 import SwiftUI
 
 /// What the closed notch grows into when AirPods, OnePlus Buds or the JBL
@@ -27,7 +28,7 @@ struct DeviceLiveActivity: View {
                         RadialGradient(colors: [device.kind.glow.opacity(0.35), .clear], center: .center,
                                        startRadius: 0, endRadius: 60)
                     }
-                    .scaleEffect(appeared ? 1 : 0.5)
+                    // The scene grows and spins itself in; SwiftUI only fades the glow.
                     .opacity(appeared ? 1 : 0)
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -54,7 +55,7 @@ struct DeviceLiveActivity: View {
         }
         .frame(width: Self.width)
         .onAppear {
-            withAnimation(.spring(response: 0.55, dampingFraction: 0.7).delay(0.1)) { appeared = true }
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) { appeared = true }
         }
     }
 }
@@ -90,4 +91,22 @@ private struct BatteryRow: View {
         }
         .font(.caption)
     }
+}
+
+/// The turntable in SwiftUI. It only exists while the notch shows the device,
+/// so the scene renders for a few seconds and is torn down with the view.
+struct DeviceModelView: NSViewRepresentable {
+    let kind: DeviceKind
+
+    func makeNSView(context: Context) -> SCNView {
+        let view = SCNView()
+        view.backgroundColor = .clear
+        view.antialiasingMode = .multisampling4X
+        view.preferredFramesPerSecond = 30
+        view.scene = DeviceModels.scene(for: kind)
+        view.isPlaying = true
+        return view
+    }
+
+    func updateNSView(_ view: SCNView, context: Context) {}
 }
