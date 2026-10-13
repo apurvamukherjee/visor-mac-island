@@ -143,13 +143,15 @@ Connect AirPods, OnePlus Buds or a JBL soundbar and a 3D model of it turns slowl
 
 1. Download **[Visor.dmg](https://github.com/apurvamukherjee/visor-mac-island/releases/latest/download/Visor.dmg)** (always the latest release; older ones are under [Releases](https://github.com/apurvamukherjee/visor-mac-island/releases)).
 2. Open it and drag **Visor** into **Applications**.
-3. Builds are ad-hoc signed, so macOS quarantines them. Clear that once:
+3. Builds are self-signed, not notarized, so macOS quarantines them. Clear that once:
 
    ```bash
    xattr -dr com.apple.quarantine /Applications/Visor.app
    ```
 
 4. Open Visor. The welcome tour explains each permission before it asks for it.
+
+**Updating from 3.6.1 or earlier?** Those builds were signed differently, so macOS forgets the Accessibility permission once and the HUD stays off. Open Settings → HUDs, click **Reset and Ask Again** and allow Visor. From 3.6.2 on, updates keep the permission.
 
 What changed in each version: [`CHANGELOG.md`](CHANGELOG.md).
 
