@@ -1,8 +1,40 @@
-excluded:
-  - .build
-  - build
-  - dist
-  - Visor.xcodeproj
-  - backup
+included:
   - Visor
 
+disabled_rules:
+  # Trailing commas keep multi-line literals' diffs to one line.
+  - trailing_comma
+
+identifier_name:
+  # SwiftUI view builders read as types (`NotchLayout()`), and the weather
+  # model mirrors Open-Meteo's snake_case JSON keys.
+  validates_start_with_lowercase: off
+  allowed_symbols: ["_"]
+  excluded: [vm, id, x, y, i, s, a, b, c, g, h, p, r, u, t, v, it, fn, fm, io, mi, nb, ng, nr, pb, up]
+
+line_length:
+  warning: 160
+  error: 220
+  ignores_comments: true
+  ignores_urls: true
+
+# The large SwiftUI views and VisorApp predate linting. Splitting them is a
+# refactor with UI risk, so their size is reported, never a failure.
+file_length:
+  warning: 400
+  error: 2000
+type_body_length:
+  warning: 350
+  error: 1500
+function_body_length:
+  warning: 60
+  error: 400
+cyclomatic_complexity:
+  warning: 12
+  error: 60
+
+# Decodable responses and C function-pointer typealiases nest one level deeper.
+nesting:
+  type_level: 2
+function_parameter_count:
+  warning: 6
