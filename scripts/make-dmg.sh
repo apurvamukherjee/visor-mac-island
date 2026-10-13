@@ -15,6 +15,9 @@ VOLNAME="Visor"
 command -v xcodegen >/dev/null || { echo "xcodegen not installed: brew install xcodegen" >&2; exit 1; }
 xcodegen generate
 
+# Products are cleared first: xcodebuild never deletes a resource that left the
+# project, so a renamed sound (boring.m4a) kept shipping inside the app.
+rm -rf "$BUILD_DIR/dd/Build/Products"
 xcodebuild -scheme Visor -configuration Release -derivedDataPath "$BUILD_DIR/dd" build
 
 APP="$BUILD_DIR/dd/Build/Products/Release/Visor.app"
@@ -49,6 +52,11 @@ tiffutil -cathidpicheck scripts/dmg/background.png scripts/dmg/background@2x.png
 # Signed by the same certificate, each build matches the grant the last one got.
 # The certificate is self-signed and lives in the login keychain; keep its .p12
 # backed up, because losing it breaks the grant once more for everyone.
+# The MediaRemoteAdapter package builds universal; Visor is Apple silicon only
+# (ARCHS: arm64 in project.yml), so its Intel slice is dead weight.
+for binary in "$STAGE/Visor.app/Contents/Frameworks/"*.framework/Versions/A/*; do
+    [ -f "$binary" ] && lipo "$binary" -verify_arch x86_64 2>/dev/null && lipo "$binary" -thin arm64 -output "$binary"
+done
 SIGN_IDENTITY="${VISOR_SIGN_IDENTITY:-Visor Self-Signed}"
 security find-certificate -c "$SIGN_IDENTITY" >/dev/null 2>&1 \
     || { echo "no \"$SIGN_IDENTITY\" certificate in the keychain: import the .p12 backup first" >&2; exit 1; }
