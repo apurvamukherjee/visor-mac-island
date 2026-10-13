@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Local-only .dmg. Ad-hoc signed, so macOS quarantines it on any other Mac —
+# Local-only .dmg. Self-signed, not notarized, so macOS quarantines it on any other Mac —
 # see the 2.x RESEARCH.md §0 Distribution (backup/docs/, or git history).
 # Not for sharing, not for the store.
 set -euo pipefail
@@ -42,9 +42,23 @@ ln -s /Applications "$STAGE/Applications"
 # part of macOS, so it adds no dependency.
 tiffutil -cathidpicheck scripts/dmg/background.png scripts/dmg/background@2x.png \
     -out "$STAGE/Visor.app/Contents/Resources/dmg-background.tiff" >/dev/null
-# Adding a file after Xcode signed the bundle breaks its resource seal, so
-# `codesign --verify` fails on the shipped app until the outer bundle is resealed.
-codesign --force --sign - --preserve-metadata=entitlements,requirements,flags "$STAGE/Visor.app"
+# Adding a file after Xcode signed the bundle breaks its resource seal, so the
+# bundle is signed again here, and with a fixed certificate rather than ad hoc.
+# An ad-hoc signature's designated requirement is the build's own cdhash, so
+# macOS dropped the Accessibility grant (and with it the HUD) on every update.
+# Signed by the same certificate, each build matches the grant the last one got.
+# The certificate is self-signed and lives in the login keychain; keep its .p12
+# backed up, because losing it breaks the grant once more for everyone.
+SIGN_IDENTITY="${VISOR_SIGN_IDENTITY:-Visor Self-Signed}"
+security find-certificate -c "$SIGN_IDENTITY" >/dev/null 2>&1 \
+    || { echo "no \"$SIGN_IDENTITY\" certificate in the keychain: import the .p12 backup first" >&2; exit 1; }
+for framework in "$STAGE/Visor.app/Contents/Frameworks/"*; do
+    codesign --force --sign "$SIGN_IDENTITY" --timestamp=none "$framework"
+done
+# `requirements` is deliberately not preserved: Xcode's would pin the ad-hoc cdhash.
+codesign --force --sign "$SIGN_IDENTITY" --timestamp=none --preserve-metadata=entitlements,flags "$STAGE/Visor.app"
+codesign -dr - "$STAGE/Visor.app" 2>&1 | grep -q "certificate root" \
+    || { echo "Visor.app is not signed by $SIGN_IDENTITY" >&2; exit 1; }
 codesign --verify --deep --strict "$STAGE/Visor.app"
 
 RW="$BUILD_DIR/rw.dmg"
@@ -256,5 +270,5 @@ echo
 echo "publish: attach both, so the README's latest/download/Visor.dmg link follows"
 echo "  gh release create v$VERSION $RELEASE $DMG --title \"Visor $VERSION\" --notes-file <notes>"
 echo
-echo "ad-hoc signed: on any other Mac, run"
+echo "self-signed (not notarized): on any other Mac, run"
 echo "  xattr -dr com.apple.quarantine /Applications/Visor.app"
