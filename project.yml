@@ -61,6 +61,8 @@ targets:
         NSCameraUsageDescription: "Visor uses the camera to display a live camera view."
         NSLocationUsageDescription: "Visor uses your approximate location to show the weather beside the calendar."
         NSLocationWhenInUseUsageDescription: "Visor uses your approximate location to show the weather beside the calendar."
+        NSDesktopFolderUsageDescription: "Visor catches new screenshots saved here and puts them on the shelf."
+        NSDocumentsFolderUsageDescription: "Visor catches new screenshots saved here and puts them on the shelf."
 schemes:
   Visor:
     build:

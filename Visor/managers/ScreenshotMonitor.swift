@@ -21,7 +21,6 @@ final class ScreenshotMonitor {
 
     private init() {
         query.predicate = NSPredicate(format: "kMDItemIsScreenCapture == 1")
-        query.searchScopes = [NSMetadataQueryUserHomeScope]
         observers = [
             NotificationCenter.default.addObserver(forName: .NSMetadataQueryDidFinishGathering, object: query, queue: .main) { _ in
                 // Screenshots that already exist are not new.
@@ -40,9 +39,19 @@ final class ScreenshotMonitor {
             .store(in: &cancellables)
     }
 
+    private static var screenshotFolder: URL {
+        let custom = UserDefaults(suiteName: "com.apple.screencapture")?.string(forKey: "location")
+        return URL(fileURLWithPath: ((custom ?? "~/Desktop") as NSString).expandingTildeInPath)
+    }
+
     private func setEnabled(_ enabled: Bool) {
         if enabled {
             gathered = false
+            // macOS hides files in Desktop and Documents from Spotlight queries
+            // until the app is allowed in; listing the folder raises that prompt.
+            let folder = Self.screenshotFolder
+            _ = try? FileManager.default.contentsOfDirectory(atPath: folder.path)
+            query.searchScopes = [folder]
             query.start()
         } else {
             query.stop()
