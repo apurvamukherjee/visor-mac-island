@@ -4,6 +4,12 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.6.1 (build 46) · 2026-10-13
+
+- **HUD turns on again after an update.** macOS keeps showing Visor as allowed under Accessibility after an update but no longer honours it. Settings → HUDs now explains this and has a **Reset and Ask Again** button, and Visor no longer switches the HUD setting off while it waits for access.
+- **Earbuds and soundbar look and move better.** Finer models (tapered stems, mic tips, sensors, the case LED, soundbar buttons), a fast spin-in that settles into the slow turn, floating buds and a soft shadow.
+- **No more lag before the model appears.** The 3D scenes are prepared at launch, so the model is there the moment the notch opens.
+
 ## 3.6.0 (build 45) · 2026-10-13
 
 - **Your earbuds and soundbar turn in the notch when they connect.** AirPods, OnePlus Buds and JBL Cinema/Bar soundbars get a slowly spinning 3D model under the notch for a few seconds, with the device's name. AirPods also show left, right and case battery. Turn it off in Settings → Appearance → "Show audio devices connecting".
