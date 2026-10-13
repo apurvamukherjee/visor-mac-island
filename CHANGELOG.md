@@ -4,6 +4,11 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.6.3 (build 48) · 2026-10-13
+
+- **Lighter on memory.** The earbuds and soundbar models are still ready the moment the notch opens, but preparing them now takes about 10 MB instead of holding over 30 MB for as long as Visor runs.
+- **Smaller download.** A leftover sound file is gone and the media helper ships for Apple silicon only.
+
 ## 3.6.2 (build 47) · 2026-10-13
 
 - **Updates keep the HUD working.** Visor is now signed with its own certificate instead of a one-off signature, so macOS recognises each update as the same app and keeps the Accessibility permission. Coming from 3.6.1 or earlier, do it once more: Settings → HUDs → **Reset and Ask Again**, then allow Visor.
