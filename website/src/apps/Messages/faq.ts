@@ -4,7 +4,8 @@ import { QUARANTINE_CMD } from '../../links';
 export const faq: { q: string; a: string }[] = [
   { q: 'What is Visor?', a: 'A free, open-source Mac app that turns the MacBook notch into a music player, calendar, file shelf and the volume and brightness HUDs.' },
   { q: 'Is it free?', a: 'Yes, completely. It’s GPL-3.0 on GitHub; read it, fork it or send a pull request.' },
-  { q: 'Why does macOS block it?', a: `Builds are ad-hoc signed, so macOS quarantines them. Run this once in Terminal: ${QUARANTINE_CMD}` },
+  { q: 'Why does macOS block it?', a: `Builds are self-signed, not notarized, so macOS quarantines them. Run this once in Terminal: ${QUARANTINE_CMD}` },
+  { q: 'The HUD stopped after updating?', a: 'Updating from 3.6.1 or earlier makes macOS forget the Accessibility permission once. Open Settings → HUDs, click Reset and Ask Again, and allow Visor. From 3.6.2 on, updates keep it.' },
   { q: 'Which Macs?', a: 'macOS 14 Sonoma or later on Apple silicon. Notched MacBooks get the full effect; other displays get a floating island.' },
   { q: 'What permissions?', a: 'Accessibility for the HUDs, Calendars and Reminders, Camera for the mirror, Automation for Music and Spotify, and Location for weather. Each one is optional.' },
   { q: 'Who made it?', a: 'Apurva Mukherjee, a full-stack engineer in Kolkata. apurva.space' },

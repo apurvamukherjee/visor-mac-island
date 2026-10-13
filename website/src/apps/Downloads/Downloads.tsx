@@ -17,7 +17,7 @@ export function Downloads() {
       <ol className="downloads-steps">
         <li>Open <b>Visor.dmg</b> and drag Visor into <b>Applications</b>.</li>
         <li>
-          Builds are ad-hoc signed, so macOS quarantines them. Clear that once in Terminal:
+          Builds are self-signed, not notarized, so macOS quarantines them. Clear that once in Terminal:
           <Command text={QUARANTINE_CMD} />
         </li>
         <li>Open Visor. The welcome tour explains each permission before it asks.</li>

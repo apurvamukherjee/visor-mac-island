@@ -62,9 +62,10 @@ export const notes: Note[] = [
         <ol>
           <li>Download {ext(links.dmg, 'Visor.dmg')} (always the latest release).</li>
           <li>Open it and drag <b>Visor</b> into <b>Applications</b>.</li>
-          <li>Builds are ad-hoc signed, so macOS quarantines them. Clear that once:<Command text={QUARANTINE_CMD} /></li>
+          <li>Builds are self-signed, not notarized, so macOS quarantines them. Clear that once:<Command text={QUARANTINE_CMD} /></li>
           <li>Open Visor. The welcome tour explains each permission before it asks for it.</li>
         </ol>
+        <p>Updating from 3.6.1 or earlier? macOS forgets the Accessibility permission once. In Settings → HUDs, click <b>Reset and Ask Again</b>. Later updates keep it.</p>
         <p>Needs macOS 14 Sonoma or later and Apple silicon. Notched MacBooks get the full effect; other displays get a floating island.</p>
       </>
     ),
