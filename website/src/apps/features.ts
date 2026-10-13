@@ -23,5 +23,7 @@ export const features: Feature[] = [
   { title: 'Any display', icon: icon('displays'), text: 'Made for notched MacBooks; other screens get a floating island sized your way.' },
   { title: 'Make it yours', icon: icon('custom'), text: 'Accent colors, Liquid Glass on macOS 26, artwork tint, glow and the player buttons you want.' },
   { title: 'Camera & mic', icon: icon('shield'), text: 'A green dot while an app uses a camera, orange while one uses the microphone.' },
+  { title: 'Screenshots', icon: icon('photo'), text: 'Opt in and each new screenshot lands on the shelf the moment it is saved.' },
+  { title: 'Earbuds & soundbar', icon: icon('earbuds'), text: 'AirPods, OnePlus Buds or a JBL soundbar connect and a 3D model turns under the notch.' },
   { title: 'Light & up to date', icon: icon('chip'), text: 'Barely wakes while music plays, calms down in Low Power Mode, and tells you about new versions.' },
 ];
