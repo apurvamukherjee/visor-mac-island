@@ -4,7 +4,6 @@
 //
 
 import AppKit
-import Metal
 import SceneKit
 
 /// Every model is built from SceneKit primitives, so the app ships no 3D
@@ -16,19 +15,30 @@ enum DeviceModels {
     /// Seconds for the fast first turn it arrives with.
     private static let spinIn: TimeInterval = 1.4
 
-    /// Draws every model once off screen. The first frame of a scene pays
-    /// for shader compilation and the studio's reflection map (about 230 ms
-    /// measured); paid at launch, the notch's own first frame costs ~13 ms
-    /// and the model is there the moment the notch opens.
-    static func prewarm() {
-        DispatchQueue.global(qos: .utility).async {
-            let renderer = SCNRenderer(device: MTLCreateSystemDefaultDevice(), options: nil)
+    /// Shows every model once in a 2-pt window off screen. A scene's first
+    /// frame pays for shader compilation and the studio's reflection map
+    /// (about 230 ms), which otherwise lands as the notch opens. A real view
+    /// keeps that cost to ~10 MB; `SCNRenderer.snapshot` did the same job
+    /// but held ~32 MB of GPU memory for the life of the app (measured).
+    @MainActor static func prewarm() {
+        Task { @MainActor in
+            // Out of the way of launch, which has its own windows to draw.
+            try? await Task.sleep(for: .seconds(3))
+            let window = NSWindow(contentRect: NSRect(x: -10_000, y: -10_000, width: 2, height: 2),
+                                  styleMask: .borderless, backing: .buffered, defer: false)
+            window.isReleasedWhenClosed = false
+            window.ignoresMouseEvents = true
+            window.sharingType = .none
+            window.orderFrontRegardless()
             for kind in DeviceKind.allCases {
-                let scene = scene(for: kind)
-                renderer.scene = scene
-                renderer.pointOfView = scene.rootNode.childNode(withName: "camera", recursively: false)
-                _ = renderer.snapshot(atTime: 0, with: CGSize(width: 64, height: 36), antialiasingMode: .multisampling4X)
+                let view = SCNView(frame: NSRect(x: 0, y: 0, width: 2, height: 2))
+                view.antialiasingMode = .multisampling4X
+                view.scene = scene(for: kind)
+                window.contentView?.addSubview(view)
+                try? await Task.sleep(for: .milliseconds(400))
+                view.removeFromSuperview()
             }
+            window.orderOut(nil)
         }
     }
 
