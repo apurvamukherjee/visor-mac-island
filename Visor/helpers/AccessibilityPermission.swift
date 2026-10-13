@@ -32,6 +32,23 @@ final class AccessibilityPermission {
         AXIsProcessTrustedWithOptions(options)
     }
 
+    /// Visor is ad-hoc signed, so macOS ties the grant to one build. After
+    /// an update System Settings still shows Visor switched on, but the grant
+    /// no longer matches and macOS won't prompt again. Clearing Visor's entry
+    /// brings the prompt back.
+    func resetAndRequest() {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
+        process.arguments = ["reset", "Accessibility", Bundle.main.bundleIdentifier ?? "com.apurvamukherjee.visor"]
+        do {
+            try process.run()
+            process.waitUntilExit()
+        } catch {
+            print("❌ Resetting Accessibility for Visor failed: \(error)")
+        }
+        request()
+    }
+
     func isAuthorized() async -> Bool {
         let granted = AXIsProcessTrusted()
         await notifyAuthorizationChange(granted)

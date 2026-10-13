@@ -373,12 +373,19 @@ struct HUD: View {
                         Text("Accessibility access is required to replace the system HUD.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
+                        Text("Already on for Visor in System Settings? That permission is from an earlier version. Reset it, then allow Visor again.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
 
                         HStack(spacing: 12) {
                             Button("Request Accessibility") {
                                 AccessibilityPermission.shared.request()
                             }
                             .buttonStyle(.borderedProminent)
+                            Button("Reset and Ask Again") {
+                                AccessibilityPermission.shared.resetAndRequest()
+                            }
                         }
                     }
                     .padding(.top, 6)
