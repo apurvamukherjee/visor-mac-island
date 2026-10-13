@@ -129,13 +129,14 @@ class VisorViewCoordinator: ObservableObject {
         Task { @MainActor in
             helloAnimationRunning = firstLaunch
 
+            // An update can leave the grant stale until it is reset, so the
+            // choice is kept and the HUD starts once access comes back,
+            // rather than switching the setting off behind the user's back.
+            while Defaults[.hudReplacement] && !AXIsProcessTrusted() {
+                try? await Task.sleep(for: .seconds(2))
+            }
             if Defaults[.hudReplacement] {
-                let authorized = await AccessibilityPermission.shared.isAuthorized()
-                if !authorized {
-                    Defaults[.hudReplacement] = false
-                } else {
-                    await MediaKeyInterceptor.shared.start(promptIfNeeded: false)
-                }
+                await MediaKeyInterceptor.shared.start(promptIfNeeded: false)
             }
         }
     }
