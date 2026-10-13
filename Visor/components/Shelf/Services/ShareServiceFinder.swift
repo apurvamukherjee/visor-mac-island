@@ -1,5 +1,3 @@
-
-
 import Cocoa
 
 class ShareServiceFinder: NSObject, NSSharingServicePickerDelegate {
@@ -28,7 +26,6 @@ class ShareServiceFinder: NSObject, NSSharingServicePickerDelegate {
             }
 
             picker.show(relativeTo: dummyView.bounds, of: dummyView, preferredEdge: .minY)
-
 
             // Timeout task
             Task { @MainActor in

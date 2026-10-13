@@ -1,4 +1,3 @@
-
 import AppKit
 import Foundation
 
@@ -18,4 +17,3 @@ enum ShelfActionService {
         }
     }
 }
-

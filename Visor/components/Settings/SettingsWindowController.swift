@@ -13,7 +13,7 @@ class SettingsWindowController: NSWindowController {
     // the HUD tab its onDisappear/onAppear. Stop its 3 s accessibility poll on
     // close ourselves, and restart it on reopen only if it was running.
     private var resumeAccessibilityMonitoring = false
-    
+
     private init() {
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 700, height: 600),
@@ -21,43 +21,43 @@ class SettingsWindowController: NSWindowController {
             backing: .buffered,
             defer: false
         )
-        
+
         super.init(window: window)
-        
+
         setupWindow()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     private func setupWindow() {
         guard let window = window else { return }
-        
+
         window.title = "Visor Settings"
         window.toolbarStyle = .unified
         window.isMovableByWindowBackground = true
-        
+
         // Make it behave like a regular app window with proper Spaces support
         window.collectionBehavior = [.managed, .participatesInCycle, .fullScreenAuxiliary]
-        
+
         // Configure window to be a standard document-style window
         window.isRestorable = true
         window.identifier = NSUserInterfaceItemIdentifier("VisorSettingsWindow")
-        
+
         // Create the SwiftUI content
         let settingsView = SettingsView()
         let hostingView = NSHostingView(rootView: settingsView)
         window.contentView = hostingView
-        
+
         // Handle window closing
         window.delegate = self
     }
-    
+
     func showWindow() {
         // Set app to regular mode first
         NSApp.setActivationPolicy(.regular)
-        
+
         // If window is already visible, bring it to front properly
         if window?.isVisible == true {
             NSApp.activate(ignoringOtherApps: true)
@@ -65,7 +65,7 @@ class SettingsWindowController: NSWindowController {
             window?.makeKeyAndOrderFront(nil)
             return
         }
-        
+
         if resumeAccessibilityMonitoring {
             resumeAccessibilityMonitoring = false
             AccessibilityPermission.shared.startMonitoring()
@@ -75,10 +75,10 @@ class SettingsWindowController: NSWindowController {
         window?.orderFrontRegardless()
         window?.makeKeyAndOrderFront(nil)
         window?.center()
-        
+
         // Activate the app and ensure window gets focus
         NSApp.activate(ignoringOtherApps: true)
-        
+
         // Force window to front after activation
         DispatchQueue.main.async { [weak self] in
             self?.window?.makeKeyAndOrderFront(nil)
@@ -93,7 +93,7 @@ extension SettingsWindowController: NSWindowDelegate {
         window?.orderOut(nil)
         NSApp.setActivationPolicy(.accessory)
     }
-    
+
     func windowDidBecomeKey(_ notification: Notification) {
         // Ensure app is in regular mode when window becomes key
         NSApp.setActivationPolicy(.regular)

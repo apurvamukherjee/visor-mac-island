@@ -1,5 +1,3 @@
-
-
 import SwiftUI
 
 struct HelloShape: Shape {
@@ -55,12 +53,12 @@ extension ShapeStyle where Self == AngularGradient {
 // default of 1 made the trim start 2 * progress - 1 once drawing began.
 struct GlowingSnake: View, Animatable {
     var progress: Double
-    
+
     var animatableData: Double {
         get { progress }
         set { progress = newValue }
     }
-    
+
     var body: some View {
         HelloShape()
             .trim(from: progress > 0 ? 2 * progress - 1 : .zero, to: progress)
@@ -70,24 +68,24 @@ struct GlowingSnake: View, Animatable {
 
 struct HelloAnimation: View {
     @State private var progress: Double = 0.0
-    
+
     var onFinish: () -> Void
-    
+
     var body: some View {
         GlowingSnake(progress: progress)
             .task {
                 // Wait for the "opening" animation (notch expansion) to complete before starting the snake
                 try? await Task.sleep(for: .seconds(0.6))
-                
+
                 withAnimation(
                     .easeInOut(duration: 4.0)
                 ) {
                     progress = 1.0
                 }
-                
+
                 // Wait for the animation to complete
                 try? await Task.sleep(for: .seconds(4.0))
-                
+
                 onFinish()
             }
     }

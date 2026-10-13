@@ -1,4 +1,3 @@
-
 import Cocoa
 import UniformTypeIdentifiers
 
@@ -8,7 +7,6 @@ final class DragDetector {
 
     // Visor: the exit and move callbacks were never set, so only entry remains.
     var onDragEntersNotchRegion: (() -> Void)?
-
 
     private var mouseDownMonitor: Any?
     private var mouseDraggedMonitor: Any?
@@ -27,7 +25,7 @@ final class DragDetector {
     }
 
     // MARK: - Private Helpers
-    
+
     /// Checks if the drag pasteboard contains valid content types that can be dropped on the shelf
     private func hasValidDragContent() -> Bool {
         let validTypes: [NSPasteboard.PasteboardType] = [
@@ -51,12 +49,12 @@ final class DragDetector {
         }
 
         // Track drag movement and notch region intersection
-        mouseDraggedMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDragged]) { [weak self] event in
+        mouseDraggedMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDragged]) { [weak self] _ in
             guard let self = self else { return }
             guard self.isDragging else { return }
 
             let newContent = self.dragPasteboard.changeCount != self.pasteboardChangeCount
-            
+
             // Detect if actual content is being dragged AND it's valid content
             if newContent && !self.isContentDragging && self.hasValidDragContent() {
                 self.isContentDragging = true
@@ -76,7 +74,7 @@ final class DragDetector {
         mouseUpMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseUp]) { [weak self] _ in
             guard let self = self else { return }
             guard self.isDragging else { return }
-            
+
             self.isDragging = false
             self.isContentDragging = false
             self.hasEnteredNotchRegion = false

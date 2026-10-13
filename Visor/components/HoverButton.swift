@@ -1,5 +1,3 @@
-
-
 import SwiftUI
 
 struct HoverButton: View {
@@ -7,13 +5,13 @@ struct HoverButton: View {
     var iconColor: Color = .primary
     var scale: Image.Scale = .medium
     var action: () -> Void
-    var contentTransition: ContentTransition = .symbolEffect;
-    
+    var contentTransition: ContentTransition = .symbolEffect
+
     @State private var isHovering = false
 
     var body: some View {
         let size = CGFloat(scale == .large ? 40 : 30)
-        
+
         Button(action: action) {
             Rectangle()
                 .fill(.clear)

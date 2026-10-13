@@ -1,5 +1,3 @@
-
-
 import CoreAudio
 import Defaults
 import SwiftUI
@@ -56,7 +54,7 @@ struct AlbumArtView: View {
             Button {
                 musicManager.openMusicApp()
             } label: {
-                ZStack(alignment:.bottomTrailing) {
+                ZStack(alignment: .bottomTrailing) {
                     if vinylMode {
                         vinylDisc
                     } else {
@@ -67,7 +65,7 @@ struct AlbumArtView: View {
             }
             .buttonStyle(PlainButtonStyle())
             .scaleEffect(musicManager.isPlaying ? 1 : 0.85)
-            
+
             albumArtDarkOverlay
         }
     }
@@ -80,7 +78,6 @@ struct AlbumArtView: View {
             .flattenedBlur(spill: 150)
             .opacity(musicManager.isPlaying ? 0 : 0.8)
     }
-                
 
     private var albumArtImage: some View {
         Image(nsImage: musicManager.albumArt)
@@ -113,8 +110,7 @@ struct AlbumArtView: View {
     private var appIconOverlay: some View {
         if vm.notchState == .open && !musicManager.usingAppIconForArtwork {
             AppIcon(for: musicManager.bundleIdentifier ?? "com.apple.Music")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
+                .resizable().scaledToFill()
                 .frame(width: 30, height: 30)
                 .offset(x: 10, y: 10)
                 .transition(.scale.combined(with: .opacity))
@@ -231,7 +227,7 @@ struct MusicControlsView: View {
     private var slotToolbar: some View {
         let slots = activeSlots
         return HStack(spacing: 6) {
-            ForEach(Array(slots.enumerated()), id: \.offset) { index, slot in
+            ForEach(Array(slots.enumerated()), id: \.offset) { _, slot in
                 slotView(for: slot)
             }
         }
@@ -381,7 +377,7 @@ struct VolumeControlView: View {
     @State private var showVolumeSlider: Bool = false
     @State private var lastVolumeUpdateTime: Date = Date.distantPast
     private let volumeUpdateThrottle: TimeInterval = 0.1
-    
+
     var body: some View {
         HStack(spacing: 4) {
             Button(action: {
@@ -443,8 +439,7 @@ struct VolumeControlView: View {
             }
         }
     }
-    
-    
+
     private var volumeIcon: String {
         if !musicManager.volumeControlSupported {
             return "speaker.slash"
@@ -511,7 +506,6 @@ struct MusicSliderView: View {
     let playbackRate: Double
     let isPlaying: Bool
     var onValueChange: (Double) -> Void
-
 
     var body: some View {
         VStack {

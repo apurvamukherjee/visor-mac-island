@@ -1,4 +1,3 @@
-
 import Foundation
 import AppKit
 import QuickLookThumbnailing
@@ -15,18 +14,18 @@ actor ThumbnailService {
     private init() {
         cache.countLimit = 200
     }
-    
+
     func thumbnail(for url: URL, size: CGSize) async -> NSImage? {
         let cacheKey = "\(url.path)_\(size.width)x\(size.height)"
-        
+
         if let cached = cache.object(forKey: cacheKey as NSString) {
             return cached
         }
-        
+
         if let pending = pendingRequests[cacheKey] {
             return await pending.value
         }
-        
+
         let task = Task<NSImage?, Never> {
             let thumbnail = await generateQuickLookThumbnail(for: url, size: size)
             if let thumbnail = thumbnail {
@@ -35,16 +34,16 @@ actor ThumbnailService {
             pendingRequests[cacheKey] = nil
             return thumbnail
         }
-        
+
         pendingRequests[cacheKey] = task
         return await task.value
     }
-    
+
     // MARK: - Private Methods
-    
+
     private func generateQuickLookThumbnail(for url: URL, size: CGSize) async -> NSImage? {
         let scale = await MainActor.run { NSScreen.main?.backingScaleFactor ?? 2.0 }
-        
+
         return await url.accessSecurityScopedResource { scopedURL in
             NSLog("🔐 ThumbnailService: obtaining security scope for \(scopedURL.path)")
             let request = QLThumbnailGenerator.Request(
@@ -61,8 +60,8 @@ actor ThumbnailService {
                         NSLog("🔍 ThumbnailService: generated thumbnail for \(scopedURL.path)")
                         continuation.resume(returning: rep.nsImage)
                     } else {
-                        if let err = error { 
-                            NSLog("⚠️ ThumbnailService: thumbnail error for \(scopedURL.path): \(err.localizedDescription)") 
+                        if let err = error {
+                            NSLog("⚠️ ThumbnailService: thumbnail error for \(scopedURL.path): \(err.localizedDescription)")
                         }
                         continuation.resume(returning: nil)
                     }

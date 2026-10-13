@@ -1,4 +1,3 @@
-
 import Foundation
 import Combine
 
@@ -9,7 +8,7 @@ final class ShelfSelectionModel: ObservableObject {
     @Published private(set) var selectedIDs: Set<UUID> = []
 
     // Anchor for shift-range selection
-    private var lastAnchorID: UUID? = nil
+    private var lastAnchorID: UUID?
 
     func isSelected(_ id: UUID) -> Bool { selectedIDs.contains(id) }
 

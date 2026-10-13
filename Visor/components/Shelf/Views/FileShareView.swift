@@ -1,5 +1,3 @@
-
-
 import AppKit
 import Defaults
 import SwiftUI
@@ -12,7 +10,7 @@ struct FileShareView: View {
 
     @State private var hostView: NSView?
     @State private var isProcessing = false
-    
+
     private var selectedProvider: QuickShareProvider {
         quickShare.availableProviders.first(where: { $0.id == quickShareProvider }) ?? .systemShareMenu
     }
@@ -59,8 +57,7 @@ struct FileShareView: View {
                     Group {
                         if let imgData = selectedProvider.imageData, let nsImg = NSImage(data: imgData) {
                             Image(nsImage: nsImg)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
+                                .resizable().scaledToFit()
                         } else {
                             Image(systemName: "square.and.arrow.up")
                         }
@@ -77,7 +74,7 @@ struct FileShareView: View {
 
             }
             .padding(18)
-            
+
             // Loading overlay
             if isProcessing || quickShare.isPickerOpen {
                 RoundedRectangle(cornerRadius: 12)
@@ -105,13 +102,13 @@ struct FileShareView: View {
 
 private struct NSViewHost: NSViewRepresentable {
     @Binding var view: NSView?
-    
+
     func makeNSView(context: Context) -> NSView {
         let v = NSView(frame: .zero)
         DispatchQueue.main.async { self.view = v }
         return v
     }
-    
+
     func updateNSView(_ nsView: NSView, context: Context) {
         DispatchQueue.main.async { self.view = nsView }
     }

@@ -1,17 +1,16 @@
-
 import AppKit
 import SwiftUI
 
 class AudioSpectrum: NSView {
     private var barLayers: [CAShapeLayer] = []
     private var isPlaying: Bool = true
-    
+
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         wantsLayer = true
         setupBars()
     }
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         wantsLayer = true
@@ -42,7 +41,7 @@ class AudioSpectrum: NSView {
             layer?.addSublayer(barLayer)
         }
     }
-    
+
     // Visor: each bar gets one looping keyframe animation, so the render
     // server moves the bars on its own and the app never wakes for them.
     // It reproduces the old timer's look: a straight move to a new random
@@ -87,7 +86,7 @@ class AudioSpectrum: NSView {
             barLayer.transform = CATransform3DMakeScale(1, 0.35, 1)
         }
     }
-    
+
     func setPlaying(_ playing: Bool) {
         isPlaying = playing
         if isPlaying {
@@ -100,13 +99,13 @@ class AudioSpectrum: NSView {
 
 struct AudioSpectrumView: NSViewRepresentable {
     @Binding var isPlaying: Bool
-    
+
     func makeNSView(context: Context) -> AudioSpectrum {
         let spectrum = AudioSpectrum()
         spectrum.setPlaying(isPlaying)
         return spectrum
     }
-    
+
     func updateNSView(_ nsView: AudioSpectrum, context: Context) {
         nsView.setPlaying(isPlaying)
     }

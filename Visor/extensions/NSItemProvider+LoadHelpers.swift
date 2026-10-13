@@ -1,17 +1,13 @@
-
-
-
 import AppKit
 import Foundation
 import UniformTypeIdentifiers
 
 extension NSItemProvider {
-    
+
     func extractItem() async -> URL? {
         return await loadFileURL(typeIdentifier: UTType.item.identifier)
     }
 
-    
     /// Detects if this is a file dragged from the filesystem
     func extractFileURL() async -> URL? {
         if hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
@@ -19,7 +15,7 @@ extension NSItemProvider {
         }
         return nil
     }
-    
+
     /// Loads raw data for the given type identifier
     func loadData() async -> Data? {
         guard hasItemConformingToTypeIdentifier(UTType.data.identifier) else { return nil }
@@ -38,7 +34,7 @@ extension NSItemProvider {
                 }
                 if let url = item as? URL, let data = try? Data(contentsOf: url) {
                     self.suggestedName = self.suggestedName ?? url.lastPathComponent
-                    
+
                     let fileManager = FileManager.default
                     let folderURL = url.deletingLastPathComponent()
 
@@ -59,7 +55,7 @@ extension NSItemProvider {
                     } catch {
                         print("Error: \(error.localizedDescription)")
                     }
-                    
+
                     cont.resume(returning: data)
                 } else if let data = item as? Data {
                     cont.resume(returning: data)

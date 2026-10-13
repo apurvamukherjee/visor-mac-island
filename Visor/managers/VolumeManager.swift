@@ -1,5 +1,3 @@
-
-
 import AppKit
 import AudioToolbox
 import Combine

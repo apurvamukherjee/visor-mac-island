@@ -1,4 +1,3 @@
-
 import SwiftUI
 import Defaults
 
@@ -9,7 +8,7 @@ extension Color {
         }
         return .accentColor
     }
-    
+
     /// Returns a darker version of the accent color suitable for backgrounds
     static var effectiveAccentBackground: Color {
         if let nsColor = NSColor.customAccent {

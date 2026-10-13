@@ -132,12 +132,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var viewModelsForLockAnimation: [VisorViewModel] {
         Defaults[.showOnAllDisplays] ? Array(viewModels.values) : [vm]
     }
-    
+
     @MainActor
     private func enableSkyLightOnAllWindows() {
         notchWindowsForLockAnimation.forEach { ($0 as? SkyLightWindow)?.enableSkyLight() }
     }
-    
+
     @MainActor
     private func disableSkyLightOnAllWindows() {
         // Delay disabling SkyLight to avoid flicker during unlock transition
@@ -149,7 +149,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func cleanupWindows(shouldInvert: Bool = false) {
         let shouldCleanupMulti = shouldInvert ? !Defaults[.showOnAllDisplays] : Defaults[.showOnAllDisplays]
-        
+
         if shouldCleanupMulti {
             windows.values.forEach(closeNotchWindow)
             windows.removeAll()
@@ -197,11 +197,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func setupDragDetectorForScreen(_ screen: NSScreen) {
         guard let uuid = screen.displayUUID else { return }
-        
+
         let screenFrame = screen.frame
         let notchHeight = openNotchSize.height
         let notchWidth = openNotchSize.width
-        
+
         // Create notch region at the top-center of the screen where an open notch would occupy
         let notchRegion = CGRect(
             x: screenFrame.midX - notchWidth / 2,
@@ -209,22 +209,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             width: notchWidth,
             height: notchHeight
         )
-        
+
         let detector = DragDetector(notchRegion: notchRegion)
-        
+
         detector.onDragEntersNotchRegion = { [weak self] in
             Task { @MainActor in
                 self?.handleDragEntersNotchRegion(onScreen: screen)
             }
         }
-        
+
         dragDetectors[uuid] = detector
         detector.startMonitoring()
     }
 
     private func handleDragEntersNotchRegion(onScreen screen: NSScreen) {
         guard let uuid = screen.displayUUID else { return }
-        
+
         if Defaults[.showOnAllDisplays], let viewModel = viewModels[uuid] {
             viewModel.open()
             coordinator.currentView = .shelf
@@ -237,9 +237,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func createWindow(for screen: NSScreen, with viewModel: VisorViewModel) -> NSWindow {
         let rect = NSRect(x: 0, y: 0, width: windowSize.width, height: windowSize.height)
         let styleMask: NSWindow.StyleMask = [.borderless, .nonactivatingPanel, .utilityWindow, .hudWindow]
-        
+
         let window = SkyLightWindow(contentRect: rect, styleMask: styleMask, backing: .buffered, defer: false)
-        
+
         // Enable SkyLight only when screen is locked
         if isScreenLocked {
             window.enableSkyLight()
@@ -487,7 +487,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // Create or update windows for all screens
             for screen in NSScreen.screens {
                 guard let uuid = screen.displayUUID else { continue }
-                
+
                 if windows[uuid] == nil {
                     let viewModel = VisorViewModel(screenUUID: uuid)
                     let window = createWindow(for: screen, with: viewModel)

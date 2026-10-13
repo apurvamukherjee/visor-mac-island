@@ -4,7 +4,7 @@ import Combine
 
 class SkyLightWindow: NSPanel {
     private var isSkyLightEnabled: Bool = false
-    
+
     override init(
         contentRect: NSRect,
         styleMask: NSWindow.StyleMask,
@@ -17,11 +17,11 @@ class SkyLightWindow: NSPanel {
             backing: backing,
             defer: flag
         )
-        
+
         configureWindow()
         setupObservers()
     }
-    
+
     private func configureWindow() {
         isFloatingPanel = true
         isOpaque = false
@@ -32,21 +32,21 @@ class SkyLightWindow: NSPanel {
         level = .mainMenu + 3
         hasShadow = false
         isReleasedWhenClosed = false
-        
+
         // Force dark appearance regardless of system setting
         appearance = NSAppearance(named: .darkAqua)
-        
+
         collectionBehavior = [
             .fullScreenAuxiliary,
             .stationary,
             .canJoinAllSpaces,
             .ignoresCycle,
         ]
-        
+
         // Apply initial sharing type setting
         updateSharingType()
     }
-    
+
     private func setupObservers() {
         // Listen for changes to the hideFromScreenRecording setting
         Defaults.publisher(.hideFromScreenRecording)
@@ -55,7 +55,7 @@ class SkyLightWindow: NSPanel {
             }
             .store(in: &observers)
     }
-    
+
     private func updateSharingType() {
         if Defaults[.hideFromScreenRecording] {
             sharingType = .none
@@ -63,23 +63,23 @@ class SkyLightWindow: NSPanel {
             sharingType = .readWrite
         }
     }
-    
+
     func enableSkyLight() {
         if !isSkyLightEnabled {
             SkyLightOperator.shared.delegateWindow(self)
             isSkyLightEnabled = true
         }
     }
-    
+
     func disableSkyLight() {
         if isSkyLightEnabled {
             SkyLightOperator.shared.undelegateWindow(self)
             isSkyLightEnabled = false
         }
     }
-    
+
     private var observers: Set<AnyCancellable> = []
-    
+
     override var canBecomeKey: Bool { false }
     override var canBecomeMain: Bool { false }
 }

@@ -1,5 +1,3 @@
-
-
 import Foundation
 import AppKit
 import UniformTypeIdentifiers
@@ -11,9 +9,9 @@ enum TempFileType {
 
 class TemporaryFileStorageService {
     static let shared = TemporaryFileStorageService()
-    
+
     // MARK: - Public Interface
-    
+
     func removeTemporaryFileIfNeeded(at url: URL) {
         let tempDirectory = URL(fileURLWithPath: NSTemporaryDirectory())
 
@@ -40,7 +38,7 @@ class TemporaryFileStorageService {
             print("Error: \(error.localizedDescription)")
         }
     }
-    
+
     // Visor: was a sync twin behind an async withCheckedContinuation wrapper.
     /// Creates a temporary file and tracks it for manual cleanup
     func createTempFile(for type: TempFileType) async -> URL? {
@@ -68,7 +66,7 @@ class TemporaryFileStorageService {
             return nil
         }
     }
-    
+
     func createZip(from urls: [URL]) async -> URL? {
         let fm = FileManager.default
         let workingDir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("zip_\(UUID().uuidString)", isDirectory: true)
@@ -135,5 +133,5 @@ class TemporaryFileStorageService {
         }
         return archiveURL
     }
-    
+
 }

@@ -1,4 +1,3 @@
-
 import AppKit
 import Foundation
 
@@ -29,7 +28,7 @@ final class SharingStateManager {
 	private var activeDelegates: [UUID: SharingLifecycleDelegate] = [:]
 
 	private init() {}
-	
+
 	func beginInteraction() {
 		activeSessions += 1
 	}
@@ -72,7 +71,7 @@ final class SharingLifecycleDelegate: NSObject, NSSharingServiceDelegate, NSShar
 		self.onBegin = onBegin
 		self.onFinish = onFinish
 	}
-	
+
 	func markPickerBegan() {
 		guard !pickerActive else { return }
 		pickerActive = true
@@ -85,7 +84,7 @@ final class SharingLifecycleDelegate: NSObject, NSSharingServiceDelegate, NSShar
 		onBegin()
 		startTimeoutFallback()
 	}
-	
+
 	private func startTimeoutFallback() {
 		timeoutTask?.cancel()
 		timeoutTask = Task { @MainActor [weak self] in
@@ -137,4 +136,3 @@ final class SharingLifecycleDelegate: NSObject, NSSharingServiceDelegate, NSShar
 		finishIfNeeded()
 	}
 }
-

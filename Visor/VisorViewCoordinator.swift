@@ -1,5 +1,3 @@
-
-
 import AppKit
 import Combine
 import Defaults
@@ -13,7 +11,6 @@ enum SneakContentType {
     case battery
     case lock
     case device
-
 
     @MainActor func applySystemValue(_ value: CGFloat) {
         switch self {
@@ -70,9 +67,9 @@ class VisorViewCoordinator: ObservableObject {
             }
         }
     }
-    
+
     @Default(.hudReplacement) var hudReplacement: Bool
-    
+
     @AppStorage("preferred_screen_uuid") var preferredScreenUUID: String? {
         didSet {
             if let uuid = preferredScreenUUID {
@@ -91,7 +88,7 @@ class VisorViewCoordinator: ObservableObject {
         if preferredScreenUUID == nil {
             preferredScreenUUID = NSScreen.main?.displayUUID
         }
-        
+
         selectedScreenUUID = preferredScreenUUID ?? NSScreen.main?.displayUUID ?? ""
         accessibilityObserver = NotificationCenter.default.addObserver(
             forName: Notification.Name.accessibilityAuthorizationChanged,
@@ -142,7 +139,7 @@ class VisorViewCoordinator: ObservableObject {
             }
         }
     }
-    
+
     func toggleSneakPeek(
         status: Bool, type: SneakContentType, duration: TimeInterval = 1.5, value: CGFloat = 0
     ) {

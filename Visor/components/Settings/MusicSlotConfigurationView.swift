@@ -205,7 +205,7 @@ struct MusicSlotConfigurationView: View {
     private func handleDrop(_ providers: [NSItemProvider], perform action: @escaping (String) -> Void) -> Bool {
         guard let provider = providers.first(where: { $0.canLoadObject(ofClass: NSString.self) }) else { return false }
         // Visor: `as? String` bridges the NSString, so one branch covers both casts.
-        provider.loadObject(ofClass: NSString.self) { item, error in
+        provider.loadObject(ofClass: NSString.self) { item, _ in
             guard let raw = item as? String else { return }
             DispatchQueue.main.async {
                 action(raw)

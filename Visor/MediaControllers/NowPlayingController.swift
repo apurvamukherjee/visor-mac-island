@@ -1,4 +1,3 @@
-
 import AppKit
 import Combine
 import Foundation
@@ -35,7 +34,7 @@ final class NowPlayingController: ObservableObject, MediaControllerProtocol {
 
     func setFavorite(_ favorite: Bool) async {
         let bundleID = playbackState.bundleIdentifier
-        
+
         if bundleID == "com.apple.Music" {
             let runningApps = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Music")
             if !runningApps.isEmpty {
@@ -49,7 +48,7 @@ final class NowPlayingController: ObservableObject, MediaControllerProtocol {
                 try? await AppleScriptHelper.execute(script)
             }
         }
-        
+
         try? await Task.sleep(for: .milliseconds(150))
         await updatePlaybackInfo()
     }
@@ -84,28 +83,28 @@ final class NowPlayingController: ObservableObject, MediaControllerProtocol {
     func isActive() -> Bool {
         return true
     }
-    
+
     func toggleShuffle() async {
         mediaController.setShuffleMode(playbackState.isShuffled ? .off : .songs)
         playbackState.isShuffled.toggle()
     }
-    
+
     func toggleRepeat() async {
         let newRepeatMode = playbackState.repeatMode.next
         playbackState.repeatMode = newRepeatMode
         mediaController.setRepeatMode(Self.adapterRepeatMode(newRepeatMode))
     }
-    
+
     func setVolume(_ level: Double) async {
         let clampedLevel = max(0.0, min(1.0, level))
         let volumePercentage = Int(clampedLevel * 100)
-        
+
         let bundleID = playbackState.bundleIdentifier
         if let appName = AppleScriptHelper.volumeScriptableApps[bundleID],
            !NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).isEmpty {
             try? await AppleScriptHelper.execute("tell application \"\(appName)\" to set sound volume to \(volumePercentage)")
         }
-        
+
         playbackState.volume = clampedLevel
     }
     private func handleTrackInfo(_ trackInfo: TrackInfo?) {
@@ -205,14 +204,14 @@ final class NowPlayingController: ObservableObject, MediaControllerProtocol {
         case .all: .all
         }
     }
-    
+
      private func fetchFavoriteStateIfSupported() async {
          let bundleID = playbackState.bundleIdentifier
-        
+
          if bundleID == "com.apple.Music" {
              let runningApps = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Music")
              guard !runningApps.isEmpty else { return }
-             
+
              let script = """
              tell application "Music"
                  try
@@ -229,5 +228,5 @@ final class NowPlayingController: ObservableObject, MediaControllerProtocol {
              }
          }
      }
-    
+
 }

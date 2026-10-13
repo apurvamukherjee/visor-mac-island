@@ -48,7 +48,7 @@ enum ShelfItemKind: Codable, Equatable, Sendable {
 }
 
 @MainActor
-struct ShelfItem: Identifiable, Codable, Equatable, Sendable {
+struct ShelfItem: Identifiable, Codable, Equatable {
     let id: UUID
     var kind: ShelfItemKind
     var isTemporary: Bool
@@ -57,7 +57,7 @@ struct ShelfItem: Identifiable, Codable, Equatable, Sendable {
         self.kind = kind
         self.isTemporary = isTemporary
     }
-    
+
     var displayName: String {
         switch kind {
         case .file(let bookmarkData):
@@ -78,7 +78,7 @@ struct ShelfItem: Identifiable, Codable, Equatable, Sendable {
             }
         }
     }
-    
+
     var fileURL: URL? {
         guard case .file = kind else { return nil }
         return ShelfStateViewModel.shared.resolveFileURL(for: self)
@@ -90,7 +90,7 @@ struct ShelfItem: Identifiable, Codable, Equatable, Sendable {
         if case .link(let url) = kind { return url }
         return nil
     }
-    
+
     var icon: NSImage {
         guard case .file = kind else {
             return Self.thumbnailSymbolImage(systemName: kind.iconSymbolName) ?? NSImage()
@@ -100,7 +100,6 @@ struct ShelfItem: Identifiable, Codable, Equatable, Sendable {
         }
         return NSImage()
     }
-    
 
     func cleanupStoredData() {
         guard isTemporary, case let .file(bookmark) = kind,
@@ -112,7 +111,7 @@ struct ShelfItem: Identifiable, Codable, Equatable, Sendable {
 private extension ShelfItem {
    static func thumbnailSymbolImage(
         systemName: String,
-    size: CGSize = CGSize(width: 64, height: 80), 
+    size: CGSize = CGSize(width: 64, height: 80),
     symbolPointSize: CGFloat = 38,
     backgroundColor: NSColor = NSColor.white,
     symbolColor: NSColor = NSColor.labelColor

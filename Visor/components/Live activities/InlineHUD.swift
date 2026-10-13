@@ -1,4 +1,3 @@
-
 import SwiftUI
 import Defaults
 
@@ -12,7 +11,7 @@ struct InlineHUD: View {
         HStack {
             HStack(spacing: 5) {
                 Group {
-                    switch (type) {
+                    switch type {
                         case .volume:
                             Image(systemName: value.isZero ? "speaker.slash" : "speaker.wave.3", variableValue: value)
                                 .contentTransition(.interpolate)
@@ -31,7 +30,7 @@ struct InlineHUD: View {
                 }
                 .foregroundStyle(.white)
                 .symbolVariant(.fill)
-                
+
                 Text(Type2Name(type))
                     .font(.subheadline)
                     .fontWeight(.medium)
@@ -40,14 +39,14 @@ struct InlineHUD: View {
                     .contentTransition(.numericText())
             }
             .frame(width: 100 - (hoverAnimation ? 0 : 12) + gestureProgress / 2, height: vm.notchSize.height - (hoverAnimation ? 0 : 12), alignment: .leading)
-            
+
             Rectangle()
                 .fill(.black)
                 .frame(width: vm.closedNotchSize.width - 20)
-            
+
             HStack {
                     DraggableProgressBar(value: $value, onChange: { type.applySystemValue($0) })
-                    if (type == .volume && value.isZero) {
+                    if type == .volume && value.isZero {
                         Text("muted")
                             .font(.caption)
                             .fontWeight(.medium)
@@ -70,9 +69,9 @@ struct InlineHUD: View {
         }
         .frame(height: vm.closedNotchSize.height + (hoverAnimation ? 8 : 0), alignment: .center)
     }
-    
+
     func BrightnessSymbol(_ value: CGFloat) -> String {
-        switch(value) {
+        switch value {
             case 0...0.6:
                 return "sun.min"
             case 0.6...1:
@@ -81,9 +80,9 @@ struct InlineHUD: View {
                 return "sun.min"
         }
     }
-    
+
     func Type2Name(_ type: SneakContentType) -> String {
-        switch(type) {
+        switch type {
             case .volume:
                 return "Volume"
             case .brightness:

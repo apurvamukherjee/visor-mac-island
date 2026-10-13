@@ -1,39 +1,38 @@
-
 import AVFoundation
 import SwiftUI
 
 class WebcamManager: NSObject, ObservableObject {
     static let shared = WebcamManager()
-    
+
     @Published var previewLayer: AVCaptureVideoPreviewLayer?
-    
+
     private var captureSession: AVCaptureSession?
     @Published var isSessionRunning: Bool = false
-    
+
     @Published var authorizationStatus: AVAuthorizationStatus = .notDetermined
-    
+
     @Published var cameraAvailable: Bool = false
 
     private let sessionQueue = DispatchQueue(label: "Visor.WebcamManager.SessionQueue", qos: .userInitiated)
-    
+
     // MARK: - Properties
-    
+
     private override init() {
         super.init()
         NotificationCenter.default.addObserver(self, selector: #selector(deviceWasDisconnected), name: .AVCaptureDeviceWasDisconnected, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(deviceWasConnected), name: .AVCaptureDeviceWasConnected, object: nil)
         checkCameraAvailability()
     }
-    
+
     // MARK: - Camera Management
-    
+
     /// Checks current authorization status and requests access if needed
     func checkAndRequestVideoAuthorization() {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
         DispatchQueue.main.async {
             self.authorizationStatus = status
         }
-        
+
         switch status {
         case .authorized:
             checkCameraAvailability() // Check availability if authorized
@@ -45,7 +44,7 @@ class WebcamManager: NSObject, ObservableObject {
             NSLog("Unknown authorization status")
         }
     }
-    
+
     /// Requests access to the camera
     private func requestVideoAccess() {
         AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
@@ -57,7 +56,7 @@ class WebcamManager: NSObject, ObservableObject {
             }
         }
     }
-    
+
     private var videoDevices: [AVCaptureDevice] {
         AVCaptureDevice.DiscoverySession(
             deviceTypes: [.external, .builtInWideAngleCamera],
@@ -72,13 +71,13 @@ class WebcamManager: NSObject, ObservableObject {
             self.cameraAvailable = hasAvailableDevices
         }
     }
-    
+
     // Visor: runs on sessionQueue, where startSession already is, so it
     // returns its result instead of hopping to main and back to start.
     // The preview layer needs no data output, so none is added.
     private func setupCaptureSession() -> Bool {
         let session = AVCaptureSession()
-        
+
         do {
             // Prefer an external camera if available
             guard let videoDevice = videoDevices.first else {
@@ -89,14 +88,14 @@ class WebcamManager: NSObject, ObservableObject {
                 }
                 return false
             }
-            
+
             NSLog("Using camera: \(videoDevice.localizedName)")
-            
+
             let videoInput = try AVCaptureDeviceInput(device: videoDevice)
             guard session.canAddInput(videoInput) else {
                 throw NSError(domain: "Visor.WebcamManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Cannot add video input"])
             }
-            
+
             session.beginConfiguration()
             session.sessionPreset = .high
             session.addInput(videoInput)
@@ -110,20 +109,20 @@ class WebcamManager: NSObject, ObservableObject {
             }
             return false
         }
-        
+
         self.captureSession = session
-        
+
         DispatchQueue.main.async {
             self.cameraAvailable = true
             let previewLayer = AVCaptureVideoPreviewLayer(session: session)
             previewLayer.videoGravity = .resizeAspectFill
             self.previewLayer = previewLayer
         }
-        
+
         NSLog("Capture session setup completed successfully")
         return true
     }
-    
+
     /// Cleans up an existing capture session, removing all inputs and outputs
     private func cleanupExistingSession() {
         if let existingSession = self.captureSession {
@@ -131,10 +130,10 @@ class WebcamManager: NSObject, ObservableObject {
             if existingSession.isRunning {
                 existingSession.stopRunning()
             }
-            
+
             // Then perform configuration cleanup
             existingSession.beginConfiguration()
-            
+
             // Remove all inputs and outputs
             for input in existingSession.inputs {
                 existingSession.removeInput(input)
@@ -142,10 +141,10 @@ class WebcamManager: NSObject, ObservableObject {
             for output in existingSession.outputs {
                 existingSession.removeOutput(output)
             }
-            
+
             existingSession.commitConfiguration()
             self.captureSession = nil
-            
+
             // Clear preview layer on main thread
             DispatchQueue.main.async {
                 self.previewLayer = nil
@@ -178,34 +177,34 @@ class WebcamManager: NSObject, ObservableObject {
             self.isSessionRunning = isRunning
         }
     }
-    
+
     func startSession() {
         sessionQueue.async { [weak self] in
             guard let self = self, self.captureSession != nil || self.setupCaptureSession(),
                   let session = self.captureSession, !session.isRunning else {
                 return
             }
-            
+
             session.startRunning()
-            
+
             // Update state on main thread
             self.updateSessionState()
-            
+
             NSLog("Capture session started successfully")
         }
     }
-    
+
     func stopSession() {
         sessionQueue.async { [weak self] in
             guard let self = self else { return }
-            
+
             // Update state to indicate we're stopping
             DispatchQueue.main.async {
                 self.isSessionRunning = false
             }
-            
+
             self.cleanupExistingSession()
-            
+
             NSLog("Capture session stopped and cleaned up")
         }
     }

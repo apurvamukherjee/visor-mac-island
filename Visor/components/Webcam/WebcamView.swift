@@ -1,5 +1,3 @@
-
-
 import AVFoundation
 import Defaults
 import SwiftUI

@@ -1,4 +1,3 @@
-
 import Foundation
 import AppKit
 import SwiftUI
@@ -72,20 +71,20 @@ final class ShelfItemViewModel: ObservableObject {
                 }
             }
         }
-        
+
         guard !itemsToShare.isEmpty else { return }
-         
+
         stopSharingAccessingURLs()
         // Start security-scoped access for all file URLs and keep it active during sharing
         sharingAccessingURLs = fileURLs.filter { $0.startAccessingSecurityScopedResource() }
-        
+
         // Create and retain lifecycle delegate for the entire share operation
         let lifecycle = SharingStateManager.shared.makeDelegate { [weak self] in
             self?.sharingLifecycle = nil
             self?.stopSharingAccessingURLs()
         }
         self.sharingLifecycle = lifecycle
-        
+
         let picker = NSSharingServicePicker(items: itemsToShare)
         picker.delegate = lifecycle
         lifecycle.markPickerBegan()
@@ -93,7 +92,7 @@ final class ShelfItemViewModel: ObservableObject {
             picker.show(relativeTo: .zero, of: view, preferredEdge: .minY)
         }
     }
-    
+
     private func stopSharingAccessingURLs() {
         for url in sharingAccessingURLs {
             url.stopAccessingSecurityScopedResource()
@@ -186,7 +185,7 @@ final class ShelfItemViewModel: ObservableObject {
 
         menu.addItem(NSMenuItem.separator())
         addMenuItem(title: "Share…")
-        
+
         // Add image processing options for image files grouped under "Image Actions"
         let imageURLs = selectedFileURLs.filter { ImageProcessingService.shared.isImageFile($0) }
         if !imageURLs.isEmpty {
@@ -217,7 +216,7 @@ final class ShelfItemViewModel: ObservableObject {
         // Add compression option for files/folders (single or multiple)
         if !selectedFileURLs.isEmpty { addMenuItem(title: "Compress") }
 
-        if selectedItems.count == 1, case .file(_) = item.kind { addMenuItem(title: "Rename") }
+        if selectedItems.count == 1, case .file = item.kind { addMenuItem(title: "Rename") }
 
         // Always show "Copy" for all item types
         addMenuItem(title: "Copy")
@@ -242,7 +241,7 @@ final class ShelfItemViewModel: ObservableObject {
                 }
             }
         }
-        
+
         // Visor: menu items hold their target weakly; popUpContextMenu blocks
         // until the menu closes, so this keeps the target alive long enough.
         withExtendedLifetime(actionTarget) {
@@ -272,7 +271,7 @@ final class ShelfItemViewModel: ObservableObject {
 
             if let appURL = sender.representedObject as? URL {
                 let selected = selectedShelfItems
-                
+
                 let allSelectedURLs = selected.compactMap { $0.openableURL }
                 guard !allSelectedURLs.isEmpty else { return }
                 // Visor: with no file URLs, accessSecurityScopedResources just runs the open.
@@ -332,20 +331,20 @@ final class ShelfItemViewModel: ObservableObject {
             case "Copy":
                 let selected = selectedShelfItems
                 let pb = NSPasteboard.general
-                
+
                 // Stop accessing previously copied URLs
                 for url in ShelfItemViewModel.copiedURLs {
                     url.stopAccessingSecurityScopedResource()
                 }
                 ShelfItemViewModel.copiedURLs.removeAll()
-                
+
                 pb.clearContents()
                 let fileURLs = selected.compactMap { ShelfStateViewModel.shared.resolveAndUpdateBookmark(for: $0) }
                 if !fileURLs.isEmpty {
                     // Start security-scoped access for all URLs and keep them active
                     ShelfItemViewModel.copiedURLs = fileURLs.filter { $0.startAccessingSecurityScopedResource() }
                     NSLog("🔐 Started security-scoped access for \(ShelfItemViewModel.copiedURLs.count) copied files")
-                    
+
                     // Write to pasteboard
                     pb.writeObjects(fileURLs as [NSURL])
                 } else {
@@ -358,13 +357,13 @@ final class ShelfItemViewModel: ObservableObject {
             case "Remove":
                 let selected = selectedShelfItems
                 for it in selected { ShelfStateViewModel.shared.remove(it) }
-                
+
             case "Remove Background":
                 handleRemoveBackground()
-                
+
             case "Convert Image…":
                 showConvertImageDialog()
-                
+
             case "Create PDF":
                 handleCreatePDF()
 
@@ -373,7 +372,7 @@ final class ShelfItemViewModel: ObservableObject {
 
             case "Export Pages as Images":
                 handleExportPDFPages()
-            
+
             case "Compress":
                 let selected = selectedShelfItems
                 let fileURLs = selected.compactMap { $0.fileURL }
@@ -390,7 +389,7 @@ final class ShelfItemViewModel: ObservableObject {
                         }
                     }
                 }
-                
+
             default:
                 break
             }
@@ -433,19 +432,19 @@ final class ShelfItemViewModel: ObservableObject {
                 }
             }
         }
-        
+
         @MainActor
         private func handleRemoveBackground() {
             let imageURLs = selectedImageURLs
-            
+
             guard let imageURL = imageURLs.first else { return }
-            
+
             Task {
                 do {
                     let resultURL = try await imageURL.accessSecurityScopedResource { url in
                         try await ImageProcessingService.shared.removeBackground(from: url)
                     }
-                    
+
                     if let resultURL {
                         addTemporaryItem(at: resultURL)
                     }
@@ -455,19 +454,19 @@ final class ShelfItemViewModel: ObservableObject {
                 }
             }
         }
-        
+
         @MainActor
         private func handleCreatePDF() {
             let imageURLs = selectedImageURLs
-            
+
             guard !imageURLs.isEmpty else { return }
-            
+
             Task {
                 do {
                     let resultURL = try await imageURLs.accessSecurityScopedResources { urls in
                         try await ImageProcessingService.shared.createPDF(from: urls)
                     }
-                    
+
                     if let resultURL {
                         addTemporaryItem(at: resultURL)
                     }
@@ -477,7 +476,7 @@ final class ShelfItemViewModel: ObservableObject {
                 }
             }
         }
-        
+
         // Visor: 2048 px JPEG at 0.75 with metadata stripped is small enough
         // for chat apps and email while still looking sharp on a Retina screen.
         @MainActor
@@ -515,85 +514,85 @@ final class ShelfItemViewModel: ObservableObject {
         @MainActor
         private func showConvertImageDialog() {
             let imageURLs = selectedImageURLs
-            
+
             guard let imageURL = imageURLs.first else { return }
-            
+
             // Create and show conversion options dialog with better layout
             let alert = NSAlert()
             alert.messageText = "Convert Image"
             alert.alertStyle = .informational
             alert.addButton(withTitle: "Convert")
             alert.addButton(withTitle: "Cancel")
-            
+
             // Create accessory view with better spacing and organization
             let accessoryView = NSView(frame: NSRect(x: 0, y: 0, width: 380, height: 180))
             accessoryView.wantsLayer = true
-            
+
             // MARK: Format Row
             let formatLabel = NSTextField(labelWithString: "Format:")
             formatLabel.frame = NSRect(x: 0, y: 145, width: 100, height: 20)
             formatLabel.font = .systemFont(ofSize: 12, weight: .medium)
             accessoryView.addSubview(formatLabel)
-            
+
             let formatPopup = NSPopUpButton(frame: NSRect(x: 120, y: 140, width: 250, height: 28))
             formatPopup.addItems(withTitles: ImageConversionOptions.ImageFormat.allCases.map { $0.rawValue.uppercased() })
             formatPopup.selectItem(at: 0)
             formatPopup.font = .systemFont(ofSize: 12)
             accessoryView.addSubview(formatPopup)
-            
+
             // MARK: Image Size Row
             let imageSizeLabel = NSTextField(labelWithString: "Image Size:")
             imageSizeLabel.frame = NSRect(x: 0, y: 105, width: 100, height: 20)
             imageSizeLabel.font = .systemFont(ofSize: 12, weight: .medium)
             accessoryView.addSubview(imageSizeLabel)
-            
+
             let imageSizePopup = NSPopUpButton(frame: NSRect(x: 120, y: 100, width: 160, height: 28))
             imageSizePopup.addItems(withTitles: ["Actual Size", "Large", "Medium", "Small", "Custom..."])
             imageSizePopup.selectItem(at: 0)
             imageSizePopup.font = .systemFont(ofSize: 12)
             accessoryView.addSubview(imageSizePopup)
-            
+
             // Custom size field (initially hidden)
             let customSizeField = NSTextField(frame: NSRect(x: 285, y: 103, width: 85, height: 22))
             customSizeField.placeholderString = "e.g., 1920"
             customSizeField.font = .systemFont(ofSize: 12)
             customSizeField.isHidden = true
             accessoryView.addSubview(customSizeField)
-            
+
             // MARK: Preserve Metadata Checkbox
             let metadataCheckbox = NSButton(checkboxWithTitle: "Preserve Metadata", target: nil, action: nil)
             metadataCheckbox.frame = NSRect(x: 120, y: 65, width: 200, height: 20)
             metadataCheckbox.font = .systemFont(ofSize: 12)
             metadataCheckbox.state = .on
             accessoryView.addSubview(metadataCheckbox)
-            
+
             // MARK: Separator line
             let separatorLine = NSView(frame: NSRect(x: 0, y: 50, width: 380, height: 1))
             separatorLine.wantsLayer = true
             separatorLine.layer?.backgroundColor = NSColor.separatorColor.cgColor
             accessoryView.addSubview(separatorLine)
-            
+
             // MARK: Format-specific options (shown/hidden based on format selection)
             let qualityRow = NSView(frame: NSRect(x: 0, y: 15, width: 380, height: 30))
             qualityRow.wantsLayer = true
-            
+
             let qualityLabel = NSTextField(labelWithString: "Compression:")
             qualityLabel.frame = NSRect(x: 0, y: 7, width: 100, height: 20)
             qualityLabel.font = .systemFont(ofSize: 12, weight: .medium)
             qualityRow.addSubview(qualityLabel)
-            
+
             let qualitySlider = NSSlider(frame: NSRect(x: 120, y: 12, width: 200, height: 20))
             qualitySlider.minValue = 0.0
             qualitySlider.maxValue = 1.0
             qualitySlider.doubleValue = 0.85
             accessoryView.addSubview(qualitySlider)
-            
+
             let qualityValueLabel = NSTextField(labelWithString: "85%")
             qualityValueLabel.frame = NSRect(x: 325, y: 7, width: 55, height: 20)
             qualityValueLabel.font = .systemFont(ofSize: 12)
             qualityValueLabel.alignment = .left
             accessoryView.addSubview(qualityValueLabel)
-            
+
             // Visor: one refresh for every control; each part is idempotent,
             // so running all of them on any change is the same as running one.
             let refresh = {
@@ -604,7 +603,7 @@ final class ShelfItemViewModel: ObservableObject {
                 qualityLabel.isHidden = !showCompression
                 customSizeField.isHidden = imageSizePopup.indexOfSelectedItem != 4 // Show only for "Custom..."
             }
-            
+
             class ControlHandler: NSObject {
                 let refresh: () -> Void
                 init(refresh: @escaping () -> Void) {
@@ -614,7 +613,7 @@ final class ShelfItemViewModel: ObservableObject {
                     refresh()
                 }
             }
-            
+
             let handler = ControlHandler(refresh: refresh)
             for control in [qualitySlider, formatPopup, imageSizePopup] as [NSControl] {
                 control.target = handler
@@ -622,19 +621,19 @@ final class ShelfItemViewModel: ObservableObject {
             }
             qualitySlider.isContinuous = true
             refresh()
-            
+
             alert.accessoryView = accessoryView
-            
+
             // Visor: controls hold their target weakly; runModal blocks, so this
             // keeps the handler alive for as long as the dialog is up.
             let response = withExtendedLifetime(handler) { alert.runModal() }
-            
+
             if response == .alertFirstButtonReturn {
                 // Get selected options
                 let format = ImageConversionOptions.ImageFormat.allCases[formatPopup.indexOfSelectedItem]
-                
+
                 let quality = qualitySlider.doubleValue
-                
+
                 // Get max dimension based on image size selection
                 let maxDimension: CGFloat? = {
                     let sizeIndex = imageSizePopup.indexOfSelectedItem
@@ -650,22 +649,22 @@ final class ShelfItemViewModel: ObservableObject {
                     default: return nil
                     }
                 }()
-                
+
                 let removeMetadata = metadataCheckbox.state == .off // Note: we invert this
-                
+
                 let options = ImageConversionOptions(
                     format: format,
                     compressionQuality: quality,
                     maxDimension: maxDimension,
                     removeMetadata: removeMetadata
                 )
-                
+
                 Task {
                     do {
                         let resultURL = try await imageURL.accessSecurityScopedResource { url in
                             try await ImageProcessingService.shared.convertImage(from: url, options: options)
                         }
-                        
+
                         if let resultURL {
                             addTemporaryItem(at: resultURL)
                         }
@@ -676,7 +675,7 @@ final class ShelfItemViewModel: ObservableObject {
                 }
             }
         }
-        
+
         // Visor: the image actions all work on the selected image files.
         @MainActor
         private var selectedImageURLs: [URL] {

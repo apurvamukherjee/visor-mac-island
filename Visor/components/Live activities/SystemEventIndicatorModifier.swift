@@ -1,4 +1,4 @@
-    //
+//
     //  SystemEventIndicatorModifier.swift
     //  
     //
@@ -11,10 +11,10 @@ struct SystemEventIndicatorModifier: View {
     @Binding var eventType: SneakContentType
     @Binding var value: CGFloat
     var sendEventBack: (CGFloat) -> Void
-    
+
     var body: some View {
         HStack(spacing: 14) {
-            switch (eventType) {
+            switch eventType {
                 case .volume:
                     Image(systemName: value.isZero ? "speaker.slash" : "speaker.wave.3", variableValue: value)
                         .contentTransition(.interpolate)
@@ -51,10 +51,10 @@ struct SystemEventIndicatorModifier: View {
 struct DraggableProgressBar: View {
     @EnvironmentObject var vm: VisorViewModel
     @Binding var value: CGFloat
-    var onChange: ((CGFloat) -> Void)? = nil
-    
+    var onChange: ((CGFloat) -> Void)?
+
     @State private var isDragging = false
-    
+
     var body: some View {
         VStack {
             GeometryReader { geo in
@@ -100,11 +100,11 @@ struct DraggableProgressBar: View {
             .frame(height: Defaults[.inlineHUD] ? isDragging ? 8 : 5 : isDragging ? 9 : 6)
         }
     }
-    
+
     private func updateValue(gesture: DragGesture.Value, in geometry: GeometryProxy) {
         let dragPosition = gesture.location.x
         let newValue = dragPosition / geometry.size.width
-        
+
         value = max(0, min(newValue, 1))
         onChange?(value)
     }

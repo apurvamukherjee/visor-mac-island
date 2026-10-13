@@ -139,7 +139,6 @@ struct GeneralSettings: View {
     @Default(.showOnAllDisplays) var showOnAllDisplays
     @Default(.enableGestures) var enableGestures
     @Default(.openNotchOnHover) var openNotchOnHover
-    
 
     var body: some View {
         Form {
@@ -166,7 +165,7 @@ struct GeneralSettings: View {
                     }
                 }
                 .disabled(showOnAllDisplays)
-                
+
                 Defaults.Toggle(key: .automaticallySwitchDisplay) {
                     Text("Automatically switch displays")
                 }
@@ -347,7 +346,7 @@ struct HUD: View {
     @Default(.optionKeyAction) var optionKeyAction
     @Default(.hudReplacement) var hudReplacement
     @State private var accessibilityAuthorized = false
-    
+
     var body: some View {
         Form {
             Section {
@@ -367,7 +366,7 @@ struct HUD: View {
                     .controlSize(.large)
                     .disabled(!accessibilityAuthorized)
                 }
-                
+
                 if !accessibilityAuthorized {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Accessibility access is required to replace the system HUD.")
@@ -384,14 +383,14 @@ struct HUD: View {
                     .padding(.top, 6)
                 }
             }
-            
+
             Section {
                 Picker("Option key behaviour", selection: $optionKeyAction) {
                     ForEach(OptionKeyAction.allCases) { opt in
                         Text(opt.rawValue).tag(opt)
                     }
                 }
-                
+
                 Picker("Progress bar style", selection: $enableGradient) {
                     Text("Hierarchical")
                         .tag(false)
@@ -408,7 +407,7 @@ struct HUD: View {
                 Text("General")
             }
             .disabled(!hudReplacement)
-            
+
             Section {
                 Defaults.Toggle(key: .showOpenNotchHUD) {
                     Text("Show HUD in open notch")
@@ -424,7 +423,7 @@ struct HUD: View {
                 }
             }
             .disabled(!hudReplacement)
-            
+
             Section {
                 Picker("HUD style", selection: $inlineHUD) {
                     Text("Default")
@@ -440,7 +439,7 @@ struct HUD: View {
                         }
                     }
                 }
-                
+
                 Defaults.Toggle(key: .showClosedNotchHUDPercentage) {
                     Text("Show percentage")
                 }
@@ -475,7 +474,6 @@ struct Media: View {
     @Default(.enableSneakPeek) private var enableSneakPeek
     @Default(.sneakPeekStyles) var sneakPeekStyles
 
-
     var body: some View {
         Form {
             Section {
@@ -493,7 +491,7 @@ struct Media: View {
                 .foregroundStyle(.secondary)
                 .font(.caption)
             }
-            
+
             Section {
                 Toggle(
                     "Show music live activity",
@@ -531,7 +529,7 @@ struct Media: View {
             } header: {
                 Text("Media playback live activity")
             }
-            
+
             Section {
                 MusicSlotConfigurationView()
                 Defaults.Toggle(key: .enableLyrics) {
@@ -659,7 +657,7 @@ struct CalendarSettings: View {
 
 func lighterColor(from nsColor: NSColor, amount: CGFloat = 0.14) -> Color {
     let srgb = nsColor.usingColorSpace(.sRGB) ?? nsColor
-    var (r, g, b, a): (CGFloat, CGFloat, CGFloat, CGFloat) = (0,0,0,0)
+    var (r, g, b, a): (CGFloat, CGFloat, CGFloat, CGFloat) = (0, 0, 0, 0)
     srgb.getRed(&r, green: &g, blue: &b, alpha: &a)
 
     func lighten(_ c: CGFloat) -> CGFloat {
@@ -744,8 +742,7 @@ struct About: View {
                     } label: {
                         VStack(spacing: 5) {
                             Image("Github")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
+                                .resizable().scaledToFit()
                                 .frame(width: 18)
                             Text("GitHub")
                         }
@@ -771,14 +768,14 @@ struct About: View {
 }
 
 struct Shelf: View {
-    
+
     @Default(.quickShareProvider) var quickShareProvider
     @StateObject private var quickShareService = QuickShareService.shared
 
     private var selectedProvider: QuickShareProvider? {
         quickShareService.availableProviders.first(where: { $0.id == quickShareProvider })
     }
-    
+
     init() {
         Task { await QuickShareService.shared.discoverAvailableProviders() }
     }
@@ -788,8 +785,7 @@ struct Shelf: View {
         Group {
             if let imgData = provider.imageData, let nsImg = NSImage(data: imgData) {
                 Image(nsImage: nsImg)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
+                    .resizable().scaledToFit()
             } else {
                 Image(systemName: "square.and.arrow.up")
             }
@@ -797,7 +793,7 @@ struct Shelf: View {
         .frame(width: 16, height: 16)
         .foregroundColor(.accentColor)
     }
-    
+
     var body: some View {
         Form {
             Section {
@@ -820,7 +816,7 @@ struct Shelf: View {
             } header: {
                 Text("General")
             }
-            
+
             Section {
                 Picker("Quick Share Service", selection: $quickShareProvider) {
                     ForEach(quickShareService.availableProviders, id: \.id) { provider in
@@ -832,7 +828,7 @@ struct Shelf: View {
                     }
                 }
                 .pickerStyle(.menu)
-                
+
                 if let selectedProvider = selectedProvider {
                     HStack {
                         providerIcon(selectedProvider)
@@ -848,7 +844,7 @@ struct Shelf: View {
                     .padding(.vertical, 4)
                 }
                 // Providers are always enabled; user can pick default service above.
-                
+
             } header: {
                 Text("Quick Share")
             } footer: {
@@ -947,10 +943,10 @@ struct Appearance: View {
 
 struct Advanced: View {
     @Default(.useCustomAccentColor) var useCustomAccentColor
-    
+
     @State private var customAccentColor: Color = .accentColor
-    @State private var selectedPresetColor: PresetAccentColor? = nil
-    
+    @State private var selectedPresetColor: PresetAccentColor?
+
     // macOS accent colors
     enum PresetAccentColor: String, CaseIterable, Identifiable {
         case blue = "Blue"
@@ -961,9 +957,9 @@ struct Advanced: View {
         case yellow = "Yellow"
         case green = "Green"
         case graphite = "Graphite"
-        
+
         var id: String { self.rawValue }
-        
+
         var color: Color {
             switch self {
             case .blue: return Color(red: 0.0, green: 0.478, blue: 1.0)
@@ -977,7 +973,7 @@ struct Advanced: View {
             }
         }
     }
-    
+
     var body: some View {
         Form {
             Section {
@@ -988,7 +984,7 @@ struct Advanced: View {
                         Text("Custom").tag(true)
                     }
                     .pickerStyle(.segmented)
-                    
+
                     if !useCustomAccentColor {
                         // System accent info
                         VStack(alignment: .leading, spacing: 8) {
@@ -998,7 +994,7 @@ struct Advanced: View {
                                     color: .accentColor,
                                     isSystemDefault: true
                                 ) {}
-                                
+
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Using System Accent")
                                         .font(.body)
@@ -1016,7 +1012,7 @@ struct Advanced: View {
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundStyle(.secondary)
-                            
+
                             HStack(spacing: 12) {
                                 ForEach(PresetAccentColor.allCases) { preset in
                                     AccentCircleButton(
@@ -1030,10 +1026,10 @@ struct Advanced: View {
                                 }
                                 Spacer()
                             }
-                            
+
                             Divider()
                                 .padding(.vertical, 4)
-                            
+
                             // Custom color picker
                             HStack(spacing: 12) {
                                 VStack(alignment: .leading, spacing: 2) {
@@ -1043,9 +1039,9 @@ struct Advanced: View {
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
-                                
+
                                 Spacer()
-                                
+
                                 ColorPicker(selection: Binding(
                                     get: { customAccentColor },
                                     set: { newColor in
@@ -1058,7 +1054,7 @@ struct Advanced: View {
                                         Circle()
                                             .fill(customAccentColor)
                                             .frame(width: 32, height: 32)
-                                        
+
                                         if selectedPresetColor == nil {
                                             Circle()
                                                 .strokeBorder(.primary.opacity(0.3), lineWidth: 2)
@@ -1080,7 +1076,7 @@ struct Advanced: View {
                     .foregroundStyle(.secondary)
                     .font(.caption)
             }
-            
+
             Section {
                 Defaults.Toggle(key: .enableShadow) {
                     Text("Enable window shadow")
@@ -1091,7 +1087,7 @@ struct Advanced: View {
             } header: {
                 Text("Window Appearance")
             }
-            
+
             Section {
                 Defaults.Toggle(key: .hideTitleBar) {
                     Text("Hide title bar")
@@ -1117,28 +1113,28 @@ struct Advanced: View {
             loadCustomColor()
         }
     }
-    
+
     private func saveCustomColor(_ color: Color) {
         let nsColor = NSColor(color)
         if let colorData = try? NSKeyedArchiver.archivedData(withRootObject: nsColor, requiringSecureCoding: false) {
             Defaults[.customAccentColorData] = colorData
         }
     }
-    
+
     private func loadCustomColor() {
         if let colorData = Defaults[.customAccentColorData],
            let nsColor = try? NSKeyedUnarchiver.unarchivedObject(ofClass: NSColor.self, from: colorData) {
             customAccentColor = Color(nsColor: nsColor)
-            
+
             // Check if loaded color matches a preset
             selectedPresetColor = PresetAccentColor.allCases.first { colorsAreEqual(Color(nsColor: nsColor), $0.color) }
         }
     }
-    
+
     private func colorsAreEqual(_ color1: Color, _ color2: Color) -> Bool {
         let nsColor1 = NSColor(color1).usingColorSpace(.sRGB) ?? NSColor(color1)
         let nsColor2 = NSColor(color2).usingColorSpace(.sRGB) ?? NSColor(color2)
-        
+
         return abs(nsColor1.redComponent - nsColor2.redComponent) < 0.01 &&
                abs(nsColor1.greenComponent - nsColor2.greenComponent) < 0.01 &&
                abs(nsColor1.blueComponent - nsColor2.blueComponent) < 0.01
@@ -1151,7 +1147,7 @@ struct AccentCircleButton: View {
     let color: Color
     var isSystemDefault: Bool = false
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             ZStack {
@@ -1159,12 +1155,12 @@ struct AccentCircleButton: View {
                 Circle()
                     .fill(color)
                     .frame(width: 32, height: 32)
-                
+
                 // Subtle border
                 Circle()
                     .strokeBorder(Color.primary.opacity(0.15), lineWidth: 1)
                     .frame(width: 32, height: 32)
-                
+
                 // Apple-style highlight ring around the middle when selected
                 if isSelected {
                     Circle()

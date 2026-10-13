@@ -1,4 +1,3 @@
-
 import AppKit
 import CoreGraphics
 
@@ -15,7 +14,7 @@ extension NSScreen {
         let uuidString = CFUUIDCreateString(nil, uuid.takeRetainedValue()) as String
         return uuidString
     }
-    
+
     /// Find a screen by its UUID
     @MainActor static func screen(withUUID uuid: String) -> NSScreen? {
         screens.first { $0.displayUUID == uuid }

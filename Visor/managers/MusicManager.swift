@@ -1,4 +1,3 @@
-
 import AppKit
 import Combine
 import Defaults
@@ -27,7 +26,7 @@ class MusicManager: ObservableObject {
     @Published var album: String = "Self Love"
     @Published var isPlayerIdle: Bool = true
     @Published var avgColor: NSColor = .white
-    @Published var bundleIdentifier: String? = nil
+    @Published var bundleIdentifier: String?
     @Published var songDuration: TimeInterval = 0
     @Published var elapsedTime: TimeInterval = 0
     @Published var timestampDate: Date = .init()
@@ -44,13 +43,13 @@ class MusicManager: ObservableObject {
     @Published var canFavoriteTrack: Bool = false
     @Published var isFavoriteTrack: Bool = false
 
-    private var artworkData: Data? = nil
+    private var artworkData: Data?
 
     // Store last values at the time artwork was changed
     private var lastArtworkTitle: String = "I'm Handsome"
     private var lastArtworkArtist: String = "Me"
     private var lastArtworkAlbum: String = "Self Love"
-    private var lastArtworkBundleIdentifier: String? = nil
+    private var lastArtworkBundleIdentifier: String?
     // Visor: the track whose lyrics were last requested. See fetchLyricsIfAvailable.
     private var lastLyricsKey: String?
 
@@ -115,7 +114,7 @@ class MusicManager: ObservableObject {
     private func setActiveController(_ controller: any MediaControllerProtocol) {
         // Set new active controller
         activeController = controller
-        
+
         self.canFavoriteTrack = controller.supportsFavorite
 
         // Get current state from active controller
@@ -435,7 +434,7 @@ class MusicManager: ObservableObject {
             await activeController?.toggleRepeat()
         }
     }
-    
+
     func togglePlay() {
         Task {
             await activeController?.togglePlay()
@@ -463,7 +462,7 @@ class MusicManager: ObservableObject {
         let newPos = min(max(0, elapsedTime + seconds), songDuration)
         seek(to: newPos)
     }
-    
+
     func setVolume(to level: Double) {
         if let controller = activeController {
             Task {
@@ -480,7 +479,7 @@ class MusicManager: ObservableObject {
         let workspace = NSWorkspace.shared
         if let appURL = workspace.urlForApplication(withBundleIdentifier: bundleID) {
             let configuration = NSWorkspace.OpenConfiguration()
-            workspace.openApplication(at: appURL, configuration: configuration) { (app, error) in
+            workspace.openApplication(at: appURL, configuration: configuration) { (_, error) in
                 if let error = error {
                     print("Failed to launch app with bundle ID: \(bundleID), error: \(error)")
                 } else {
@@ -500,8 +499,7 @@ class MusicManager: ObservableObject {
             }
         }
     }
-    
-    
+
     func syncVolumeFromActiveApp() async {
         guard let bundleID = bundleIdentifier,
               let appName = AppleScriptHelper.volumeScriptableApps[bundleID],
@@ -519,7 +517,7 @@ class MusicManager: ObservableObject {
         if let result = try? await AppleScriptHelper.execute(script) {
             let volumeValue = result.int32Value
             let currentVolume = Double(volumeValue) / 100.0
-            
+
             await MainActor.run {
                 if abs(currentVolume - self.volume) > 0.01 {
                     self.volume = currentVolume

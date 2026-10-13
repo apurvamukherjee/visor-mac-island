@@ -17,11 +17,9 @@ struct BatteryView: View {
     var iconStatus: String {
         if isCharging {
             return "bolt"
-        }
-        else if isPluggedIn {
+        } else if isPluggedIn {
             return "plug"
-        }
-        else {
+        } else {
             return ""
         }
     }
@@ -44,8 +42,7 @@ struct BatteryView: View {
 
             Image(systemName: icon)
                 .resizable()
-                .fontWeight(.thin)
-                .aspectRatio(contentMode: .fit)
+                .fontWeight(.thin).scaledToFit()
                 .foregroundColor(.white.opacity(0.5))
                 .frame(
                     width: batteryWidth + 1
@@ -62,8 +59,7 @@ struct BatteryView: View {
             if iconStatus != "" && (isForNotification || Defaults[.showPowerStatusIcons]) {
                 ZStack {
                     Image(iconStatus)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
+                        .resizable().scaledToFit()
                         .foregroundColor(.white)
                         .frame(
                             width: 17,
@@ -86,7 +82,7 @@ struct ScaleButtonStyle: ButtonStyle {
 
 /// A view that displays detailed battery information and settings.
 struct BatteryMenuView: View {
-    
+
     var isPluggedIn: Bool
     var isCharging: Bool
     var levelBattery: Float
@@ -108,7 +104,7 @@ struct BatteryMenuView: View {
             // Visor: set once per group instead of on every line.
             .font(.headline)
             .fontWeight(.semibold)
-            
+
             VStack(alignment: .leading, spacing: 8) {
                 Text("Max Capacity: \(Int(maxCapacity))%")
                 if isInLowPowerMode {
@@ -156,7 +152,7 @@ struct BatteryMenuView: View {
 
 /// A view that displays the battery status and allows interaction to show detailed information.
 struct VisorBatteryView: View {
-    
+
     @State var batteryWidth: CGFloat = 26
     var isCharging: Bool = false
     var isInLowPowerMode: Bool = false
@@ -165,12 +161,12 @@ struct VisorBatteryView: View {
     var maxCapacity: Float = 0
     var timeToFullCharge: Int = 0
     @State var isForNotification: Bool = false
-    
+
     @State private var showPopupMenu: Bool = false
     @State private var isPressed: Bool = false
     @State private var isHoveringButton: Bool = false
     @State private var isHoveringPopover: Bool = false
-    @State private var hideTask: Task<Void, Never>? = nil
+    @State private var hideTask: Task<Void, Never>?
 
     @EnvironmentObject var vm: VisorViewModel
 
@@ -207,7 +203,7 @@ struct VisorBatteryView: View {
                 maxCapacity: maxCapacity,
                 timeToFullCharge: timeToFullCharge,
                 isInLowPowerMode: isInLowPowerMode,
-                onDismiss: { 
+                onDismiss: {
                     showPopupMenu = false
                 }
             )

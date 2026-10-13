@@ -1,4 +1,3 @@
-
 import Combine
 import Defaults
 import SwiftUI
@@ -18,7 +17,7 @@ class VisorViewModel: NSObject, ObservableObject {
     @Published var dropEvent: Bool = false
     @Published var anyDropZoneTargeting: Bool = false
     var cancellables: Set<AnyCancellable> = []
-    
+
     @Published var hideOnClosed: Bool = true
 
     @Published var isHoveringCalendar: Bool = false
@@ -28,14 +27,14 @@ class VisorViewModel: NSObject, ObservableObject {
 
     @Published var notchSize: CGSize = getClosedNotchSize()
     @Published var closedNotchSize: CGSize = getClosedNotchSize()
-    
+
     let webcamManager = WebcamManager.shared
     @Published var isCameraExpanded: Bool = false
     @Published var isRequestingAuthorization: Bool = false
-    
+
     init(screenUUID: String? = nil) {
         super.init()
-        
+
         self.screenUUID = screenUUID
         notchSize = getClosedNotchSize(screenUUID: screenUUID)
         closedNotchSize = notchSize
@@ -46,10 +45,10 @@ class VisorViewModel: NSObject, ObservableObject {
             }
             .assign(to: \.anyDropZoneTargeting, on: self)
             .store(in: &cancellables)
-        
+
         setupDetectorObserver()
     }
-    
+
     private func setupDetectorObserver() {
         // Publisher for the user’s fullscreen detection setting
         let enabledPublisher = Defaults
@@ -155,11 +154,11 @@ class VisorViewModel: NSObject, ObservableObject {
             break
         }
     }
-    
+
     func open() {
         self.notchSize = openNotchSize
         self.notchState = .open
-        
+
         // Force music information update when notch is opened
         MusicManager.shared.forceUpdate()
     }

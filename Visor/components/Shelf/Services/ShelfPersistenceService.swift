@@ -1,4 +1,3 @@
-
 import Foundation
 
 final class ShelfPersistenceService {
@@ -19,12 +18,12 @@ final class ShelfPersistenceService {
 
     func load() -> [ShelfItem] {
         guard let data = try? Data(contentsOf: fileURL) else { return [] }
-        
+
         // Try to decode as array first (normal case)
         if let items = try? decoder.decode([ShelfItem].self, from: data) {
             return items
         }
-        
+
         // If array decoding fails, try to decode individual items
         do {
             // Parse as JSON array to get individual item data
@@ -32,10 +31,10 @@ final class ShelfPersistenceService {
                 print("⚠️ Shelf persistence file is not a valid JSON array")
                 return []
             }
-            
+
             var validItems: [ShelfItem] = []
             var failedCount = 0
-            
+
             for (index, jsonItem) in jsonArray.enumerated() {
                 do {
                     let itemData = try JSONSerialization.data(withJSONObject: jsonItem)
@@ -46,11 +45,11 @@ final class ShelfPersistenceService {
                     print("⚠️ Failed to decode shelf item at index \(index): \(error.localizedDescription)")
                 }
             }
-            
+
             if failedCount > 0 {
                 print("📦 Successfully loaded \(validItems.count) shelf items, discarded \(failedCount) corrupted items")
             }
-            
+
             return validItems
         } catch {
             print("❌ Failed to parse shelf persistence file: \(error.localizedDescription)")

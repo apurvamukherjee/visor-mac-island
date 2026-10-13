@@ -6,14 +6,13 @@
 import SwiftUI
 import Defaults
 
-
 struct MusicControllerSelectionView: View {
     let onContinue: () -> Void
 
     @Default(.mediaController) var mediaController
-    
+
     @State private var selectedMediaController: MediaControllerType = Defaults[.mediaController]
-    
+
     var body: some View {
         VStack(spacing: 20) {
             Text("Choose a Music Source")
@@ -41,7 +40,7 @@ struct MusicControllerSelectionView: View {
                 }
                 .padding()
             }
-            //Disable scroll if there are 4 or fewer to avoid unnecessary scroll behavior
+            // Disable scroll if there are 4 or fewer to avoid unnecessary scroll behavior
             .scrollDisabled(MediaControllerType.allCases.count <= 4)
 
             Button("Continue", action: {
@@ -80,7 +79,7 @@ struct ControllerOptionView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
-            
+
             Spacer()
         }
         .padding()
@@ -95,7 +94,6 @@ struct ControllerOptionView: View {
         .contentShape(Rectangle())
     }
 }
-
 
 extension MediaControllerType {
     var description: String {

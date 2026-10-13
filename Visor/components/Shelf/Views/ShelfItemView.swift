@@ -1,8 +1,6 @@
-
 import AppKit
 import SwiftUI
 import Defaults
-
 
 struct ShelfItemView: View {
     let item: ShelfItem
@@ -13,7 +11,7 @@ struct ShelfItemView: View {
     @State private var cachedPreviewImage: NSImage?
 
     private var isSelected: Bool { viewModel.isSelected }
-    
+
     init(item: ShelfItem) {
         self.item = item
         _viewModel = StateObject(wrappedValue: ShelfItemViewModel(item: item))
@@ -67,8 +65,7 @@ struct ShelfItemView: View {
 
     private var iconView: some View {
         Image(nsImage: viewModel.thumbnail ?? item.icon)
-            .resizable()
-            .aspectRatio(contentMode: .fit)
+            .resizable().scaledToFit()
             .frame(width: 56, height: 56)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 2)
@@ -95,9 +92,9 @@ struct ShelfItemView: View {
                     )
             )
     }
-    
+
     // MARK: - Drag Preview Rendering
-    
+
     @MainActor
     private func renderDragPreview() -> NSImage {
         let content = DragPreviewView(thumbnail: viewModel.thumbnail ?? item.icon, displayName: item.displayName)
@@ -106,7 +103,6 @@ struct ShelfItemView: View {
         return renderer.nsImage ?? (viewModel.thumbnail ?? item.icon)
     }
 
-    
 }
 
 // MARK: - Draggable Click Handler with NSDraggingSource
@@ -118,7 +114,7 @@ private struct DraggableClickHandler: NSViewRepresentable {
     let renderPreview: () -> NSImage
     let onRightClick: (NSEvent, NSView) -> Void
     let onClick: (NSEvent, NSView) -> Void
-    
+
     func makeNSView(context: Context) -> DraggableClickView {
         let view = DraggableClickView()
         view.item = item
@@ -127,7 +123,7 @@ private struct DraggableClickHandler: NSViewRepresentable {
         view.onClick = onClick
         return view
     }
-    
+
     func updateNSView(_ nsView: DraggableClickView, context: Context) {
         nsView.item = item
         // Only update preview if cached version is available
@@ -137,7 +133,7 @@ private struct DraggableClickHandler: NSViewRepresentable {
         nsView.onRightClick = onRightClick
         nsView.onClick = onClick
     }
-    
+
     final class DraggableClickView: NSView, NSDraggingSource {
         var item: ShelfItem!
         var dragPreviewImage: NSImage?
@@ -148,27 +144,27 @@ private struct DraggableClickHandler: NSViewRepresentable {
         private let dragThreshold: CGFloat = 3.0
         private var draggedURLs: [URL] = []
         private var draggedItems: [ShelfItem] = []
-        
+
         override func rightMouseDown(with event: NSEvent) {
             onRightClick?(event, self)
         }
-        
+
         override func mouseDown(with event: NSEvent) {
             mouseDownEvent = event
             onClick?(event, self)
         }
-        
+
         override func mouseDragged(with event: NSEvent) {
             guard let mouseDownEvent = mouseDownEvent else {
                 super.mouseDragged(with: event)
                 return
             }
-            
+
             let dragDistance = hypot(
                 event.locationInWindow.x - mouseDownEvent.locationInWindow.x,
                 event.locationInWindow.y - mouseDownEvent.locationInWindow.y
             )
-            
+
             if dragDistance > dragThreshold {
                 startDragSession(with: event)
                 self.mouseDownEvent = nil
@@ -176,7 +172,7 @@ private struct DraggableClickHandler: NSViewRepresentable {
                 super.mouseDragged(with: event)
             }
         }
-        
+
         private func startDragSession(with event: NSEvent) {
             // Drag the whole selection when this item is part of it
             let selectedItems = ShelfSelectionModel.shared.selectedItems(in: ShelfStateViewModel.shared.items)
@@ -194,7 +190,7 @@ private struct DraggableClickHandler: NSViewRepresentable {
 
             beginDraggingSession(with: draggingItems, event: event, source: self)
         }
-        
+
         private func createPasteboardItem(for item: ShelfItem) -> NSPasteboardItem {
             let pasteboardItem = NSPasteboardItem()
 
@@ -204,13 +200,13 @@ private struct DraggableClickHandler: NSViewRepresentable {
                     pasteboardItem.setString(item.displayName, forType: .string)
                     return pasteboardItem
                 }
-                
+
                 // Start accessing security-scoped resource and keep it active during drag
                 if url.startAccessingSecurityScopedResource() {
                     draggedURLs.append(url)
                     NSLog("🔐 Started security-scoped access for drag: \(url.path)")
                 }
-                
+
                 pasteboardItem.setString(url.absoluteString, forType: .fileURL)
                 pasteboardItem.setString(url.path, forType: .string)
                 return pasteboardItem
@@ -225,15 +221,15 @@ private struct DraggableClickHandler: NSViewRepresentable {
                 return pasteboardItem
             }
         }
-        
+
         // MARK: - NSDraggingSource
-        
+
         func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
             // When copyOnDrag is enabled, only allow copy operations
             if Defaults[.copyOnDrag] {
                 return [.copy]
             }
-            
+
             switch context {
             case .outsideApplication:
                 return [.copy, .move]
@@ -243,12 +239,11 @@ private struct DraggableClickHandler: NSViewRepresentable {
                 return [.copy]
             }
         }
-        
+
         func draggingSession(_ session: NSDraggingSession, willBeginAt screenPoint: NSPoint) {
             ShelfSelectionModel.shared.isDragging = true
         }
-        
-        
+
         func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
             ShelfSelectionModel.shared.isDragging = false
 

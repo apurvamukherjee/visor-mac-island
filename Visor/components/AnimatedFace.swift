@@ -1,11 +1,10 @@
-
 import SwiftUI
 
 struct MinimalFaceFeatures: View {
     @State private var isBlinking = false
-    @State var height:CGFloat = 20;
-    @State var width:CGFloat = 30;
-    
+    @State var height: CGFloat = 20
+    @State var width: CGFloat = 30
+
     var body: some View {
         VStack(spacing: 4) { // Adjusted spacing to fit within 30x30
             // Eyes
@@ -13,14 +12,14 @@ struct MinimalFaceFeatures: View {
                 Eye(isBlinking: $isBlinking)
                 Eye(isBlinking: $isBlinking)
             }
-            
+
             // Nose and mouth combined
             VStack(spacing: 2) { // Adjusted spacing to fit within 30x30
                 // Nose
                 RoundedRectangle(cornerRadius: 2)
                     .fill(Color.white)
                     .frame(width: 3, height: 4)
-                
+
                 // Mouth (happy)
                 GeometryReader { geometry in
                     Path { path in
@@ -53,7 +52,7 @@ struct MinimalFaceFeatures: View {
 
 struct Eye: View {
     @Binding var isBlinking: Bool
-    
+
     var body: some View {
         RoundedRectangle(cornerRadius: 10)
             .fill(Color.white)

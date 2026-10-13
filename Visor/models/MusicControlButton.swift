@@ -1,4 +1,3 @@
-
 import Defaults
 
 enum MusicControlButton: String, CaseIterable, Identifiable, Codable, Defaults.Serializable {

@@ -76,7 +76,7 @@ struct OnboardingView: View {
                     onSkip: { go(.accessibilityPermission) }
                 )
                 .transition(.opacity)
-            
+
             case .accessibilityPermission:
                 PermissionRequestView(
                     icon: Image(systemName: "hand.raised.fill"),
@@ -92,7 +92,7 @@ struct OnboardingView: View {
                     onSkip: { go(.musicPermission) }
                 )
                 .transition(.opacity)
-                
+
             case .musicPermission:
                 MusicControllerSelectionView(
                     onContinue: {

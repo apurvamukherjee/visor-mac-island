@@ -194,7 +194,7 @@ extension CalendarModel {
 extension EventModel {
     init?(from event: EKEvent) {
         guard let calendar = event.calendar else { return nil }
-        
+
         self.init(
             id: event.calendarItemIdentifier,
             start: event.startDate,
@@ -208,13 +208,13 @@ extension EventModel {
             meetingURL: MeetingLink.find(url: event.url, location: event.location, notes: event.notes)
         )
     }
-    
+
     init?(from reminder: EKReminder) {
         guard let calendar = reminder.calendar,
               let dueDateComponents = reminder.dueDateComponents,
               let date = Calendar.current.date(from: dueDateComponents)
         else { return nil }
-        
+
         self.init(
             id: reminder.calendarItemIdentifier,
             start: date,

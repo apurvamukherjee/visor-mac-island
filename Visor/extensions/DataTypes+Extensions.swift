@@ -1,8 +1,4 @@
-
-
 import Foundation
-
-
 
 extension Date {
     var date: String {
@@ -11,4 +7,3 @@ extension Date {
         return dateFormatter.string(from: self)
     }
 }
-
