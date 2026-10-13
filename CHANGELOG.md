@@ -4,6 +4,10 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.5.1 (build 44) · 2026-10-13
+
+- **Screenshot catching now works and is opt-in.** It is off until you turn on "Catch screenshots in the shelf" in Settings → Appearance. macOS asks once for access to your screenshot folder (Desktop or Documents hid new screenshots from Visor before, so 3.5.0 caught nothing there).
+
 ## 3.5.0 (build 43) · 2026-10-13
 
 - **Screenshots land in the notch.** Each new screenshot appears on the shelf the moment it is saved, and the notch opens to show it. A Clear button empties the shelf when you are done; the files themselves are kept. Turn it on in Settings → Appearance.
