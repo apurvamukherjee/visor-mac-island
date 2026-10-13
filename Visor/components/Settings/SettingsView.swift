@@ -912,6 +912,10 @@ struct Appearance: View {
                 Defaults.Toggle(key: .showDownloadProgress) {
                     Text("Show download progress")
                 }
+                Defaults.Toggle(key: .deviceConnectAnimation) {
+                    Text("Show audio devices connecting")
+                    Text("AirPods, OnePlus Buds and JBL soundbars turn in the notch for a few seconds when they connect.")
+                }
                 Defaults.Toggle(key: .catchScreenshots) {
                     Text("Catch screenshots in the shelf")
                     Text("New screenshots appear in the notch's shelf as they are saved. macOS asks for access to your screenshot folder the first time.")

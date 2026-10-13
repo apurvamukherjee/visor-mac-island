@@ -12,6 +12,7 @@ enum SneakContentType {
     case music
     case battery
     case lock
+    case device
 
 
     @MainActor func applySystemValue(_ value: CGFloat) {
@@ -213,7 +214,8 @@ class VisorViewCoordinator: ObservableObject {
                 expandingViewTask?.cancel()
                 let currentType = expandingView.type
                 expandingViewTask = Task { [weak self] in
-                    try? await Task.sleep(for: .seconds(3))
+                    // A model turning needs longer than a padlock to be seen.
+                    try? await Task.sleep(for: .seconds(currentType == .device ? 5 : 3))
                     guard let self = self, !Task.isCancelled else { return }
                     self.toggleExpandingView(status: false, type: currentType)
                 }

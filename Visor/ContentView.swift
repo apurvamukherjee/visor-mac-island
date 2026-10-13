@@ -13,6 +13,7 @@ struct ContentView: View {
     @ObservedObject var batteryModel = BatteryStatusViewModel.shared
     @ObservedObject var timer = TimerManager.shared
     @ObservedObject var downloads = DownloadMonitor.shared
+    @ObservedObject var devices = DeviceMonitor.shared
     @ObservedObject var meetings = MeetingMonitor.shared
     @ObservedObject var privacy = PrivacyMonitor.shared
     // Visor: held, not observed. The root view reads neither, and observing
@@ -149,6 +150,11 @@ struct ContentView: View {
             && vm.notchState == .closed && Defaults[.showPowerStatusNotifications]
     }
 
+    private var showsDeviceActivity: Bool {
+        coordinator.expandingView.type == .device && coordinator.expandingView.show
+            && vm.notchState == .closed && devices.connected != nil
+    }
+
     private var showsMusicActivity: Bool {
         (!coordinator.expandingView.show || coordinator.expandingView.type == .music)
             && vm.notchState == .closed && (musicManager.isPlaying || !musicManager.isPlayerIdle)
@@ -193,6 +199,7 @@ struct ContentView: View {
     private var computedChinWidth: CGFloat {
         // Lock and battery are exclusive (one expanding view type), so battery can go first.
         if showsBatteryActivity { return 640 }
+        if showsDeviceActivity { return DeviceLiveActivity.width }
         let hasWings = showsLockActivity || showsMusicActivity || showsAccessoryActivity || showsFace
         return vm.closedNotchSize.width + (hasWings ? 2 * wingWidth + 20 : 0)
     }
@@ -368,6 +375,9 @@ struct ContentView: View {
                         // Blurs out as the album cover comes back in, rather
                         // than cutting to it.
                         .transition(.blurReplace)
+                    } else if showsDeviceActivity, let device = devices.connected {
+                        DeviceLiveActivity(kind: device.kind, name: device.name, notchHeight: vm.effectiveClosedNotchHeight)
+                            .transition(.blurReplace)
                     } else if showsBatteryActivity {
                         HStack(spacing: 0) {
                             HStack {
