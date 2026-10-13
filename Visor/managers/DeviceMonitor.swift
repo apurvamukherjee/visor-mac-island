@@ -12,7 +12,14 @@ import Foundation
 final class DeviceMonitor: ObservableObject {
     static let shared = DeviceMonitor()
 
-    @Published private(set) var connected: (kind: DeviceKind, name: String)?
+    struct Connected {
+        let kind: DeviceKind
+        let name: String
+        var battery: DeviceBattery?
+    }
+
+    @Published private(set) var connected: Connected?
+    private var batteryTask: Task<Void, Never>?
 
     private var known: Set<String> = []
     private var listener: AudioObjectPropertyListenerBlock?
@@ -56,7 +63,41 @@ final class DeviceMonitor: ObservableObject {
         known = names
         guard let name = arrived.first(where: { DeviceKind(deviceName: $0) != nil }),
               let kind = DeviceKind(deviceName: name) else { return }
-        connected = (kind, name)
+        connected = Connected(kind: kind, name: name)
         VisorViewCoordinator.shared.toggleExpandingView(status: true, type: .device)
+        batteryTask?.cancel()
+        guard kind.hasBattery else { return }
+        batteryTask = Task {
+            // Headsets report their level a moment after the audio route
+            // appears, so a few tries cover the seconds the notch is open.
+            for _ in 0..<3 {
+                if let battery = await Self.readBattery(of: name) {
+                    if connected?.name == name { connected?.battery = battery }
+                    return
+                }
+                try? await Task.sleep(for: .seconds(1))
+                if Task.isCancelled { return }
+            }
+        }
+    }
+
+    /// Asks system_profiler, the public route to Bluetooth battery levels.
+    /// It takes about a second, so it runs off the main actor.
+    private nonisolated static func readBattery(of name: String) async -> DeviceBattery? {
+        await Task.detached {
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/sbin/system_profiler")
+            process.arguments = ["SPBluetoothDataType", "-json"]
+            let pipe = Pipe()
+            process.standardOutput = pipe
+            process.standardError = FileHandle.nullDevice
+            do { try process.run() } catch {
+                print("❌ Reading Bluetooth battery failed: \(error)")
+                return nil
+            }
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            process.waitUntilExit()
+            return DeviceBattery.parse(data, name: name)
+        }.value
     }
 }

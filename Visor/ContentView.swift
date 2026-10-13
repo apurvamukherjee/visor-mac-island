@@ -376,7 +376,7 @@ struct ContentView: View {
                         // than cutting to it.
                         .transition(.blurReplace)
                     } else if showsDeviceActivity, let device = devices.connected {
-                        DeviceLiveActivity(kind: device.kind, name: device.name, notchHeight: vm.effectiveClosedNotchHeight)
+                        DeviceLiveActivity(device: device, notchHeight: vm.effectiveClosedNotchHeight)
                             .transition(.blurReplace)
                     } else if showsBatteryActivity {
                         HStack(spacing: 0) {
