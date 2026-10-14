@@ -4,6 +4,10 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.6.4 (build 49) · 2026-10-14
+
+- **Tidier under the hood.** Less code behind the playback times, the calendar dates and the share sheet, with nothing changed on screen.
+
 ## 3.6.3 (build 48) · 2026-10-13
 
 - **Lighter on memory.** The earbuds and soundbar models are still ready the moment the notch opens, but preparing them now takes about 10 MB instead of holding over 30 MB for as long as Visor runs.
