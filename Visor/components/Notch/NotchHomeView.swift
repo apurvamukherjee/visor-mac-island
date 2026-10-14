@@ -540,16 +540,8 @@ struct MusicSliderView: View {
     }
 
     func timeString(from seconds: Double) -> String {
-        let totalMinutes = Int(seconds) / 60
-        let remainingSeconds = Int(seconds) % 60
-        let hours = totalMinutes / 60
-        let minutes = totalMinutes % 60
-
-        if hours > 0 {
-            return String(format: "%d:%02d:%02d", hours, minutes, remainingSeconds)
-        } else {
-            return String(format: "%d:%02d", minutes, remainingSeconds)
-        }
+        let whole = Int(seconds)
+        return Duration.seconds(whole).formatted(.time(pattern: whole >= 3600 ? .hourMinuteSecond : .minuteSecond))
     }
 }
 
