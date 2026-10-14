@@ -31,10 +31,6 @@ final class MediaKeyInterceptor {
 
     // MARK: - Accessibility
 
-    func requestAccessibilityAuthorization() {
-        AccessibilityPermission.shared.request()
-    }
-
     func ensureAccessibilityAuthorization(promptIfNeeded: Bool = false) async -> Bool {
         await AccessibilityPermission.shared.ensure(promptIfNeeded: promptIfNeeded)
     }
