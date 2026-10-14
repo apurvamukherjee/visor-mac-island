@@ -11,19 +11,9 @@ extension Notification.Name {
 final class SharingStateManager {
 	static let shared = SharingStateManager()
 
-	private var activeSessions: Int = 0 {
-		didSet {
-			let newValue = activeSessions > 0
-			if newValue != preventNotchClose {
-				preventNotchClose = newValue
-				if !newValue {
-					NotificationCenter.default.post(name: .sharingDidFinish, object: nil)
-				}
-			}
-		}
-	}
+	private var activeSessions = 0
 
-	private(set) var preventNotchClose: Bool = false
+	var preventNotchClose: Bool { activeSessions > 0 }
 
 	private var activeDelegates: [UUID: SharingLifecycleDelegate] = [:]
 
@@ -34,7 +24,11 @@ final class SharingStateManager {
 	}
 
 	func endInteraction() {
-		if activeSessions > 0 { activeSessions -= 1 }
+		guard activeSessions > 0 else { return }
+		activeSessions -= 1
+		if activeSessions == 0 {
+			NotificationCenter.default.post(name: .sharingDidFinish, object: nil)
+		}
 	}
 
 	func makeDelegate(onEnd: (() -> Void)? = nil) -> SharingLifecycleDelegate {
