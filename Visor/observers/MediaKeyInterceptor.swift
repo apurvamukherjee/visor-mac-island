@@ -29,12 +29,6 @@ final class MediaKeyInterceptor {
 
     private init() {}
 
-    // MARK: - Accessibility
-
-    func ensureAccessibilityAuthorization(promptIfNeeded: Bool = false) async -> Bool {
-        await AccessibilityPermission.shared.ensure(promptIfNeeded: promptIfNeeded)
-    }
-
     // MARK: - Event Tap
 
     func start(promptIfNeeded: Bool = false) async {
@@ -50,7 +44,7 @@ final class MediaKeyInterceptor {
         let authorized = await AccessibilityPermission.shared.isAuthorized()
         if !authorized {
             if promptIfNeeded {
-                let granted = await ensureAccessibilityAuthorization(promptIfNeeded: true)
+                let granted = await AccessibilityPermission.shared.ensure(promptIfNeeded: true)
                 guard granted else { return }
             } else {
                 return
