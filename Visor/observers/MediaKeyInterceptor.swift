@@ -182,8 +182,9 @@ final class MediaKeyInterceptor {
         }
     }
 
+    // The tap's source is on the main run loop, so the step and its HUD land in this turn.
     private func adjustBrightness(delta: Float, keyboard: Bool) {
-        Task { @MainActor in
+        MainActor.assumeIsolated {
             if keyboard {
                 BrightnessManager.keyboard.setRelative(delta: delta)
             } else {
