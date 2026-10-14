@@ -1,3 +1,5 @@
+import { useQuery } from '@tanstack/react-query';
+
 export interface Weather {
   temp: number;
   code: number;
@@ -29,6 +31,8 @@ export async function fetchWeather(): Promise<Weather> {
   if (!res.ok) throw new WeatherError(`Open-Meteo HTTP ${res.status}`);
   return parseWeather(await res.json());
 }
+
+export const useWeather = () => useQuery({ queryKey: ['weather', CITY.name], queryFn: fetchWeather, staleTime: 15 * 60_000 });
 
 // WMO weather interpretation codes, grouped the way the Weather app words them.
 export function describe(code: number): { text: string; icon: string } {

@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
 import { apps, type AppId } from '../apps/apps';
 import { links } from '../links';
 import { Cover } from '../notch/Cover';
@@ -8,7 +7,7 @@ import { useNow } from '../os/useNow';
 import { useBattery } from '../store/battery';
 import { useLock } from '../store/lock';
 import { useWindows } from '../store/windows';
-import { CITY, describe, fetchWeather } from './weather';
+import { CITY, describe, useWeather } from './weather';
 import './Widgets.css';
 
 const open = (id: AppId) => useWindows.getState().open(id);
@@ -50,7 +49,7 @@ function CalendarWidget() {
 }
 
 function WeatherWidget() {
-  const { data, isError } = useQuery({ queryKey: ['weather', CITY.name], queryFn: fetchWeather, staleTime: 15 * 60_000 });
+  const { data, isError } = useWeather();
   const d = data && describe(data.code);
   return (
     <button className="widget widget-small widget-weather" onClick={() => open('weather')}>

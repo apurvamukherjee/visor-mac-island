@@ -1,9 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
-import { CITY, describe, fetchWeather } from '../../widgets/weather';
+import { CITY, describe, useWeather } from '../../widgets/weather';
 import './Weather.css';
 
 export function Weather() {
-  const { data, isError } = useQuery({ queryKey: ['weather', CITY.name], queryFn: fetchWeather, staleTime: 15 * 60_000 });
+  const { data, isError } = useWeather();
   const d = data && describe(data.code);
   return (
     <div className="weather-app">
