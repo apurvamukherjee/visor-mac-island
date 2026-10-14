@@ -104,7 +104,7 @@ struct WheelPicker: View {
                     Circle()
                         .stroke(Color.gray.opacity(0.3), lineWidth: 0)
                 )
-            Text("\(date.date)")
+            Text(date.formatted(.dateTime.day(.twoDigits)))
                 .font(.body)
                 .fontWeight(.medium)
                 .foregroundColor(isSelected ? .white : Color(white: isToday ? 0.9 : 0.65))
