@@ -14,8 +14,9 @@ struct ContentView: View {
     @ObservedObject var devices = DeviceMonitor.shared
     @ObservedObject var meetings = MeetingMonitor.shared
     @ObservedObject var privacy = PrivacyMonitor.shared
-    // Visor: held, not observed. The root view reads neither, and observing
-    // them re-rendered the whole notch on every system volume change.
+    // Visor: held, not observed, so their init reads the current level before the
+    // first key press (showHUD reads rawBrightness directly). Observing them
+    // re-rendered the whole notch on every system volume change.
     private let brightnessManager = BrightnessManager.shared
     private let volumeManager = VolumeManager.shared
     @State private var hoverTask: Task<Void, Never>?
