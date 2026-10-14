@@ -4,6 +4,10 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.6.5 (build 50) · 2026-10-14
+
+- **Smoother brightness.** The screen and keyboard backlight now fade to each new level like macOS does, instead of jumping, and holding the key no longer skips steps.
+
 ## 3.6.4 (build 49) · 2026-10-14
 
 - **Tidier under the hood.** Less code behind the playback times, the calendar dates and the share sheet, with nothing changed on screen.
