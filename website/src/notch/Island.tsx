@@ -4,7 +4,7 @@ import { useLock } from '../store/lock';
 import { useSettings } from '../store/settings';
 import { Closed, closedWidth } from './Closed';
 import { Home } from './Home';
-import { Shelf } from './Shelf';
+import { Shelf, filesToShelf } from './Shelf';
 import { useNotch, type Tab } from './store';
 import './audio';
 import './Island.css';
@@ -89,6 +89,16 @@ export function Island() {
       style={{ width: size === OPEN ? size.w : `min(${size.w}px, 100vw - 220px)`, height: size.h, '--accent': accent } as React.CSSProperties}
       onPointerEnter={(e) => hoverOpen && e.pointerType === 'mouse' && enter()}
       onPointerLeave={(e) => e.pointerType === 'mouse' && leave()}
+      // Dragging a file toward the notch opens the shelf to catch it, as in Visor.
+      onDragOver={(e) => {
+        if (locked || !e.dataTransfer.types.includes('Files')) return;
+        e.preventDefault();
+        if (!open || tab !== 'shelf') useNotch.getState().setTab('shelf');
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        if (e.dataTransfer.files.length) useNotch.getState().addToShelf(filesToShelf(e.dataTransfer.files));
+      }}
     >
       {open && !locked ? (
         <div className="island-open">

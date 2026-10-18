@@ -12,6 +12,12 @@ export type Transient =
   | { kind: 'join'; app: string; title: string }
   | { kind: 'unlock' };
 
+export interface ShelfFile {
+  name: string;
+  icon: string;
+  thumb: boolean;
+}
+
 interface Notch {
   open: boolean;
   tab: Tab;
@@ -21,6 +27,9 @@ interface Notch {
   transient: Transient | null;
   /** Epoch ms when the running timer rings, or null. */
   timerEnd: number | null;
+  /** Files dropped or screenshotted this visit, newest first. */
+  shelf: ShelfFile[];
+  addToShelf: (files: ShelfFile[]) => void;
   setOpen: (open: boolean) => void;
   setTab: (tab: Tab) => void;
   togglePlay: () => void;
@@ -46,6 +55,8 @@ export const useNotch = create<Notch>()((set, get) => ({
   position: 0,
   transient: null,
   timerEnd: null,
+  shelf: [],
+  addToShelf: (files) => set((s) => ({ shelf: [...files, ...s.shelf], tab: 'shelf', open: true })),
   setOpen: (open) => set({ open }),
   setTab: (tab) => set({ tab, open: true }),
   togglePlay: () => set((s) => ({ playing: !s.playing })),

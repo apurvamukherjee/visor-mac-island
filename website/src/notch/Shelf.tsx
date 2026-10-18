@@ -1,8 +1,9 @@
 import file from '../icons/apps/file.webp';
 import folder from '../icons/apps/folder.webp';
 import { wallpaperAt, wallpaperUrl } from '../os/Wallpaper/wallpapers';
+import { useNotch, type ShelfFile } from './store';
 
-const items = [
+const parked: ShelfFile[] = [
   { name: 'Visor.dmg', icon: `${import.meta.env.BASE_URL}icon.png`, thumb: false },
   { name: wallpaperAt(0).file.replace('.webp', '.jpg'), icon: wallpaperUrl(wallpaperAt(0)), thumb: true },
   { name: 'Release notes.pdf', icon: file, thumb: false },
@@ -16,8 +17,17 @@ const share = (
   </svg>
 );
 
-// A look at Visor's shelf with a few files parked on it; dragging in and out is what the real app does.
+// ponytail: object URLs for dropped files are never revoked; they live as long as the tab, which is how long the shelf does.
+export function filesToShelf(files: FileList): ShelfFile[] {
+  return [...files].map((f) => {
+    const image = f.type.startsWith('image/');
+    return { name: f.name, icon: image ? URL.createObjectURL(f) : file, thumb: image };
+  });
+}
+
+// Visor's shelf with a few files parked on it, plus anything dropped on the notch or screenshotted this visit.
 export function Shelf() {
+  const items = [...useNotch((s) => s.shelf), ...parked];
   return (
     <div className="shelf">
       <div className="shelf-zone shelf-airdrop">
@@ -26,7 +36,7 @@ export function Shelf() {
       </div>
       <ul className="shelf-zone shelf-files" aria-label="Files on the shelf">
         {items.map((it) => (
-          <li key={it.name} title={it.name}>
+          <li key={it.icon + it.name} title={it.name}>
             <img className={it.thumb ? 'is-thumb' : ''} src={it.icon} alt="" width={46} height={46} />
             <span>{it.name}</span>
           </li>
