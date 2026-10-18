@@ -15,7 +15,6 @@ export const icons = {
     </svg>
   ),
   bluetooth: svg(<path d="M7 7l10 10-5 4V3l5 4L7 17" />),
-  airdrop: svg(<><circle cx="12" cy="12" r="2" /><path d="M7.8 16.2a6 6 0 1 1 8.4 0" /><path d="M5 19a10 10 0 1 1 14 0" /></>),
   airdropOff: svg(<><circle cx="12" cy="12" r="2" /><path d="M7.8 16.2a6 6 0 1 1 8.4 0" /><path d="M5 19a10 10 0 1 1 14 0" /><path d="M4 4l16 16" /></>),
   screenshot: svg(<><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" /><rect x="7.5" y="9" width="9" height="6.5" rx="1.5" /><circle cx="12" cy="12.2" r="1.6" /></>, 24),
   mirroring: svg(<><rect x="3" y="4" width="13" height="10" rx="2" /><rect x="8" y="9" width="13" height="10" rx="2" /></>, 26),
