@@ -1,6 +1,7 @@
 import { apps, type AppId } from '../../apps/apps';
 import { openNote } from '../../apps/Notes/Notes';
 import { links } from '../../links';
+import { playChime } from '../../notch/bell';
 import { useLock } from '../../store/lock';
 import { useWindows } from '../../store/windows';
 
@@ -30,7 +31,7 @@ export const systemMenu: Menu = {
     'separator',
     { label: 'Lock Screen', shortcut: '⌃⌘Q', run: () => useLock.getState().lock() },
     'separator',
-    { label: 'Restart…', run: () => location.reload() },
+    { label: 'Restart…', run: () => void playChime().then(() => location.reload()) },
   ],
 };
 
