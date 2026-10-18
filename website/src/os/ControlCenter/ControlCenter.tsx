@@ -1,5 +1,4 @@
 import { useState, type ReactNode } from 'react';
-import { apps } from '../../apps/apps';
 import { useNotch, type Hud } from '../../notch/store';
 import { trackAt } from '../../notch/tracks';
 import { useLock } from '../../store/lock';
@@ -68,7 +67,7 @@ export function ControlCenter({ onClose }: { onClose: () => void }) {
       <div className="cc-grid">
         <Pill label="Wi-Fi" sub={wifi ? 'Home' : 'Off'} on={wifi} icon={icons.wifi} onClick={() => set({ wifi: !wifi })} />
         <div className="cc-glass cc-media">
-          <img src={apps.music.icon} alt="" width={52} height={52} />
+          <img src={t.art} alt="" width={52} height={52} />
           <b>{t.title}</b>
           <small>{t.artist}</small>
           <div className="cc-media-controls">
