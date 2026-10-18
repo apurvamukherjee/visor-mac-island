@@ -34,7 +34,7 @@ audio.volume = useSettings.getState().volume;
 useSettings.subscribe((s) => { audio.volume = s.volume; });
 
 audio.addEventListener('timeupdate', () => {
-  if (!seeking) useNotch.getState().setPosition(audio.currentTime);
+  if (!seeking) useNotch.getState().seek(audio.currentTime);
 });
 audio.addEventListener('ended', () => useNotch.getState().skip(1));
 

@@ -38,8 +38,6 @@ interface Notch {
   skip: (by: 1 | -1) => void;
   playTrack: (index: number) => void;
   seek: (position: number) => void;
-  /** Set by the audio element as it plays; seek() is for the user moving the scrubber. */
-  setPosition: (position: number) => void;
   flash: (t: Transient, ms?: number) => void;
   startTimer: (minutes: number) => void;
   stopTimer: () => void;
@@ -74,7 +72,6 @@ export const useNotch = create<Notch>()((set, get) => ({
     if (!get().open) get().flash({ kind: 'peek' }, 2500);
   },
   seek: (position) => set({ position }),
-  setPosition: (position) => set({ position }),
   startTimer: (minutes) => {
     clearTimeout(ring);
     ring = setTimeout(() => {
