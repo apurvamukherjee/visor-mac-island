@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { links } from '../../links';
-import { wallpaperUrl, wallpapers } from '../../os/Wallpaper/wallpapers';
+import { autoIndex, wallpaperUrl, wallpapers } from '../../os/Wallpaper/wallpapers';
 import { useSettings } from '../../store/settings';
 import avatar from '../../os/LockScreen/apurva.webp';
 import './Settings.css';
@@ -59,7 +59,7 @@ export function Settings() {
           )}
           {pane === 'Wallpaper' && (
             <>
-              <Row label="Rotate every 15 seconds"><Switch on={st.wallpaper === 'auto'} onChange={(v) => st.set({ wallpaper: v ? 'auto' : 0 })} label="Rotate wallpapers" /></Row>
+              <Row label="Rotate every 15 seconds"><Switch on={st.wallpaper === 'auto'} onChange={(v) => st.set({ wallpaper: v ? 'auto' : autoIndex() })} label="Rotate wallpapers" /></Row>
               <div className="set-walls">
                 {wallpapers.map((w, i) => (
                   <button key={w.file} aria-label={w.title} aria-pressed={st.wallpaper === i} onClick={() => st.set({ wallpaper: i })}>

@@ -1,22 +1,14 @@
-import { useEffect, useState } from 'react';
 import { useSettings } from '../../store/settings';
-import { wallpaperAt, wallpaperUrl, wallpapers } from './wallpapers';
+import { useNow } from '../useNow';
+import { autoIndex, wallpaperAt, wallpaperUrl } from './wallpapers';
 import './Wallpaper.css';
-
-const ROTATE_MS = 15_000;
 
 export function Wallpaper() {
   const choice = useSettings((s) => s.wallpaper);
   const dim = useSettings((s) => s.dim);
-  const [tick, setTick] = useState(0);
-
-  useEffect(() => {
-    if (choice !== 'auto') return;
-    const id = setInterval(() => setTick((t) => t + 1), ROTATE_MS);
-    return () => clearInterval(id);
-  }, [choice]);
-
-  const index = choice === 'auto' ? tick % wallpapers.length : choice;
+  // Ticks every second rather than every ROTATE_MS so the print shown matches autoIndex() at any moment.
+  const now = useNow();
+  const index = choice === 'auto' ? autoIndex(now.getTime()) : choice;
   const current = wallpaperAt(index);
   const next = wallpaperAt(index + 1);
 

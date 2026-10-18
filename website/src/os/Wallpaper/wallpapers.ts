@@ -28,4 +28,9 @@ export const wallpapers: [Wallpaper, ...Wallpaper[]] = [
 
 export const wallpaperUrl = (w: Wallpaper) => `${import.meta.env.BASE_URL}wallpapers/${w.file}`;
 
+const ROTATE_MS = 15_000;
+
+// Derived from the clock, so turning rotation off can keep whichever print is showing.
+export const autoIndex = (now = Date.now()) => Math.floor(now / ROTATE_MS) % wallpapers.length;
+
 export const wallpaperAt = (i: number): Wallpaper => wallpapers[i % wallpapers.length] ?? wallpapers[0];
