@@ -59,6 +59,10 @@ export function clampFrame(f: Frame): Frame {
   };
 }
 
+// Like macOS, closing or minimizing the front window hands focus to the one behind it.
+const behind = (wins: Windows['wins'], except: AppId) =>
+  Object.values(wins).filter((w) => w.id !== except && w.id !== 'launchpad' && !w.minimized).sort((a, b) => b.z - a.z)[0]?.id ?? null;
+
 export const useWindows = create<Windows>()((set, get) => {
   const patch = (id: AppId, change: Partial<Win>) =>
     set((s) => {
@@ -80,7 +84,7 @@ export const useWindows = create<Windows>()((set, get) => {
     close: (id) =>
       set((s) => {
         const wins = Object.fromEntries(Object.entries(s.wins).filter(([key]) => key !== id));
-        return { wins, focused: s.focused === id ? null : s.focused };
+        return { wins, focused: s.focused === id ? behind(wins, id) : s.focused };
       }),
     focus: (id) => {
       const { top, focused } = get();
@@ -90,7 +94,7 @@ export const useWindows = create<Windows>()((set, get) => {
     },
     minimize: (id) => {
       patch(id, { minimized: true });
-      set((s) => ({ focused: s.focused === id ? null : s.focused }));
+      set((s) => ({ focused: s.focused === id ? behind(s.wins, id) : s.focused }));
     },
     toggleZoom: (id) => {
       const win = get().wins[id];

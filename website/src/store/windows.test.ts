@@ -17,3 +17,14 @@ test('every app opens at a usable size', () => {
   useWindows.getState().open('calendar');
   expect(useWindows.getState().wins.calendar?.frame).toMatchObject({ w: 760, h: 520 });
 });
+
+test('closing or minimizing the front window focuses the one behind', () => {
+  const w = useWindows.getState();
+  w.open('notes');
+  w.open('music');
+  w.open('terminal');
+  w.close('terminal');
+  expect(useWindows.getState().focused).toBe('music');
+  w.minimize('music');
+  expect(useWindows.getState().focused).toBe('notes');
+});
