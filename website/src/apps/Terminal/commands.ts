@@ -91,6 +91,11 @@ export function run(input: string, version: string): Result {
       return { lines: ['visitor is not in the sudoers file. This incident will be reported.'] };
     case 'make':
       return { lines: [arg.toLowerCase() === 'me a sandwich' ? 'What? Make it yourself.' : `make: *** No rule to make target '${arg || 'all'}'.  Stop.`] };
+    case 'sl':
+      // The classic punishment for typing ls too fast.
+      return { lines: ['      ____', '  ___|o  o|________________', ' |  _ VISOR EXPRESS  _  _  |', ' |_| |______________| |_| |_|', "   'o--o'          'o--o'    choo choo", '', 'You meant ls. Have a train anyway.'] };
+    case 'ls':
+      return { lines: ['Applications  Desktop  Downloads  Visor.dmg  wallpapers'] };
     case 'whoami':
       return { lines: ['visitor'] };
     case 'echo':

@@ -31,3 +31,7 @@ test('easter egg: the sandwich needs sudo', () => {
   expect(run('make me a sandwich', '1.0').lines).toEqual(['What? Make it yourself.']);
   expect(run('sudo make me a sandwich', '1.0').lines).toEqual(['Okay.']);
 });
+
+test('easter egg: sl runs a train', () => {
+  expect(run('sl', '1.0').lines.at(-1)).toBe('You meant ls. Have a train anyway.');
+});
