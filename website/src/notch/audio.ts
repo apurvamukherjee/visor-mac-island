@@ -53,3 +53,21 @@ useNotch.subscribe((s, prev) => {
     seeking = false;
   }
 });
+
+// The keyboard's media keys and the system's Now Playing panel drive the same player, as with Visor and Music.
+if ('mediaSession' in navigator) {
+  const session = navigator.mediaSession;
+  const describe = (track: number) => {
+    const t = trackAt(track);
+    session.metadata = new MediaMetadata({ title: t.title, artist: t.artist, album: t.album, artwork: [{ src: t.art, sizes: '600x600', type: 'image/jpeg' }] });
+  };
+  describe(useNotch.getState().track);
+  session.setActionHandler('play', () => useNotch.setState({ playing: true }));
+  session.setActionHandler('pause', () => useNotch.setState({ playing: false }));
+  session.setActionHandler('previoustrack', () => useNotch.getState().skip(-1));
+  session.setActionHandler('nexttrack', () => useNotch.getState().skip(1));
+  useNotch.subscribe((s, prev) => {
+    if (s.track !== prev.track) describe(s.track);
+    if (s.playing !== prev.playing) session.playbackState = s.playing ? 'playing' : 'paused';
+  });
+}
