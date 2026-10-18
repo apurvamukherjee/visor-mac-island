@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-
+import { ringBell } from './bell';
 
 export type Tab = 'home' | 'shelf';
 export type Hud = 'volume' | 'brightness' | 'backlight';
@@ -35,6 +35,8 @@ interface Notch {
 }
 
 let clearTransient: ReturnType<typeof setTimeout> | undefined;
+// The bell rings from here, not from the closed notch, so it still rings while the notch is open.
+let ring: ReturnType<typeof setTimeout> | undefined;
 
 export const useNotch = create<Notch>()((set, get) => ({
   open: false,
@@ -59,8 +61,18 @@ export const useNotch = create<Notch>()((set, get) => ({
   },
   seek: (position) => set({ position }),
   setPosition: (position) => set({ position }),
-  startTimer: (minutes) => set({ timerEnd: Date.now() + minutes * 60_000 }),
-  stopTimer: () => set({ timerEnd: null }),
+  startTimer: (minutes) => {
+    clearTimeout(ring);
+    ring = setTimeout(() => {
+      ringBell();
+      set({ timerEnd: null });
+    }, minutes * 60_000);
+    set({ timerEnd: Date.now() + minutes * 60_000 });
+  },
+  stopTimer: () => {
+    clearTimeout(ring);
+    set({ timerEnd: null });
+  },
   flash: (transient, ms = 1800) => {
     clearTimeout(clearTransient);
     set({ transient });

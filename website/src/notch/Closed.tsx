@@ -3,8 +3,6 @@ import { Cover, Visualizer } from './Cover';
 import { trackAt } from './tracks';
 import { useLock } from '../store/lock';
 import { useNow } from '../os/useNow';
-import { ringBell } from './bell';
-import { useEffect } from 'react';
 
 const NOTCH_W = 200;
 
@@ -80,17 +78,11 @@ export function Closed() {
   );
 }
 
-// The right wing shows a running timer instead of the visualizer, and rings the bell when it ends.
+// The right wing shows a running timer instead of the visualizer.
 function TimerOrVisualizer({ playing }: { playing: boolean }) {
   const end = useNotch((s) => s.timerEnd);
   const now = useNow(500).getTime();
   const left = end ? Math.max(0, end - now) : 0;
-  const done = end !== null && left === 0;
-  useEffect(() => {
-    if (!done) return;
-    ringBell();
-    useNotch.getState().stopTimer();
-  }, [done]);
   if (!end) return <Visualizer playing={playing} />;
   const s = Math.ceil(left / 1000);
   return <span className="closed-timer">{Math.floor(s / 60)}:{String(s % 60).padStart(2, '0')}</span>;
