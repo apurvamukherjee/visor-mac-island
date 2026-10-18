@@ -31,7 +31,10 @@
   background: rgb(240 240 244 / 0.82);
   backdrop-filter: blur(40px) saturate(1.8);
   box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.2), 0 12px 36px rgb(0 0 0 / 0.3);
+  animation: menu-in 0.12s ease-out;
 }
+@keyframes menu-in { from { opacity: 0; transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .menubar-dropdown { animation: none; } }
 .menubar-dropdown button, .menubar-dropdown a {
   display: flex; justify-content: space-between; gap: 24px; width: 100%; padding: 4px 10px;
   border: 0; border-radius: 5px; background: none; font: inherit; color: inherit;
