@@ -159,3 +159,6 @@
 .closed-join-title { flex: 1; font-size: 12px; color: rgb(255 255 255 / 0.8); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .closed-join-pill { padding: 2px 10px; border-radius: 10px; background: #34c759; font-size: 12px; font-weight: 700; }
 .closed-timer { font-size: 13px; font-weight: 600; color: #ff9f0a; font-variant-numeric: tabular-nums; }
+.island.is-wiggling { animation: notch-wiggle 0.6s ease-in-out; }
+@keyframes notch-wiggle { 20%, 60% { transform: translateX(calc(-50% - 7px)) rotate(-2deg); } 40%, 80% { transform: translateX(calc(-50% + 7px)) rotate(2deg); } }
+@media (prefers-reduced-motion: reduce) { .island.is-wiggling { animation-duration: 0.01s; } }

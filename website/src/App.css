@@ -6,3 +6,8 @@
 /* Slim, see-through scrollbars like macOS overlay scrollers, not the chunky default track. */
 * { box-sizing: border-box; scrollbar-width: thin; scrollbar-color: rgb(128 128 128 / 0.5) transparent; }
 html, body, #root { margin: 0; height: 100%; overflow: hidden; background: #000; color: #fff; }
+
+/* Easter eggs from src/os/shortcuts.ts. */
+.desktop.is-rolling { animation: barrel-roll 1.2s cubic-bezier(0.45, 0, 0.2, 1); }
+@keyframes barrel-roll { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .desktop.is-rolling { animation-duration: 0.01s; } }
