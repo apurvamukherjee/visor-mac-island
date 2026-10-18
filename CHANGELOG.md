@@ -4,6 +4,11 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.7.0 (build 51) · 2026-10-18
+
+- **Screenshots land on the shelf.** New screenshots now show up in the notch's shelf as soon as they're saved, with no setup needed. If you'd turned this off before, it stays off; switch it on in Settings.
+- **Earbuds come out of the case.** When AirPods or OnePlus Buds connect, the case lid swings open and the buds rise out one after the other. The soundbar's status light sweeps on and the bar gives a small bass pulse.
+
 ## 3.6.5 (build 50) · 2026-10-14
 
 - **Smoother brightness.** The screen and keyboard backlight now fade to each new level like macOS does, instead of jumping, and holding the key no longer skips steps.
