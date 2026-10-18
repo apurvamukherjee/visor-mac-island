@@ -32,7 +32,7 @@ export const views: Partial<Record<AppId, ComponentType>> = {
   downloads: Downloads,
   terminal: Terminal,
   notes: Notes,
-  safari: () => <Safari />,
+  safari: Safari,
   github: GitHub,
   quicktime: QuickTime,
   appstore: AppStore,
