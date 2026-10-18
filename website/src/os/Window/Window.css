@@ -31,6 +31,15 @@
 .window:not(.is-focused) .traffic button { background: #c8c8cc; }
 .window.is-dark:not(.is-focused) .traffic button, .desktop.is-dark .window:not(.is-focused) .traffic button { background: #4a4a4e; }
 .traffic button:focus-visible { outline: 2px solid #0a84ff; outline-offset: 2px; }
+/* The ×, − and + glyphs appear when the pointer is over any of the three, and light up a background window's buttons too. */
+.traffic button { display: grid; place-items: center; font: 700 10px/1 -apple-system, sans-serif; color: transparent; }
+.traffic-close::before { content: '×'; font-size: 12px; }
+.traffic-min::before { content: '−'; }
+.traffic-zoom::before { content: '+'; }
+.traffic:hover button, .traffic button:focus-visible { color: rgb(0 0 0 / 0.55); }
+.window .traffic:hover .traffic-close { background: #ff5f57; }
+.window .traffic:hover .traffic-min { background: #febc2e; }
+.window .traffic:hover .traffic-zoom { background: #28c840; }
 
 .window-body { flex: 1; min-height: 0; overflow: auto; }
 
