@@ -15,6 +15,9 @@ interface Settings {
   set: (patch: Partial<Omit<Settings, 'set'>>) => void;
 }
 
+// Brightness is stored as how much to dim, up to this much; sliders show the inverse so right is brighter.
+export const MAX_DIM = 0.75;
+
 export const useSettings = create<Settings>()(
   persist(
     (set) => ({

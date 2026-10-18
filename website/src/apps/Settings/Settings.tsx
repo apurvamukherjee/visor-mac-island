@@ -2,12 +2,11 @@ import { useState, type ReactNode } from 'react';
 import { links } from '../../links';
 import { useNotch, type Hud } from '../../notch/store';
 import { autoIndex, wallpaperUrl, wallpapers } from '../../os/Wallpaper/wallpapers';
-import { useSettings } from '../../store/settings';
+import { MAX_DIM, useSettings } from '../../store/settings';
 import avatar from '../../os/LockScreen/apurva.webp';
 import './Settings.css';
 
 const ACCENTS = ['#ff2d55', '#0a84ff', '#bf5af2', '#30d158', '#ff9f0a', '#ffd60a', '#8e8e93'];
-const MAX_DIM = 0.75;
 
 type Pane = 'Wi-Fi' | 'Bluetooth' | 'Appearance' | 'Wallpaper' | 'Displays' | 'Sound' | 'Visor' | 'About';
 const panes: [Pane, string][] = [['Wi-Fi', '📶'], ['Bluetooth', '🔷'], ['Appearance', '🎨'], ['Wallpaper', '🖼️'], ['Displays', '☀️'], ['Sound', '🔊'], ['Visor', '⬛'], ['About', 'ℹ️']];

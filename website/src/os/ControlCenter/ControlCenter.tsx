@@ -3,13 +3,10 @@ import { useNotch, type Hud } from '../../notch/store';
 import { trackAt } from '../../notch/tracks';
 import { autoIndex, wallpaperAt, wallpaperUrl } from '../Wallpaper/wallpapers';
 import { useLock } from '../../store/lock';
-import { useSettings } from '../../store/settings';
+import { MAX_DIM, useSettings } from '../../store/settings';
 import { useWindows } from '../../store/windows';
 import { icons } from './icons';
 import './ControlCenter.css';
-
-// Brightness is stored as how much to dim; the slider shows the inverse so right is brighter, as on macOS.
-const MAX_DIM = 0.75;
 
 function Pill({ label, sub, on, icon, onClick, chevron }: { label: string; sub: string; on: boolean; icon: ReactNode; onClick: () => void; chevron?: boolean }) {
   return (
