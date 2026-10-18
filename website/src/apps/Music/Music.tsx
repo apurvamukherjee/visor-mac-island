@@ -48,7 +48,7 @@ export function Music() {
               <small>Playlist</small>
               <h1>ruined by her hands</h1>
               <p>Apurva · {tracks.length} songs · 30-second previews</p>
-              <button className="music-play" onClick={() => playTrack(playing ? index + 1 : index)}>▶ Play</button>
+              <button className="music-play" onClick={togglePlay}>{playing ? '❚❚ Pause' : '▶ Play'}</button>
             </div>
           </header>
           <table>
