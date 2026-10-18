@@ -8,6 +8,7 @@ import { useBattery } from '../store/battery';
 import { useLock } from '../store/lock';
 import { useWindows } from '../store/windows';
 import { CITY, describe, useWeather } from './weather';
+import { offsetLabel, zoned } from './zones';
 import './Widgets.css';
 
 const open = (id: AppId) => useWindows.getState().open(id);
@@ -72,24 +73,6 @@ export const CITIES = [
   { name: 'London', tz: 'Europe/London' },
   { name: 'Cupertino', tz: 'America/Los_Angeles' },
 ];
-
-function zoned(now: Date, tz: string) {
-  const parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false, day: 'numeric' }).formatToParts(now);
-  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? 0);
-  return { h: get('hour') % 24, m: get('minute'), s: get('second'), day: get('day') };
-}
-
-function offsetLabel(now: Date, tz: string) {
-  const here = zoned(now, Intl.DateTimeFormat().resolvedOptions().timeZone);
-  const there = zoned(now, tz);
-  let mins = (there.h * 60 + there.m) - (here.h * 60 + here.m);
-  if (there.day !== here.day) mins += there.day > here.day || (here.day > 25 && there.day === 1) ? 1440 : -1440;
-  if (mins === 0) return { when: 'Today', diff: 'Local' };
-  const sign = mins > 0 ? '+' : '−';
-  const abs = Math.abs(mins);
-  const when = there.day === here.day ? 'Today' : mins > 0 ? 'Tomorrow' : 'Yesterday';
-  return { when, diff: `${sign}${Math.floor(abs / 60)}${abs % 60 ? `:${String(abs % 60).padStart(2, '0')}` : ''}` };
-}
 
 export function Clock({ tz, name, now, size = 62 }: { tz: string; name: string; now: Date; size?: number }) {
   const { h, m, s } = zoned(now, tz);
