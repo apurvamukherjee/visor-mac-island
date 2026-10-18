@@ -5,7 +5,7 @@ import { Cover } from '../notch/Cover';
 import { useNotch } from '../notch/store';
 import { trackAt } from '../notch/tracks';
 import { useNow } from '../os/useNow';
-import { useBattery } from '../store/battery';
+import { batteryColor, useBattery } from '../store/battery';
 import { useLock } from '../store/lock';
 import { useWindows } from '../store/windows';
 import { CITY, describe, useWeather } from './weather';
@@ -114,7 +114,7 @@ function BatteryWidget() {
     <section className="widget widget-small widget-battery" aria-label="Batteries">
       <svg viewBox="0 0 100 100" width="76" height="76" aria-hidden>
         <circle cx="50" cy="50" r="42" fill="none" stroke="rgb(255 255 255 / 0.15)" strokeWidth="8" />
-        <circle cx="50" cy="50" r="42" fill="none" stroke={charging ? '#34c759' : '#fff'} strokeWidth="8" strokeLinecap="round" strokeDasharray={`${(pct / 100) * 264} 264`} transform="rotate(-90 50 50)" />
+        <circle cx="50" cy="50" r="42" fill="none" stroke={batteryColor(level, charging, '#fff')} strokeWidth="8" strokeLinecap="round" strokeDasharray={`${(pct / 100) * 264} 264`} transform="rotate(-90 50 50)" />
         <text x="50" y="50" dy="0.35em" textAnchor="middle" fontSize="26" fill="#fff">💻</text>
       </svg>
       <b>{pct}%</b>

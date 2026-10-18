@@ -16,6 +16,9 @@ function hasBattery(nav: Navigator): nav is Navigator & { getBattery: () => Prom
   return 'getBattery' in nav;
 }
 
+// Green while charging and red under 20%, as in the macOS menu bar.
+export const batteryColor = (level: number, charging: boolean, normal = 'currentColor') => (charging ? '#34c759' : level < 0.2 ? '#ff453a' : normal);
+
 export const useBattery = create<Battery>()(() => ({ supported: false, level: 1, charging: false }));
 
 if (typeof navigator !== 'undefined' && hasBattery(navigator)) {

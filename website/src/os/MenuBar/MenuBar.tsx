@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { apps } from '../../apps/apps';
-import { useBattery } from '../../store/battery';
+import { batteryColor, useBattery } from '../../store/battery';
 import { useSettings } from '../../store/settings';
 import { useWindows } from '../../store/windows';
 import { ControlCenter } from '../ControlCenter/ControlCenter';
@@ -40,7 +40,7 @@ function BatteryStatus() {
       {pct}%
       <svg viewBox="0 0 26 12" width="25" height="12" aria-hidden>
         <rect x=".5" y=".5" width="22" height="11" rx="3" fill="none" stroke="currentColor" strokeOpacity=".5" />
-        <rect x="2" y="2" width={19 * level} height="8" rx="1.6" fill={charging ? '#34c759' : 'currentColor'} />
+        <rect x="2" y="2" width={19 * level} height="8" rx="1.6" fill={batteryColor(level, charging)} />
         <path d="M24 4v4a2 2 0 0 0 0-4z" fill="currentColor" fillOpacity=".5" />
       </svg>
     </span>

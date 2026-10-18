@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useBattery } from '../store/battery';
+import { batteryColor, useBattery } from '../store/battery';
 import { useLock } from '../store/lock';
 import { useSettings } from '../store/settings';
 import { Closed, closedWidth } from './Closed';
@@ -35,7 +35,7 @@ function Header() {
       {supported && (
         <span className="island-battery">
           {Math.round(level * 100)}%
-          <span className={`island-battery-cell${charging ? ' is-charging' : ''}`}><i style={{ width: `${level * 100}%` }} /></span>
+          <span className="island-battery-cell"><i style={{ width: `${level * 100}%`, background: batteryColor(level, charging, '#fff') }} /></span>
         </span>
       )}
     </div>
