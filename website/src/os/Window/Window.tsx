@@ -26,6 +26,15 @@ function track(e: PointerEvent<HTMLElement>, onMove: (dx: number, dy: number) =>
   el.addEventListener('pointercancel', up);
 }
 
+// Mac OS X's oldest trick: hold Shift while minimizing and it happens in slow motion.
+const SLOW_MS = 3000;
+function slowMotion(button: HTMLElement) {
+  const win = button.closest<HTMLElement>('.window');
+  if (!win) return;
+  win.style.transitionDuration = `${SLOW_MS}ms`;
+  setTimeout(() => win.style.removeProperty('transition-duration'), SLOW_MS);
+}
+
 export function Window({ id, children, title }: Props) {
   const win = useWindows((s) => s.wins[id]);
   const focused = useWindows((s) => s.focused === id);
@@ -68,7 +77,7 @@ export function Window({ id, children, title }: Props) {
       <header className="window-bar" onPointerDown={startDrag} onDoubleClick={() => toggleZoom(id)}>
         <div className="traffic">
           <button className="traffic-close" aria-label="Close" onClick={() => close(id)} />
-          <button className="traffic-min" aria-label="Minimize" onClick={() => minimize(id)} />
+          <button className="traffic-min" aria-label="Minimize" onClick={(e) => { if (e.shiftKey) slowMotion(e.currentTarget); minimize(id); }} />
           <button className="traffic-zoom" aria-label="Zoom" onClick={() => toggleZoom(id)} />
         </div>
         <h2 className="window-title">{name}</h2>
