@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNow } from '../os/useNow';
+import { useWindows } from '../store/windows';
 
 interface CalEvent {
   title: string;
@@ -63,7 +64,7 @@ export function Calendar() {
               <i style={{ background: e.color }} />
               <span className="calendar-event-title">{e.title}</span>
               {e.call && (
-                <button className="calendar-join" onClick={() => setJoined(true)}>
+                <button className="calendar-join" onClick={() => { setJoined(true); useWindows.getState().open('meet'); }}>
                   {joined ? 'Joined ✓' : `Join ${e.call}`}
                 </button>
               )}
