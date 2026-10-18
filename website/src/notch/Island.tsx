@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useBattery } from '../store/battery';
 import { useLock } from '../store/lock';
 import { useSettings } from '../store/settings';
@@ -52,10 +52,29 @@ export function Island() {
   const accent = useSettings((s) => s.accent);
   const hoverOpen = useSettings((s) => s.hoverOpen);
   const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Touch and keyboard never fire pointerleave, so a tap outside or Escape closes it too.
+  useEffect(() => {
+    if (!open) return;
+    const outside = (e: PointerEvent) => {
+      if (!(e.target instanceof Node && ref.current?.contains(e.target))) setOpen(false);
+    };
+    const escape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('pointerdown', outside);
+    window.addEventListener('keydown', escape);
+    return () => {
+      window.removeEventListener('pointerdown', outside);
+      window.removeEventListener('keydown', escape);
+    };
+  }, [open, setOpen]);
 
   const enter = () => {
     clearTimeout(closeTimer.current);
-    setOpen(true);
+    // Opening behind the lock screen would leave it open after unlocking.
+    if (!locked) setOpen(true);
   };
   const leave = () => {
     closeTimer.current = setTimeout(() => setOpen(false), CLOSE_DELAY_MS);
@@ -64,6 +83,7 @@ export function Island() {
   const size = open && !locked ? OPEN : { w: closedWidth(transient, locked, timer), h: CLOSED_H };
   return (
     <div
+      ref={ref}
       className={`island${open ? ' is-open' : ''}`}
       style={{ width: size.w, height: size.h, '--accent': accent } as React.CSSProperties}
       onPointerEnter={(e) => hoverOpen && e.pointerType === 'mouse' && enter()}
