@@ -1,6 +1,7 @@
 import { useNotch, type Hud as HudKind, type Transient } from './store';
 import { Cover, Visualizer } from './Cover';
 import { trackAt } from './tracks';
+import { batteryColor } from '../store/battery';
 import { useLock } from '../store/lock';
 import { useNow } from '../os/useNow';
 import { icons } from '../os/ControlCenter/icons';
@@ -44,6 +45,18 @@ export function Closed() {
   }
 
   if (transient?.kind === 'hud') return <Hud hud={transient.hud} value={transient.value} />;
+  if (transient?.kind === 'battery') {
+    const pct = Math.round(transient.level * 100);
+    return (
+      <div className="closed closed-battery" role="status" aria-label={`${transient.charging ? 'Charging' : 'On battery'}, ${pct}%`}>
+        <span>{transient.charging ? '⚡︎ Charging' : 'On Battery'}</span>
+        <span className="island-battery">
+          {pct}%
+          <span className="island-battery-cell"><i style={{ width: `${pct}%`, background: batteryColor(transient.level, transient.charging, '#fff') }} /></span>
+        </span>
+      </div>
+    );
+  }
   if (transient?.kind === 'download') {
     return (
       <div className="closed closed-download" role="status" aria-label={`Downloading in ${transient.app}`}>

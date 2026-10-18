@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useNotch } from '../notch/store';
 
 interface BatteryManager extends EventTarget {
   level: number;
@@ -23,7 +24,12 @@ export const useBattery = create<Battery>()(() => ({ supported: false, level: 1,
 
 if (typeof navigator !== 'undefined' && hasBattery(navigator)) {
   void navigator.getBattery().then((b) => {
-    const sync = () => useBattery.setState({ supported: true, level: b.level, charging: b.charging });
+    const sync = () => {
+      const was = useBattery.getState();
+      useBattery.setState({ supported: true, level: b.level, charging: b.charging });
+      // Visor's heads-up when the charger goes in or comes out.
+      if (was.supported && was.charging !== b.charging) useNotch.getState().flash({ kind: 'battery', charging: b.charging, level: b.level }, 2500);
+    };
     sync();
     b.addEventListener('levelchange', sync);
     b.addEventListener('chargingchange', sync);

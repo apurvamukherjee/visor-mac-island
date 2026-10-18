@@ -111,14 +111,15 @@ function BatteryWidget() {
   const { supported, level, charging } = useBattery();
   const pct = supported ? Math.round(level * 100) : 100;
   return (
-    <section className="widget widget-small widget-battery" aria-label="Batteries">
+    // Clicking replays the plug-in heads-up, since few visitors will unplug to see it.
+    <button className="widget widget-small widget-battery" aria-label={`Battery ${pct}%. Show Visor's charging heads-up`} onClick={() => useNotch.getState().flash({ kind: 'battery', charging: true, level: pct / 100 }, 2500)}>
       <svg viewBox="0 0 100 100" width="76" height="76" aria-hidden>
         <circle cx="50" cy="50" r="42" fill="none" stroke="rgb(255 255 255 / 0.15)" strokeWidth="8" />
         <circle cx="50" cy="50" r="42" fill="none" stroke={batteryColor(level, charging, '#fff')} strokeWidth="8" strokeLinecap="round" strokeDasharray={`${(pct / 100) * 264} 264`} transform="rotate(-90 50 50)" />
         <text x="50" y="50" dy="0.35em" textAnchor="middle" fontSize="26" fill="#fff">💻</text>
       </svg>
       <b>{pct}%</b>
-    </section>
+    </button>
   );
 }
 
