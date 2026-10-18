@@ -39,12 +39,12 @@ function initialFrame(id: AppId, openCount: number): Frame {
   const w = Math.min(aw, window.innerWidth - 32);
   const h = Math.min(ah, window.innerHeight - MENU_BAR - DOCK_SPACE - 16);
   const step = (openCount % 6) * 26;
-  return {
+  return clampFrame({
     w,
     h,
     x: Math.max(16, (window.innerWidth - w) / 2 + step),
     y: Math.max(MENU_BAR + 8, MENU_BAR + (window.innerHeight - MENU_BAR - DOCK_SPACE - h) / 2 + step),
-  };
+  });
 }
 
 export function clampFrame(f: Frame): Frame {

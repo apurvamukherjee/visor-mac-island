@@ -64,7 +64,7 @@ const meta = {
   photos: { name: 'Photos', icon: photos, w: 760, h: 500, category: 'Entertainment' },
   weather: { name: 'Weather', icon: weather, w: 440, h: 460, category: 'Utilities' },
   clock: { name: 'Clock', icon: clock, w: 640, h: 420, category: 'Utilities', dark: true },
-  calendar: { name: 'Calendar', icon: calendar, w: 0, h: 0, category: 'Productivity' },
+  calendar: { name: 'Calendar', icon: calendar, w: 760, h: 520, category: 'Productivity' },
   preview: { name: 'Preview', icon: preview, w: 720, h: 560, category: 'Productivity' },
   quicktime: { name: 'QuickTime Player', icon: quicktime, w: 660, h: 440, category: 'Entertainment', dark: true },
   trash: { name: 'Trash', icon: trash, w: 520, h: 320, category: 'Utilities' },
