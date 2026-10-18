@@ -1,11 +1,21 @@
-import { useState } from 'react';
+import { create } from 'zustand';
+import { useWindows } from '../../store/windows';
 import { notes } from './content';
 import './Notes.css';
 
 const folders = ['Apurva', 'Visor'] as const;
 
+// Shared so links elsewhere (Help menu, What's new, CHANGELOG.md) can open Notes on a given note.
+const useNote = create<{ id: string }>()(() => ({ id: 'hello' }));
+const setId = (id: string) => useNote.setState({ id });
+
+export function openNote(id: string) {
+  setId(id);
+  useWindows.getState().open('notes');
+}
+
 export function Notes() {
-  const [id, setId] = useState(notes[0]?.id);
+  const id = useNote((s) => s.id);
   const note = notes.find((n) => n.id === id) ?? notes[0];
   return (
     <div className="notes">

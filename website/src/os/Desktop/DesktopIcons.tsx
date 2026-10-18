@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { apps, type AppId } from '../../apps/apps';
 import file from '../../icons/apps/file.webp';
 import folder from '../../icons/apps/folder.webp';
+import { openNote } from '../../apps/Notes/Notes';
 import { links } from '../../links';
 import { useWindows } from '../../store/windows';
 import './DesktopIcons.css';
@@ -9,7 +10,7 @@ import './DesktopIcons.css';
 interface Item {
   name: string;
   icon: string;
-  open: AppId | string;
+  open: AppId | string | (() => void);
 }
 
 const items: Item[] = [
@@ -17,12 +18,13 @@ const items: Item[] = [
   { name: 'wallpapers', icon: folder, open: 'photos' },
   { name: 'Visor', icon: folder, open: 'finder' },
   { name: 'README.md', icon: file, open: links.readme },
-  { name: 'CHANGELOG.md', icon: file, open: 'notes' },
+  { name: 'CHANGELOG.md', icon: file, open: () => openNote('new') },
   { name: 'apurva.space', icon: apps.safari.icon, open: 'safari' },
 ];
 
-function launch(target: string) {
-  if (target in apps) useWindows.getState().open(target as AppId);
+function launch(target: Item['open']) {
+  if (typeof target === 'function') target();
+  else if (target in apps) useWindows.getState().open(target as AppId);
   else window.open(target, '_blank', 'noopener');
 }
 

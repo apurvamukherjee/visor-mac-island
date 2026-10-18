@@ -1,4 +1,5 @@
 import { apps, type AppId } from '../../apps/apps';
+import { openNote } from '../../apps/Notes/Notes';
 import { links } from '../../links';
 import { useLock } from '../../store/lock';
 import { useWindows } from '../../store/windows';
@@ -76,7 +77,7 @@ export const appMenus: Menu[] = [
       { label: 'All Releases', href: links.releases },
       { label: 'Report an Issue…', href: links.newIssue },
       'separator',
-      { label: 'Keyboard Shortcuts', run: open('notes') },
+      { label: 'Keyboard Shortcuts', run: () => openNote('shortcuts') },
     ],
   },
 ];

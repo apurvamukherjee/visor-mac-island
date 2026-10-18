@@ -3,6 +3,7 @@ import { apps, dockOrder, type AppId } from '../apps';
 import file from '../../icons/apps/file.webp';
 import folder from '../../icons/apps/folder.webp';
 import { links } from '../../links';
+import { openNote } from '../Notes/Notes';
 import { useWindows } from '../../store/windows';
 import './Finder.css';
 
@@ -24,7 +25,7 @@ const places: Record<Place, Entry[]> = {
     { name: 'scripts', icon: folder, open: url(`${links.repo}/tree/main/scripts`) },
     { name: 'website', icon: folder, open: url(`${links.repo}/tree/main/website`) },
     { name: 'README.md', icon: file, open: url(links.readme) },
-    { name: 'CHANGELOG.md', icon: file, open: app('notes') },
+    { name: 'CHANGELOG.md', icon: file, open: () => openNote('new') },
     { name: 'LICENSE', icon: file, open: url(links.license) },
     { name: 'project.yml', icon: file, open: url(`${links.repo}/blob/main/project.yml`) },
   ],

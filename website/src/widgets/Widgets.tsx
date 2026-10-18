@@ -1,4 +1,5 @@
 import { apps, type AppId } from '../apps/apps';
+import { openNote } from '../apps/Notes/Notes';
 import { links } from '../links';
 import { Cover } from '../notch/Cover';
 import { useNotch } from '../notch/store';
@@ -32,7 +33,7 @@ function DownloadWidget() {
         <span>v{version} · Apple silicon · macOS 14+</span>
         <a href={links.repo} target="_blank" rel="noreferrer">GitHub ↗</a>
       </div>
-      <button className="widget-download-more" onClick={() => open('notes')}>What’s new in {version} →</button>
+      <button className="widget-download-more" onClick={() => openNote('new')}>What’s new in {version} →</button>
     </section>
   );
 }
