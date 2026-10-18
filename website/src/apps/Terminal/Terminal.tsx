@@ -26,6 +26,7 @@ export function Terminal() {
     setCursor(-1);
     setInput('');
     if (result.effect?.kind === 'clear') return setEntries([]);
+    if (result.effect?.kind === 'quit') return useWindows.getState().close('terminal');
     if (result.effect?.kind === 'open') useWindows.getState().open(result.effect.app);
     if (result.effect?.kind === 'url') openUrl(result.effect.href);
     setEntries((e) => [...e, { input, lines: result.lines }]);

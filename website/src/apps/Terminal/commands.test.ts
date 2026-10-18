@@ -35,3 +35,9 @@ test('easter egg: the sandwich needs sudo', () => {
 test('easter egg: sl runs a train', () => {
   expect(run('sl', '1.0').lines.at(-1)).toBe('You meant ls. Have a train anyway.');
 });
+
+test('easter eggs: exit quits, vim teases, coffee is a teapot', () => {
+  expect(run('exit', '1.0').effect).toEqual({ kind: 'quit' });
+  expect(run(':wq', '1.0').lines[0]).toContain('There was no vim');
+  expect(run('brew coffee', '1.0').lines[0]).toContain('418');
+});

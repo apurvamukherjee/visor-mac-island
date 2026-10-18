@@ -1,7 +1,7 @@
 import { QUARANTINE_CMD, links } from '../../links';
 import { apps, type AppId } from '../apps';
 
-export type Effect = { kind: 'open'; app: AppId } | { kind: 'url'; href: string } | { kind: 'clear' };
+export type Effect = { kind: 'open'; app: AppId } | { kind: 'url'; href: string } | { kind: 'clear' } | { kind: 'quit' };
 
 export interface Result {
   lines: string[];
@@ -68,6 +68,7 @@ export function run(input: string, version: string): Result {
     case 'xattr':
       return { lines: ['Run that in your own Terminal, not this one. This one is a website.'] };
     case 'brew':
+      if (/coffee|tea/i.test(arg)) return { lines: ['Error 418: I’m a teapot. ☕️'] };
       return { lines: ['Visor is not on Homebrew yet. Type download to get the DMG.'] };
     case 'repo':
       return { lines: [`Opening ${links.repo}`], effect: { kind: 'url', href: links.repo } };
@@ -102,6 +103,16 @@ export function run(input: string, version: string): Result {
       return { lines: [arg] };
     case 'clear':
       return { lines: [], effect: { kind: 'clear' } };
+    case 'exit':
+    case 'logout':
+      return { lines: ['[Process completed]'], effect: { kind: 'quit' } };
+    case 'vim':
+    case 'vi':
+      return { lines: ['Opening vim… just kidding. You would never get out.', 'Hint for real life: :q'] };
+    case ':q':
+    case ':q!':
+    case ':wq':
+      return { lines: ['There was no vim. But you knew how to quit it, which puts you ahead of most of us.'] };
     default:
       return { lines: [`zsh: command not found: ${cmd}`, 'Type help to see what works.'] };
   }
