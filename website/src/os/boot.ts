@@ -1,3 +1,4 @@
+import { apps } from '../apps/apps';
 import { DOCK_SPACE, useWindows } from '../store/windows';
 
 // Open a couple of windows on first load so the desktop looks lived in, like a real Mac mid-session.
@@ -11,4 +12,12 @@ export function openStartupWindows() {
   open('appstore', store);
   // Music sits on top of the App Store, nudged down and to the side so both read as open.
   open('music', { x: store.x + Math.min(260, store.w - 520), y: store.y - 120, w: 680, h: 440 });
+}
+
+// The tab is titled after the front app, so a tab strip full of Visor tabs still says which is which.
+export function syncTitle() {
+  const home = document.title;
+  useWindows.subscribe((s) => {
+    document.title = s.focused ? `${apps[s.focused].name} — Visor` : home;
+  });
 }

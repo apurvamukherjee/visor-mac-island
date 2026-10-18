@@ -2,13 +2,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
-import { openStartupWindows } from './os/boot';
+import { openStartupWindows, syncTitle } from './os/boot';
 import { installShortcuts } from './os/shortcuts';
 import './App.css';
 
 // The boot bar's last 0.3s fill plus its 0.35s-delayed 0.5s fade, from index.html.
 const BOOT_OUT_MS = 900;
 
+syncTitle();
 openStartupWindows();
 installShortcuts();
 
