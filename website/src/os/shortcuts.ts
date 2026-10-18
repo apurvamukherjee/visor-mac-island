@@ -1,5 +1,6 @@
 import { useNotch } from '../notch/store';
 import { useLock } from '../store/lock';
+import { useWindows } from '../store/windows';
 
 // Visor's own shortcuts plus macOS's lock combo. Browsers reserve some combos, so each still has a click path.
 export function installShortcuts() {
@@ -16,6 +17,10 @@ export function installShortcuts() {
     } else if (e.metaKey && e.shiftKey && key === 'h') {
       e.preventDefault();
       useNotch.getState().flash({ kind: 'peek' }, 2500);
+    } else if ((e.metaKey || e.ctrlKey) && !e.shiftKey && key === 'k') {
+      // Spotlight's ⌘Space belongs to macOS, so the search everyone knows from the web stands in.
+      e.preventDefault();
+      useWindows.getState().open('launchpad');
     } else if (key === ' ' && document.activeElement === document.body) {
       // Space plays and pauses like a media key, but only when no button or field would take it.
       e.preventDefault();
