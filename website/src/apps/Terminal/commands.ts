@@ -77,7 +77,7 @@ export function run(input: string, version: string): Result {
     case 'issues':
       return { lines: ['Opening a new issue…'], effect: { kind: 'url', href: links.newIssue } };
     case 'shortcuts':
-      return { lines: ['⌘ ⇧ I   open or close the notch', '⌘ ⇧ H   sneak peek at what is playing'] };
+      return { lines: ['⌘ ⇧ I   open or close the notch', '⌘ ⇧ H   sneak peek at what is playing', '⌘ K     search apps (this site)', 'Space   play or pause (this site)', '⌃ ⌘ Q   lock the screen', 'Tab     complete a command; ⌃L clears, ⌃C cancels'] };
     case 'open': {
       const app = findApp(arg);
       return app ? { lines: [], effect: { kind: 'open', app } } : { lines: [`The application “${arg}” can’t be found.`] };

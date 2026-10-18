@@ -95,6 +95,7 @@ export const notes: Note[] = [
         <p><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>I</kbd> opens or closes the notch.</p>
         <p><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>H</kbd> shows a sneak peek of what’s playing.</p>
         <p>Change either one in Settings → Shortcuts.</p>
+        <p>On this website you also get <kbd>⌘</kbd> <kbd>K</kbd> to search apps, <kbd>Space</kbd> to play or pause, <kbd>⌃</kbd> <kbd>⌘</kbd> <kbd>Q</kbd> to lock, and scrolling on the notch to open it, close it or change track. Drop an image on the notch’s shelf or into Terminal.</p>
       </>
     ),
   },
