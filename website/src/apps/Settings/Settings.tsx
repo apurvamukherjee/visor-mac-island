@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { links } from '../../links';
+import { useNotch, type Hud } from '../../notch/store';
 import { autoIndex, wallpaperUrl, wallpapers } from '../../os/Wallpaper/wallpapers';
 import { useSettings } from '../../store/settings';
 import avatar from '../../os/LockScreen/apurva.webp';
@@ -10,6 +11,8 @@ const MAX_DIM = 0.75;
 
 type Pane = 'Wi-Fi' | 'Bluetooth' | 'Appearance' | 'Wallpaper' | 'Displays' | 'Sound' | 'Visor' | 'About';
 const panes: [Pane, string][] = [['Wi-Fi', '📶'], ['Bluetooth', '🔷'], ['Appearance', '🎨'], ['Wallpaper', '🖼️'], ['Displays', '☀️'], ['Sound', '🔊'], ['Visor', '⬛'], ['About', 'ℹ️']];
+
+const hud = (kind: Hud, value: number) => useNotch.getState().flash({ kind: 'hud', hud: kind, value });
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return <div className="set-row"><span>{label}</span>{children}</div>;
@@ -69,10 +72,10 @@ export function Settings() {
             </>
           )}
           {pane === 'Displays' && (
-            <Row label="Brightness"><input type="range" min={0} max={1} step={0.01} value={1 - st.dim / MAX_DIM} onChange={(e) => st.set({ dim: (1 - Number(e.target.value)) * MAX_DIM })} aria-label="Brightness" /></Row>
+            <Row label="Brightness"><input type="range" min={0} max={1} step={0.01} value={1 - st.dim / MAX_DIM} onChange={(e) => { const v = Number(e.target.value); st.set({ dim: (1 - v) * MAX_DIM }); hud('brightness', v); }} aria-label="Brightness" /></Row>
           )}
           {pane === 'Sound' && (
-            <Row label="Output volume"><input type="range" min={0} max={1} step={0.01} value={st.volume} onChange={(e) => st.set({ volume: Number(e.target.value) })} aria-label="Output volume" /></Row>
+            <Row label="Output volume"><input type="range" min={0} max={1} step={0.01} value={st.volume} onChange={(e) => { const v = Number(e.target.value); st.set({ volume: v }); hud('volume', v); }} aria-label="Output volume" /></Row>
           )}
           {pane === 'Visor' && (
             <>
