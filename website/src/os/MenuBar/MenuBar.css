@@ -23,6 +23,8 @@
 
 .menubar-status { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
+.menubar-wifi svg { width: 17px; height: 13px; }
+
 .menubar-backdrop { position: fixed; inset: 0; z-index: 9400; }
 
 .menubar-dropdown {
