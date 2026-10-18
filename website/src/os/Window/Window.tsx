@@ -6,7 +6,6 @@ import './Window.css';
 interface Props {
   id: AppId;
   children: ReactNode;
-  title?: string;
 }
 
 function track(e: PointerEvent<HTMLElement>, onMove: (dx: number, dy: number) => void) {
@@ -35,7 +34,7 @@ function slowMotion(button: HTMLElement) {
   setTimeout(() => win.style.removeProperty('transition-duration'), SLOW_MS);
 }
 
-export function Window({ id, children, title }: Props) {
+export function Window({ id, children }: Props) {
   const win = useWindows((s) => s.wins[id]);
   const focused = useWindows((s) => s.focused === id);
   const { close, focus, minimize, toggleZoom, setFrame } = useWindows.getState();
@@ -64,7 +63,7 @@ export function Window({ id, children, title }: Props) {
     setFrame(id, { ...frame, w: frame.w + d[0], h: frame.h + d[1] });
   };
 
-  const name = title ?? apps[id].name;
+  const name = apps[id].name;
   return (
     <section
       role="dialog"
