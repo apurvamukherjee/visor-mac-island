@@ -130,11 +130,11 @@ The visualizer and record spin run in the system's renderer, so Visor barely wak
 <tr>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/photo.svg" width="40" align="center"> &nbsp;Screenshots</h3>
-Turn it on and each new screenshot lands on the shelf the moment it's saved, ready to drag into a chat. macOS asks once for access to your screenshot folder.
+Each new screenshot lands on the shelf the moment it's saved, ready to drag into a chat. It's on from the start; macOS asks once for access to your screenshot folder, and you can switch it off in Settings.
 </td>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/earbuds.svg" width="40" align="center"> &nbsp;Earbuds &amp; soundbar</h3>
-Connect AirPods, OnePlus Buds or a JBL soundbar and a 3D model of it turns slowly under the notch, with its name and, for AirPods, the battery of each bud and the case.
+Connect AirPods, OnePlus Buds or a JBL soundbar and a 3D model of it turns slowly under the notch: the case lid swings open and the buds rise out, or the soundbar's light sweeps on with a small bass pulse, with its name and, for AirPods, the battery of each bud and the case.
 </td>
 </tr>
 </table>
