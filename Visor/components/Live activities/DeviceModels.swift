@@ -56,8 +56,9 @@ enum DeviceModels {
         // hitch where one action hands over to the next.
         model.scale = SCNVector3(kind.scale * 0.55, kind.scale * 0.55, kind.scale * 0.55)
         model.eulerAngles.y = -.pi / 5
-        let grow = SCNAction.scale(to: CGFloat(kind.scale), duration: 0.6)
-        grow.timingMode = .easeOut
+        let grow = SCNAction.scale(to: CGFloat(kind.scale), duration: 0.7)
+        // Ease-out-back: a few percent past full size, then settles, like a thing set down.
+        grow.timingFunction = { t in 1 + 2.2 * pow(t - 1, 3) + 1.2 * pow(t - 1, 2) }
         let arrive = SCNAction.rotateBy(x: 0, y: 2 * .pi, z: 0, duration: spinIn)
         let endSpeed = Float(spinIn / turn)
         arrive.timingFunction = { t in (1 - endSpeed) * (1 - pow(1 - t, 3)) + endSpeed * t }
@@ -98,9 +99,10 @@ enum DeviceModels {
 
     // The buds are the subject; the case sits small beneath them.
     private static func airpods() -> SCNNode {
-        let white = material(NSColor(white: 0.97, alpha: 1), roughness: 0.16)
+        let white = material(NSColor(white: 0.97, alpha: 1), roughness: 0.22, clearCoat: 0.8)
         let tip = material(NSColor(white: 0.86, alpha: 1), roughness: 0.75)
         let mesh = material(NSColor(white: 0.12, alpha: 1), roughness: 0.8)
+        let grille = meshGrille(NSColor(white: 0.25, alpha: 1))
         let root = SCNNode()
 
         let shell = earCase(size: SCNVector3(0.62, 0.46, 0.24), chamfer: 0.11, body: white, seam: 0.1)
@@ -126,10 +128,9 @@ enum DeviceModels {
 
         for side: CGFloat in [-1, 1] {
             let bud = earbud(side: side, shell: white, tip: tip,
-                             stem: Stem(length: 0.34, flatten: 1, taper: 0.85, cap: mesh, strip: tip))
-            bud.position = SCNVector3(0.4 * side, 0.3, 0)
+                             stem: Stem(length: 0.34, flatten: 1, taper: 0.85, cap: grille, strip: tip))
+            liftOut(bud, to: SCNVector3(0.4 * side, 0.3, 0), from: shell.position.y, order: side < 0 ? 0 : 1)
             root.addChildNode(bud)
-            hover(bud, phase: side < 0 ? 0 : 0.6)
         }
         return wrapped(root)
     }
@@ -138,9 +139,9 @@ enum DeviceModels {
 
     private static func oneplusBuds() -> SCNNode {
         // Mirror-polished steel blue: the buds read as chrome, the case as matte.
-        let chrome = material(NSColor(red: 0.58, green: 0.7, blue: 0.88, alpha: 1), metalness: 1, roughness: 0.06)
+        let chrome = material(NSColor(red: 0.58, green: 0.7, blue: 0.88, alpha: 1), metalness: 1, roughness: 0.08)
         let tip = material(NSColor(red: 0.42, green: 0.58, blue: 0.78, alpha: 1), roughness: 0.7)
-        let matte = material(NSColor(red: 0.47, green: 0.64, blue: 0.84, alpha: 1), roughness: 0.42)
+        let matte = material(NSColor(red: 0.47, green: 0.64, blue: 0.84, alpha: 1), roughness: 0.42, clearCoat: 0.25)
         let root = SCNNode()
 
         let shell = earCase(size: SCNVector3(0.7, 0.46, 0.36), chamfer: 0.12, body: matte, seam: -0.15)
@@ -149,18 +150,19 @@ enum DeviceModels {
         lettering.transparencyMode = .aOne
         let logo = SCNNode(geometry: SCNPlane(width: 0.4, height: 0.06))
         logo.geometry?.firstMaterial = lettering
-        logo.position = SCNVector3(0, 0.04, 0.181)
-        shell.addChildNode(logo)
+        // On the lid, so it lifts with it.
+        let lid = shell.childNode(withName: "lid", recursively: true)
+        logo.position = SCNVector3(0, 0, 0.181)
+        lid?.addChildNode(logo)
         shell.position.y = -0.44
         root.addChildNode(shell)
 
         for side: CGFloat in [-1, 1] {
             let bud = earbud(side: side, shell: chrome, tip: tip,
-                             stem: Stem(length: 0.44, flatten: 0.7, taper: 0.8, cap: chrome, strip: nil))
+                             stem: Stem(length: 0.44, flatten: 0.7, taper: 0.8, cap: meshGrille(NSColor(white: 0.55, alpha: 1)), strip: nil))
             // Staggered like the product shot, one bud a little lower.
-            bud.position = SCNVector3(0.42 * side, side < 0 ? 0.36 : 0.26, 0)
+            liftOut(bud, to: SCNVector3(0.42 * side, side < 0 ? 0.36 : 0.26, 0), from: shell.position.y, order: side < 0 ? 0 : 1)
             root.addChildNode(bud)
-            hover(bud, phase: side < 0 ? 0 : 0.6)
         }
         return wrapped(root)
     }
@@ -200,15 +202,38 @@ enum DeviceModels {
             button.position = SCNVector3(offset, 0.152, 0.02)
             root.addChildNode(button)
         }
+        // Brushed gunmetal band along the top front edge.
+        let trim = SCNNode(geometry: SCNBox(width: 2.5, height: 0.012, length: 0.02, chamferRadius: 0.005))
+        trim.geometry?.firstMaterial = material(NSColor(white: 0.35, alpha: 1), metalness: 1, roughness: 0.32)
+        trim.position = SCNVector3(0, 0.128, 0.212)
+        root.addChildNode(trim)
+
+        // Powers on as it arrives: the status light sweeps open, then settles dim.
         let status = SCNNode(geometry: SCNCapsule(capRadius: 0.006, height: 0.06))
         status.geometry?.firstMaterial = unlit(NSColor(white: 1, alpha: 0.9))
         status.eulerAngles.z = .pi / 2
         status.position = SCNVector3(0, -0.07, 0.224)
+        status.scale = SCNVector3(1, 0.05, 1)
+        status.opacity = 0
+        let sweep = SCNAction.customAction(duration: 0.45) { node, elapsed in
+            let t = Float(elapsed / 0.45)
+            node.scale.y = CGFloat(0.05 + 0.95 * (1 - pow(1 - t, 3)))
+        }
+        status.runAction(.sequence([
+            .wait(duration: 0.5), .fadeIn(duration: 0.1), sweep, .wait(duration: 0.6), .fadeOpacity(to: 0.55, duration: 0.8),
+        ]))
         root.addChildNode(status)
+
+        // The bass driver's first note: a tiny vertical pulse of the whole bar.
+        let swell = SCNAction.scale(to: 1.018, duration: 0.07)
+        swell.timingMode = .easeOut
+        let settle = SCNAction.scale(to: 1, duration: 0.3)
+        settle.timingMode = .easeInEaseOut
+        root.runAction(.sequence([.wait(duration: 0.75), swell, settle]))
 
         for offset: CGFloat in [-1.1, 1.1] {
             let foot = SCNNode(geometry: SCNBox(width: 0.18, height: 0.03, length: 0.3, chamferRadius: 0.01))
-            foot.geometry?.firstMaterial = material(NSColor(white: 0.04, alpha: 1), roughness: 0.8)
+            foot.geometry?.firstMaterial = material(NSColor(white: 0.04, alpha: 1), roughness: 0.95)
             foot.position = SCNVector3(offset, -0.165, 0)
             root.addChildNode(foot)
         }
@@ -225,32 +250,66 @@ enum DeviceModels {
         return holder
     }
 
-    /// A slow float, so the buds read as lifted out of the case.
-    private static func hover(_ node: SCNNode, phase: TimeInterval) {
-        let rise = SCNAction.moveBy(x: 0, y: 0.035, z: 0, duration: 1.2)
-        rise.timingMode = .easeInEaseOut
-        node.runAction(.sequence([.wait(duration: phase), .repeatForever(.sequence([rise, rise.reversed()]))]))
+    /// Rises out of the opened case, one bud after the other, then floats.
+    private static func liftOut(_ bud: SCNNode, to place: SCNVector3, from caseY: CGFloat, order: Int) {
+        bud.position = SCNVector3(place.x * 0.35, caseY, 0)
+        bud.scale = SCNVector3(0.6, 0.6, 0.6)
+        bud.opacity = 0
+        let rise = SCNAction.move(to: place, duration: 0.75)
+        rise.timingFunction = { t in 1 + 2.2 * pow(t - 1, 3) + 1.2 * pow(t - 1, 2) }
+        let grow = SCNAction.scale(to: 1, duration: 0.5)
+        grow.timingMode = .easeOut
+        let float = SCNAction.moveBy(x: 0, y: 0.035, z: 0, duration: 1.2)
+        float.timingMode = .easeInEaseOut
+        bud.runAction(.sequence([
+            .wait(duration: 0.55 + Double(order) * 0.2),
+            .group([rise, grow, .fadeIn(duration: 0.2)]),
+            .wait(duration: Double(order) * 0.6),
+            .repeatForever(.sequence([float, float.reversed()])),
+        ]))
     }
 
+    /// A two-part case split at `seam` (height above centre). The lid hangs
+    /// on a hinge at the back and swings open as the case arrives.
     private static func earCase(size: SCNVector3, chamfer: CGFloat, body: SCNMaterial, seam: CGFloat) -> SCNNode {
         let (width, height, depth) = (size.x, size.y, size.z)
-        let shell = SCNNode(geometry: SCNBox(width: width, height: height, length: depth, chamferRadius: chamfer))
-        shell.geometry?.firstMaterial = body
+        let shell = SCNNode()
+        let baseHeight = height / 2 + seam
+        let lidHeight = height / 2 - seam
 
-        let outline = NSBezierPath(roundedRect: NSRect(x: -(width + 0.004) / 2, y: -(depth + 0.004) / 2,
-                                                      width: width + 0.004, height: depth + 0.004),
-                                   xRadius: chamfer, yRadius: chamfer)
-        outline.flatness = 0.002
-        let line = SCNNode(geometry: SCNShape(path: outline, extrusionDepth: 0.012))
-        line.eulerAngles.x = -.pi / 2
-        line.geometry?.firstMaterial = material(NSColor(white: 0.08, alpha: 1), roughness: 0.6)
-        line.position.y = seam
-        shell.addChildNode(line)
+        // Chamfering each half rounds the edges at the seam too, which reads as the real parting line.
+        let base = SCNNode(geometry: SCNBox(width: width, height: baseHeight, length: depth,
+                                            chamferRadius: min(chamfer, baseHeight / 2)))
+        base.geometry?.firstMaterial = body
+        base.position.y = -height / 2 + baseHeight / 2
+        shell.addChildNode(base)
+
+        let hinge = SCNNode()
+        hinge.position = SCNVector3(0, seam, -depth / 2)
+        let lid = SCNNode(geometry: SCNBox(width: width, height: lidHeight, length: depth,
+                                           chamferRadius: min(chamfer, lidHeight / 2)))
+        lid.name = "lid"
+        lid.geometry?.firstMaterial = body
+        lid.position = SCNVector3(0, lidHeight / 2 + 0.004, depth / 2)
+        hinge.addChildNode(lid)
+        shell.addChildNode(hinge)
+
+        // The dark bud wells, seen once the lid is up.
+        let well = SCNNode(geometry: SCNPlane(width: width * 0.78, height: depth * 0.62))
+        well.geometry?.firstMaterial = material(NSColor(white: 0.06, alpha: 1), roughness: 0.9)
+        well.eulerAngles.x = -.pi / 2
+        well.position.y = seam + 0.002
+        shell.addChildNode(well)
+
+        let open = SCNAction.rotateTo(x: -1.75, y: 0, z: 0, duration: 0.55)
+        // Snaps past the detent, then eases back onto it like a magnet-held lid.
+        open.timingFunction = { t in 1 + 2.6 * pow(t - 1, 3) + 1.6 * pow(t - 1, 2) }
+        hinge.runAction(.sequence([.wait(duration: 0.3), open]))
 
         let led = SCNNode(geometry: SCNSphere(radius: 0.016))
         led.geometry?.firstMaterial = unlit(NSColor(red: 0.45, green: 1, blue: 0.55, alpha: 1))
-        // Below a high seam, above a low one: either way on the flat front.
-        led.position = SCNVector3(0, seam > 0 ? seam - 0.07 : seam + 0.06, depth / 2 + 0.003)
+        // Mid-height on the base's flat front, so it stays put as the lid lifts.
+        led.position = SCNVector3(0, -height / 2 + baseHeight / 2, depth / 2 + 0.003)
         // Breathes like a case that has just been opened.
         let dim = SCNAction.fadeOpacity(to: 0.35, duration: 1)
         dim.timingMode = .easeInEaseOut
@@ -334,13 +393,27 @@ enum DeviceModels {
         return bud
     }
 
-    private static func material(_ color: Any, metalness: CGFloat = 0, roughness: CGFloat) -> SCNMaterial {
+    private static func material(_ color: Any, metalness: CGFloat = 0, roughness: CGFloat,
+                                 clearCoat: CGFloat = 0) -> SCNMaterial {
         let material = SCNMaterial()
         material.lightingModel = .physicallyBased
         material.diffuse.contents = color
         material.metalness.contents = metalness
         material.roughness.contents = roughness
+        // A lacquer layer over the base colour: how glossy plastic actually catches light.
+        material.clearCoat.contents = clearCoat
+        material.clearCoatRoughness.contents = 0.05
         return material
+    }
+
+    /// The perforated mic mesh at a stem's foot.
+    private static func meshGrille(_ tint: NSColor) -> SCNMaterial {
+        let grille = material(DeviceTextures.perforation, metalness: 0.6, roughness: 0.5)
+        grille.multiply.contents = tint
+        grille.diffuse.wrapS = .repeat
+        grille.diffuse.wrapT = .repeat
+        grille.diffuse.contentsTransform = SCNMatrix4MakeScale(6, 6, 1)
+        return grille
     }
 
     private static func unlit(_ contents: Any) -> SCNMaterial {
