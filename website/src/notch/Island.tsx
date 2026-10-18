@@ -13,6 +13,9 @@ const OPEN = { w: 640, h: 196 };
 const CLOSED_H = 32;
 // Same feel as Visor's default: open on hover, close shortly after the pointer leaves.
 const CLOSE_DELAY_MS = 350;
+// One trackpad swipe sends a burst of wheel events; this keeps it to one gesture.
+const GESTURE_GAP_MS = 450;
+const GESTURE_MIN = 15;
 
 const tabs: { id: Tab; label: string; path: string }[] = [
   { id: 'home', label: 'Home', path: 'M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z' },
@@ -54,6 +57,7 @@ export function Island() {
   const hoverOpen = useSettings((s) => s.hoverOpen);
   const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const ref = useRef<HTMLDivElement>(null);
+  const lastGesture = useRef(0);
 
   // Touch and keyboard never fire pointerleave, so a tap outside or Escape closes it too.
   useEffect(() => {
@@ -81,6 +85,18 @@ export function Island() {
     closeTimer.current = setTimeout(() => setOpen(false), CLOSE_DELAY_MS);
   };
 
+  // Visor's gestures: scroll down to open, up to close, sideways on the closed notch to change track.
+  const gesture = (e: React.WheelEvent) => {
+    if (locked || e.timeStamp - lastGesture.current < GESTURE_GAP_MS) return;
+    const sideways = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+    let done = true;
+    if (sideways && !open && Math.abs(e.deltaX) > GESTURE_MIN) useNotch.getState().skip(e.deltaX > 0 ? 1 : -1);
+    else if (!sideways && !open && e.deltaY > GESTURE_MIN) setOpen(true);
+    else if (!sideways && open && e.deltaY < -GESTURE_MIN) setOpen(false);
+    else done = false;
+    if (done) lastGesture.current = e.timeStamp;
+  };
+
   const size = open && !locked ? OPEN : { w: closedWidth(transient, locked, timer), h: CLOSED_H };
   return (
     <div
@@ -90,6 +106,7 @@ export function Island() {
       style={{ width: size === OPEN ? size.w : `min(${size.w}px, 100vw - 220px)`, height: size.h, '--accent': accent } as React.CSSProperties}
       onPointerEnter={(e) => hoverOpen && e.pointerType === 'mouse' && enter()}
       onPointerLeave={(e) => e.pointerType === 'mouse' && leave()}
+      onWheel={gesture}
       // Dragging a file toward the notch opens the shelf to catch it, as in Visor.
       onDragOver={(e) => {
         if (locked || !e.dataTransfer.types.includes('Files')) return;
