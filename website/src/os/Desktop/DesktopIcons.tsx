@@ -28,7 +28,9 @@ function launch(target: Item['open']) {
   else window.open(target, '_blank', 'noopener');
 }
 
-// Single click selects, double click (or Enter) opens, as in Finder.
+// Single click selects, double click (or Enter) opens, as in Finder. A tap opens, since touch has no double click.
+export const isTap = (e: React.MouseEvent) => e.nativeEvent instanceof PointerEvent && e.nativeEvent.pointerType === 'touch';
+
 export function DesktopIcons() {
   const [selected, setSelected] = useState<string | null>(null);
   return (
@@ -37,7 +39,7 @@ export function DesktopIcons() {
         <li key={it.name}>
           <button
             className={selected === it.name ? 'is-selected' : ''}
-            onClick={() => setSelected(it.name)}
+            onClick={(e) => (isTap(e) ? launch(it.open) : setSelected(it.name))}
             onDoubleClick={() => launch(it.open)}
             onKeyDown={(e) => e.key === 'Enter' && launch(it.open)}
             onBlur={() => setSelected((s) => (s === it.name ? null : s))}

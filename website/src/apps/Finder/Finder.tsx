@@ -4,6 +4,7 @@ import file from '../../icons/apps/file.webp';
 import folder from '../../icons/apps/folder.webp';
 import { links } from '../../links';
 import { openNote } from '../Notes/Notes';
+import { isTap } from '../../os/Desktop/DesktopIcons';
 import { useWindows } from '../../store/windows';
 import './Finder.css';
 
@@ -56,7 +57,7 @@ export function Finder() {
         <ul className="finder-grid">
           {places[place].map((e) => (
             <li key={e.name}>
-              <button className={selected === e.name ? 'is-selected' : ''} onClick={() => setSelected(e.name)} onDoubleClick={e.open} onKeyDown={(k) => k.key === 'Enter' && e.open()}>
+              <button className={selected === e.name ? 'is-selected' : ''} onClick={(c) => (isTap(c) ? e.open() : setSelected(e.name))} onDoubleClick={e.open} onKeyDown={(k) => k.key === 'Enter' && e.open()}>
                 <img src={e.icon} alt="" width={56} height={56} />
                 <span>{e.name}</span>
               </button>
