@@ -21,3 +21,13 @@ export function syncTitle() {
     document.title = s.focused ? `${apps[s.focused].name} — Visor` : home;
   });
 }
+
+// Deep links: /#music, /#terminal and so on open that app, so a shared link lands on the right window.
+export function openFromHash() {
+  const go = () => {
+    const id = decodeURIComponent(location.hash.slice(1)).toLowerCase();
+    if (Object.hasOwn(apps, id)) useWindows.getState().open(id as keyof typeof apps);
+  };
+  go();
+  window.addEventListener('hashchange', go);
+}
