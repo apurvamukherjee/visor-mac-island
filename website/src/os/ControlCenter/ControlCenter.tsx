@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { useNotch, type Hud } from '../../notch/store';
 import { trackAt } from '../../notch/tracks';
+import { autoIndex, wallpaperAt, wallpaperUrl } from '../Wallpaper/wallpapers';
 import { useLock } from '../../store/lock';
 import { useSettings } from '../../store/settings';
 import { useWindows } from '../../store/windows';
@@ -54,12 +55,22 @@ function Slider({ label, value, onChange, min, max, className = '', children }: 
 
 export function ControlCenter({ onClose }: { onClose: () => void }) {
   const { dim, volume, backlight, appearance, wifi, bluetooth, set } = useSettings();
-  const { track, playing, togglePlay, skip, flash, setTab } = useNotch();
+  const { track, playing, togglePlay, skip, flash, setTab, addToShelf } = useNotch();
   const [shot, setShot] = useState(0);
   const t = trackAt(track);
 
   const hud = (kind: Hud, value: number) => flash({ kind: 'hud', hud: kind, value });
-  const takeScreenshot = () => setShot((n) => n + 1);
+  // Visor catches each new screenshot on the shelf; the "screenshot" is the wallpaper on screen.
+  const takeScreenshot = () => {
+    setShot((n) => n + 1);
+    const now = new Date();
+    const wall = useSettings.getState().wallpaper;
+    const name = `Screenshot ${now.toLocaleDateString('en-CA')} at ${now.toLocaleTimeString('en-GB').replaceAll(':', '.')}.png`;
+    setTimeout(() => {
+      onClose();
+      addToShelf([{ name, icon: wallpaperUrl(wallpaperAt(wall === 'auto' ? autoIndex() : wall)), thumb: true }]);
+    }, 450);
+  };
 
   return (
     <div className="cc" role="dialog" aria-label="Control Center">
