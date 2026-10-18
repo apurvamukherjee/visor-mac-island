@@ -45,7 +45,8 @@ export function LockScreen() {
   useEffect(() => {
     if (!locked || !ready) return;
     const leave = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab') setLeaving(true);
+      // Auto-repeat from a held ⌃⌘Q would unlock the moment it locked.
+      if (e.key !== 'Tab' && !e.repeat) setLeaving(true);
     };
     window.addEventListener('keydown', leave);
     return () => window.removeEventListener('keydown', leave);
