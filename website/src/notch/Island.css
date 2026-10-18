@@ -6,7 +6,8 @@
   background: #000; color: #fff; border-radius: 0 0 12px 12px;
   transition: width 0.45s var(--ease), height 0.45s var(--ease), border-radius 0.45s var(--ease), box-shadow 0.3s;
 }
-.island.is-open { border-radius: 0 0 26px 26px; box-shadow: 0 12px 40px rgb(0 0 0 / 0.45); }
+/* Visor's glow: the open island picks up a soft halo in the accent color. */
+.island.is-open { border-radius: 0 0 26px 26px; box-shadow: 0 12px 40px rgb(0 0 0 / 0.45), 0 6px 34px color-mix(in srgb, var(--accent) 38%, transparent); }
 
 /* The concave "ears" where the notch meets the top edge of the screen. */
 .island::before, .island::after {
