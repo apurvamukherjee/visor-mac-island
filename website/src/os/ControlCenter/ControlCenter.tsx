@@ -54,10 +54,8 @@ function Slider({ label, value, onChange, min, max, className = '', children }: 
 }
 
 export function ControlCenter({ onClose }: { onClose: () => void }) {
-  const { dim, volume, backlight, appearance, set } = useSettings();
+  const { dim, volume, backlight, appearance, wifi, bluetooth, set } = useSettings();
   const { track, playing, togglePlay, skip, flash, setTab } = useNotch();
-  const [wifi, setWifi] = useState(true);
-  const [bluetooth, setBluetooth] = useState(true);
   const [shot, setShot] = useState(0);
   const t = trackAt(track);
 
@@ -68,7 +66,7 @@ export function ControlCenter({ onClose }: { onClose: () => void }) {
     <div className="cc" role="dialog" aria-label="Control Center">
       {shot > 0 && <div key={shot} className="cc-flash" aria-hidden />}
       <div className="cc-grid">
-        <Pill label="Wi-Fi" sub={wifi ? 'Home' : 'Off'} on={wifi} icon={icons.wifi} onClick={() => setWifi(!wifi)} />
+        <Pill label="Wi-Fi" sub={wifi ? 'Home' : 'Off'} on={wifi} icon={icons.wifi} onClick={() => set({ wifi: !wifi })} />
         <div className="cc-glass cc-media">
           <img src={apps.music.icon} alt="" width={52} height={52} />
           <b>{t.title}</b>
@@ -79,7 +77,7 @@ export function ControlCenter({ onClose }: { onClose: () => void }) {
             <button aria-label="Next track" onClick={() => skip(1)}>{icons.next}</button>
           </div>
         </div>
-        <Pill label="Bluetooth" sub={bluetooth ? 'On' : 'Off'} on={bluetooth} icon={icons.bluetooth} onClick={() => setBluetooth(!bluetooth)} />
+        <Pill label="Bluetooth" sub={bluetooth ? 'On' : 'Off'} on={bluetooth} icon={icons.bluetooth} onClick={() => set({ bluetooth: !bluetooth })} />
         <Pill label="AirDrop" sub="Off" on={false} icon={icons.airdropOff} chevron onClick={() => { setTab('shelf'); onClose(); }} />
         <Round label="Screenshot" icon={icons.screenshot} onClick={takeScreenshot} />
         <Round label="Screen Mirroring" icon={icons.mirroring} onClick={() => void (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen())} />

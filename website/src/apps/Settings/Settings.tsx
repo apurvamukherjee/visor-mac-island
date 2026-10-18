@@ -22,9 +22,8 @@ function Switch({ on, onChange, label }: { on: boolean; onChange: (v: boolean) =
 export function Settings() {
   const [pane, setPane] = useState<Pane>('Appearance');
   const [query, setQuery] = useState('');
-  const [wifi, setWifi] = useState(true);
-  const [bt, setBt] = useState(true);
   const st = useSettings();
+  const { wifi, bluetooth: bt } = st;
   const shown = panes.filter(([p]) => p.toLowerCase().includes(query.toLowerCase()));
 
   return (
@@ -39,9 +38,9 @@ export function Settings() {
       <main className="set-main">
         <h2>{pane}</h2>
         <div className="set-group">
-          {pane === 'Wi-Fi' && <Row label="Wi-Fi"><Switch on={wifi} onChange={setWifi} label="Wi-Fi" /></Row>}
+          {pane === 'Wi-Fi' && <Row label="Wi-Fi"><Switch on={wifi} onChange={(v) => st.set({ wifi: v })} label="Wi-Fi" /></Row>}
           {pane === 'Wi-Fi' && wifi && <Row label="Home"><small>Connected</small></Row>}
-          {pane === 'Bluetooth' && <Row label="Bluetooth"><Switch on={bt} onChange={setBt} label="Bluetooth" /></Row>}
+          {pane === 'Bluetooth' && <Row label="Bluetooth"><Switch on={bt} onChange={(v) => st.set({ bluetooth: v })} label="Bluetooth" /></Row>}
           {pane === 'Bluetooth' && bt && <Row label="AirPods"><small>Not connected</small></Row>}
           {pane === 'Appearance' && (
             <>

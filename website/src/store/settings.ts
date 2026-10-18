@@ -9,6 +9,8 @@ interface Settings {
   appearance: 'light' | 'dark';
   accent: string;
   hoverOpen: boolean;
+  wifi: boolean;
+  bluetooth: boolean;
   set: (patch: Partial<Omit<Settings, 'set'>>) => void;
 }
 
@@ -22,6 +24,8 @@ export const useSettings = create<Settings>()(
       appearance: 'light',
       accent: '#ff2d55',
       hoverOpen: true,
+      wifi: true,
+      bluetooth: true,
       set: (patch) => set(patch),
     }),
     { name: 'visor-site-settings' },

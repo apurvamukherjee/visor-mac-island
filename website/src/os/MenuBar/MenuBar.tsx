@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { apps } from '../../apps/apps';
 import { useBattery } from '../../store/battery';
+import { useSettings } from '../../store/settings';
 import { useWindows } from '../../store/windows';
 import { ControlCenter } from '../ControlCenter/ControlCenter';
 import { useNow } from '../useNow';
@@ -111,6 +112,7 @@ function Dropdown({ menu, label, bold, isOpen, anyOpen, onOpen }: DropdownProps)
 export function MenuBar() {
   const [open, setOpen] = useState<string | null>(null);
   const focused = useWindows((s) => s.focused);
+  const wifiOn = useSettings((s) => s.wifi);
   const appName = focused ? apps[focused].name : 'Visor';
   const props = (menu: Menu) => ({ menu, isOpen: open === menu.label, anyOpen: open !== null, onOpen: setOpen });
 
@@ -126,7 +128,7 @@ export function MenuBar() {
         </nav>
         <div className="menubar-right">
           <BatteryStatus />
-          <span className="menubar-status" aria-hidden>{wifi}</span>
+          <span className="menubar-status" aria-hidden style={{ opacity: wifiOn ? 1 : 0.35 }}>{wifi}</span>
           <div className="menubar-menu">
             <button className={`menubar-item${open === 'cc' ? ' is-open' : ''}`} aria-label="Control Center" aria-expanded={open === 'cc'} onClick={() => setOpen(open === 'cc' ? null : 'cc')}>
               {controlCenter}
