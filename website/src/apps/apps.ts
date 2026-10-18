@@ -28,46 +28,43 @@ import zoom from '../icons/apps/zoom.svg';
 
 const visor = `${import.meta.env.BASE_URL}icon.png`;
 
-export type Category = 'Visor' | 'Social' | 'Productivity' | 'Entertainment' | 'Utilities' | 'Developer';
-
 export interface AppMeta {
   name: string;
   icon: string;
   w: number;
   h: number;
-  category: Category;
   dark?: boolean;
 }
 
 const meta = {
-  finder: { name: 'Finder', icon: finder, w: 720, h: 440, category: 'Utilities' },
-  launchpad: { name: 'Apps', icon: launchpad, w: 0, h: 0, category: 'Utilities' },
-  messages: { name: 'Messages', icon: messages, w: 680, h: 480, category: 'Social' },
-  facetime: { name: 'FaceTime', icon: facetime, w: 560, h: 420, category: 'Social', dark: true },
-  visor: { name: 'Visor', icon: visor, w: 780, h: 540, category: 'Visor' },
-  github: { name: 'GitHub', icon: github, w: 900, h: 580, category: 'Developer' },
-  music: { name: 'Music', icon: music, w: 620, h: 420, category: 'Entertainment' },
-  maps: { name: 'Maps', icon: maps, w: 720, h: 480, category: 'Utilities' },
-  appstore: { name: 'App Store', icon: appstore, w: 900, h: 580, category: 'Visor' },
-  notes: { name: 'Notes', icon: notes, w: 740, h: 500, category: 'Productivity' },
-  safari: { name: 'Safari', icon: safari, w: 980, h: 620, category: 'Productivity' },
-  downloads: { name: 'Downloads', icon: downloads, w: 460, h: 470, category: 'Visor' },
-  claude: { name: 'Claude', icon: claude, w: 520, h: 400, category: 'Productivity' },
-  settings: { name: 'System Settings', icon: settings, w: 720, h: 500, category: 'Utilities' },
-  xcode: { name: 'Xcode', icon: xcode, w: 680, h: 460, category: 'Developer' },
-  terminal: { name: 'Terminal', icon: terminal, w: 640, h: 400, category: 'Developer', dark: true },
-  whatsapp: { name: 'WhatsApp', icon: whatsapp, w: 640, h: 460, category: 'Social' },
-  x: { name: 'X', icon: x, w: 560, h: 420, category: 'Social', dark: true },
-  chrome: { name: 'Google Chrome', icon: chrome, w: 560, h: 400, category: 'Productivity' },
-  zoom: { name: 'Zoom', icon: zoom, w: 520, h: 380, category: 'Social' },
-  meet: { name: 'Google Meet', icon: meet, w: 520, h: 380, category: 'Social' },
-  photos: { name: 'Photos', icon: photos, w: 760, h: 500, category: 'Entertainment' },
-  weather: { name: 'Weather', icon: weather, w: 440, h: 460, category: 'Utilities' },
-  clock: { name: 'Clock', icon: clock, w: 640, h: 420, category: 'Utilities', dark: true },
-  calendar: { name: 'Calendar', icon: calendar, w: 760, h: 520, category: 'Productivity' },
-  preview: { name: 'Preview', icon: preview, w: 720, h: 560, category: 'Productivity' },
-  quicktime: { name: 'QuickTime Player', icon: quicktime, w: 660, h: 440, category: 'Entertainment', dark: true },
-  trash: { name: 'Trash', icon: trash, w: 520, h: 320, category: 'Utilities' },
+  finder: { name: 'Finder', icon: finder, w: 720, h: 440 },
+  launchpad: { name: 'Apps', icon: launchpad, w: 0, h: 0 },
+  messages: { name: 'Messages', icon: messages, w: 680, h: 480 },
+  facetime: { name: 'FaceTime', icon: facetime, w: 560, h: 420, dark: true },
+  visor: { name: 'Visor', icon: visor, w: 780, h: 540 },
+  github: { name: 'GitHub', icon: github, w: 900, h: 580 },
+  music: { name: 'Music', icon: music, w: 620, h: 420 },
+  maps: { name: 'Maps', icon: maps, w: 720, h: 480 },
+  appstore: { name: 'App Store', icon: appstore, w: 900, h: 580 },
+  notes: { name: 'Notes', icon: notes, w: 740, h: 500 },
+  safari: { name: 'Safari', icon: safari, w: 980, h: 620 },
+  downloads: { name: 'Downloads', icon: downloads, w: 460, h: 470 },
+  claude: { name: 'Claude', icon: claude, w: 520, h: 400 },
+  settings: { name: 'System Settings', icon: settings, w: 720, h: 500 },
+  xcode: { name: 'Xcode', icon: xcode, w: 680, h: 460 },
+  terminal: { name: 'Terminal', icon: terminal, w: 640, h: 400, dark: true },
+  whatsapp: { name: 'WhatsApp', icon: whatsapp, w: 640, h: 460 },
+  x: { name: 'X', icon: x, w: 560, h: 420, dark: true },
+  chrome: { name: 'Google Chrome', icon: chrome, w: 560, h: 400 },
+  zoom: { name: 'Zoom', icon: zoom, w: 520, h: 380 },
+  meet: { name: 'Google Meet', icon: meet, w: 520, h: 380 },
+  photos: { name: 'Photos', icon: photos, w: 760, h: 500 },
+  weather: { name: 'Weather', icon: weather, w: 440, h: 460 },
+  clock: { name: 'Clock', icon: clock, w: 640, h: 420, dark: true },
+  calendar: { name: 'Calendar', icon: calendar, w: 760, h: 520 },
+  preview: { name: 'Preview', icon: preview, w: 720, h: 560 },
+  quicktime: { name: 'QuickTime Player', icon: quicktime, w: 660, h: 440, dark: true },
+  trash: { name: 'Trash', icon: trash, w: 520, h: 320 },
 } satisfies Record<string, AppMeta>;
 
 export type AppId = keyof typeof meta;
