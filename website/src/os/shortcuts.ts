@@ -16,6 +16,10 @@ export function installShortcuts() {
     } else if (e.metaKey && e.shiftKey && key === 'h') {
       e.preventDefault();
       useNotch.getState().flash({ kind: 'peek' }, 2500);
+    } else if (key === ' ' && document.activeElement === document.body) {
+      // Space plays and pauses like a media key, but only when no button or field would take it.
+      e.preventDefault();
+      useNotch.getState().togglePlay();
     }
   });
 }
