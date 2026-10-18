@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { links } from '../../links';
-import { run } from './commands';
+import { complete, run } from './commands';
 
 test('opens apps by id or display name, case-insensitively', () => {
   expect(run('open notes', '1.0').effect).toEqual({ kind: 'open', app: 'notes' });
@@ -18,4 +18,11 @@ test('unknown commands and blank input', () => {
   expect(run('rm -rf /', '1.0').lines[0]).toBe('zsh: command not found: rm');
   expect(run('', '1.0')).toEqual({ lines: [] });
   expect(run('version', '3.4.0').lines).toEqual(['Visor 3.4.0']);
+});
+
+test('tab completes one match and leaves ambiguity alone', () => {
+  expect(complete('neo')).toBe('neofetch ');
+  expect(complete('open ter')).toBe('open terminal');
+  expect(complete('c')).toBe('c');
+  expect(complete('open zz')).toBe('open zz');
 });

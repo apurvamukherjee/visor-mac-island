@@ -24,6 +24,21 @@ const HELP: [string, string][] = [
   ['clear', 'wipe the screen'],
 ];
 
+const COMMANDS = HELP.map(([c]) => c.split(' ')[0] ?? c);
+
+// Tab completes a command, or the app after `open`, when exactly one matches, as zsh does.
+export function complete(input: string): string {
+  const open = /^open\s+(\S*)$/i.exec(input);
+  if (open) {
+    const q = (open[1] ?? '').toLowerCase();
+    const hits = (Object.keys(apps) as AppId[]).filter((id) => id.startsWith(q));
+    return hits.length === 1 ? `open ${hits[0]}` : input;
+  }
+  if (/\s/.test(input)) return input;
+  const hits = COMMANDS.filter((c) => c.startsWith(input.toLowerCase()));
+  return hits.length === 1 ? `${hits[0]} ` : input;
+}
+
 function cowsay(text: string) {
   const t = text || 'moo';
   return [` ${'_'.repeat(t.length + 2)}`, `< ${t} >`, ` ${'-'.repeat(t.length + 2)}`, '        \\   ^__^', '         \\  (oo)\\_______', '            (__)\\       )\\/\\', '                ||----w |', '                ||     ||'];

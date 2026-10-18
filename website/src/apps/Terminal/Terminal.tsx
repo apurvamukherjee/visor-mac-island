@@ -1,6 +1,6 @@
 import { useRef, useState, type KeyboardEvent } from 'react';
 import { useWindows } from '../../store/windows';
-import { run } from './commands';
+import { complete, run } from './commands';
 import './Terminal.css';
 
 const PROMPT = 'visitor@visorbook ~ %';
@@ -33,6 +33,19 @@ export function Terminal() {
 
   const onKey = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') return submit();
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      return setInput(complete(input));
+    }
+    if (e.ctrlKey && e.key === 'l') {
+      e.preventDefault();
+      return setEntries([]);
+    }
+    if (e.ctrlKey && e.key === 'c') {
+      e.preventDefault();
+      setEntries((list) => [...list, { input: `${input}^C`, lines: [] }]);
+      return setInput('');
+    }
     if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
     e.preventDefault();
     const next = Math.max(-1, Math.min(history.length - 1, cursor + (e.key === 'ArrowUp' ? 1 : -1)));
