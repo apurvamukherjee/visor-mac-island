@@ -49,3 +49,4 @@
   .dock-item { transition: none; }
   .dock-button.is-bouncing { animation: none; }
 }
+.desktop.is-dark .dock::before { background: rgb(30 30 34 / 0.45); box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.18), 0 10px 30px rgb(0 0 0 / 0.35); }
