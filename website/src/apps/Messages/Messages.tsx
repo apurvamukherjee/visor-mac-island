@@ -13,6 +13,7 @@ export function Messages() {
   const [bubbles, setBubbles] = useState<Bubble[]>(hello);
   const [typing, setTyping] = useState(false);
   const end = useRef<HTMLDivElement>(null);
+  const asked = new Set(bubbles.filter((b) => b.from === 'me').map((b) => b.text));
   const scroll = () => requestAnimationFrame(() => end.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }));
 
   const ask = (q: string, a: string) => {
@@ -44,7 +45,7 @@ export function Messages() {
           <div ref={end} />
         </div>
         <div className="messages-chips">
-          {faq.map((f) => <button key={f.q} onClick={() => ask(f.q, f.a)}>{f.q}</button>)}
+          {faq.map((f) => <button key={f.q} className={asked.has(f.q) ? 'is-asked' : ''} disabled={typing} onClick={() => ask(f.q, f.a)}>{f.q}</button>)}
         </div>
       </div>
     </div>

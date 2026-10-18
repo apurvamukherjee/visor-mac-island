@@ -22,3 +22,6 @@
 .messages-chips button { padding: 5px 11px; border: 1px solid rgb(10 132 255 / 0.4); border-radius: 999px; background: none; color: #0a84ff; font: inherit; font-size: 12px; cursor: pointer; }
 .messages-chips button:hover { background: rgb(10 132 255 / 0.08); }
 @media (max-width: 600px) { .messages-list { display: none; } }
+/* Questions already answered fade back, and none can be sent while Visor is typing. */
+.messages-chips button.is-asked { opacity: 0.5; }
+.messages-chips button:disabled { cursor: progress; }
