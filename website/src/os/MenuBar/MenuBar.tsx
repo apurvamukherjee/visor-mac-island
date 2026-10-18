@@ -50,7 +50,7 @@ function Clock() {
   const now = useNow();
   const date = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   const time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-  return <time className="menubar-status" dateTime={now.toISOString()}>{date}&nbsp;&nbsp;{time}</time>;
+  return <time className="menubar-status" dateTime={now.toISOString()}><span className="menubar-date">{date}&nbsp;&nbsp;</span>{time}</time>;
 }
 
 interface DropdownProps {

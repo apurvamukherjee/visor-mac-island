@@ -44,8 +44,12 @@
 .menubar-sep { height: 1px; margin: 5px 10px; background: rgb(0 0 0 / 0.12); }
 
 @media (max-width: 768px) {
-  .menubar-menu:nth-child(n + 3) { display: none; }
+  .menubar-left .menubar-menu:nth-child(n + 3) { display: none; }
   .menubar-right .menubar-status:not(time) { display: none; }
+}
+/* On a phone the notch takes the middle of the bar; keep only what fits beside it. */
+@media (max-width: 600px) {
+  .menubar-left .menubar-menu:nth-child(n + 2), .menubar-date { display: none; }
 }
 
 .desktop.is-dark .menubar-dropdown { background: rgb(40 40 44 / 0.82); color: #f4f4f5; }

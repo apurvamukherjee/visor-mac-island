@@ -85,7 +85,8 @@ export function Island() {
     <div
       ref={ref}
       className={`island${open ? ' is-open' : ''}`}
-      style={{ width: size.w, height: size.h, '--accent': accent } as React.CSSProperties}
+      // Closed, it leaves room either side for the menu bar's Apple menu, Control Center and clock on a phone.
+      style={{ width: size === OPEN ? size.w : `min(${size.w}px, 100vw - 220px)`, height: size.h, '--accent': accent } as React.CSSProperties}
       onPointerEnter={(e) => hoverOpen && e.pointerType === 'mouse' && enter()}
       onPointerLeave={(e) => e.pointerType === 'mouse' && leave()}
     >
