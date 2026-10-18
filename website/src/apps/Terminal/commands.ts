@@ -86,7 +86,11 @@ export function run(input: string, version: string): Result {
     case 'cowsay':
       return { lines: cowsay(arg) };
     case 'sudo':
+      // xkcd 149.
+      if (arg.toLowerCase() === 'make me a sandwich') return { lines: ['Okay.'] };
       return { lines: ['visitor is not in the sudoers file. This incident will be reported.'] };
+    case 'make':
+      return { lines: [arg.toLowerCase() === 'me a sandwich' ? 'What? Make it yourself.' : `make: *** No rule to make target '${arg || 'all'}'.  Stop.`] };
     case 'whoami':
       return { lines: ['visitor'] };
     case 'echo':

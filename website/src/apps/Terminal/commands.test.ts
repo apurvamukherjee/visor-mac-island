@@ -26,3 +26,8 @@ test('tab completes one match and leaves ambiguity alone', () => {
   expect(complete('c')).toBe('c');
   expect(complete('open zz')).toBe('open zz');
 });
+
+test('easter egg: the sandwich needs sudo', () => {
+  expect(run('make me a sandwich', '1.0').lines).toEqual(['What? Make it yourself.']);
+  expect(run('sudo make me a sandwich', '1.0').lines).toEqual(['Okay.']);
+});
