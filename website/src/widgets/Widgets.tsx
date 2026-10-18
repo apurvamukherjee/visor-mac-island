@@ -9,7 +9,7 @@ import { useNow } from '../os/useNow';
 import { batteryColor, useBattery } from '../store/battery';
 import { useLock } from '../store/lock';
 import { useWindows } from '../store/windows';
-import { CITY, describe, useWeather } from './weather';
+import { CITY, describe, tempLabel, useWeather } from './weather';
 import { offsetLabel, zoned } from './zones';
 import './Widgets.css';
 
@@ -57,7 +57,7 @@ function WeatherWidget() {
   return (
     <button className="widget widget-small widget-weather" onClick={() => open('weather')}>
       <b>{CITY.name}</b>
-      <span className="widget-weather-temp">{data ? `${Math.round(data.temp)}°` : isError ? '—' : '…'}</span>
+      <span className="widget-weather-temp">{tempLabel(data, isError)}</span>
       {d && data && (
         <>
           <span>{d.icon}</span>

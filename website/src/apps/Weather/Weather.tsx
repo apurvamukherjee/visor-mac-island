@@ -1,4 +1,4 @@
-import { CITY, describe, useWeather } from '../../widgets/weather';
+import { CITY, describe, tempLabel, useWeather } from '../../widgets/weather';
 import './Weather.css';
 
 export function Weather() {
@@ -8,7 +8,7 @@ export function Weather() {
     <div className="weather-app">
       <span className="weather-pin">📍 Where Visor is made</span>
       <h1>{CITY.name}</h1>
-      <div className="weather-temp">{data ? `${Math.round(data.temp)}°` : isError ? '—' : '…'}</div>
+      <div className="weather-temp">{tempLabel(data, isError)}</div>
       {d && data && (
         <>
           <p className="weather-cond">{d.icon} {d.text}</p>

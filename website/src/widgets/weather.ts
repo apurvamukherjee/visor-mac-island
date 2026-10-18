@@ -32,6 +32,8 @@ export async function fetchWeather(): Promise<Weather> {
   return parseWeather(await res.json());
 }
 
+export const tempLabel = (data: Weather | undefined, isError: boolean) => (data ? `${Math.round(data.temp)}°` : isError ? '—' : '…');
+
 export const useWeather = () => useQuery({ queryKey: ['weather', CITY.name], queryFn: fetchWeather, staleTime: 15 * 60_000 });
 
 // WMO weather interpretation codes, grouped the way the Weather app words them.
