@@ -1,4 +1,5 @@
 import { useEffect, useState, type AnimationEvent } from 'react';
+import { inline } from '../../apps/markdown';
 import { Cover } from '../../notch/Cover';
 import { useNotch } from '../../notch/store';
 import { trackAt } from '../../notch/tracks';
@@ -79,6 +80,16 @@ export function LockScreen() {
           <button aria-label="Previous track" onClick={() => skip(-1)}>⏮</button>
           <button aria-label={playing ? 'Pause' : 'Play'} onClick={togglePlay}>{playing ? '⏸' : '▶'}</button>
           <button aria-label="Next track" onClick={() => skip(1)}>⏭</button>
+        </div>
+      )}
+      {!welcome && (
+        <div className="lock-note">
+          <img src={`${import.meta.env.BASE_URL}icon.png`} alt="" width={34} height={34} />
+          <span>
+            <b>Visor {__RELEASE__.version} is out</b>
+            <small>{inline(__RELEASE__.notes[0] ?? 'Download it from GitHub.')}</small>
+          </span>
+          <time>now</time>
         </div>
       )}
       <div className="lock-user">

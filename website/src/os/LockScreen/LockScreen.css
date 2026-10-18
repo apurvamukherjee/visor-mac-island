@@ -20,6 +20,17 @@
 .lock-player small { opacity: 0.7; }
 .lock-player button { border: 0; background: none; color: #fff; font-size: 18px; cursor: pointer; }
 .lock-player .cover > img:first-child { border-radius: 9px; }
+.lock-note {
+  display: flex; align-items: flex-start; gap: 10px; margin-top: 12px; padding: 10px 14px 10px 10px; width: min(380px, 90vw);
+  border-radius: 20px; background: rgb(255 255 255 / 0.16); box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.3); backdrop-filter: blur(20px);
+  font-size: 13px; animation: lock-in 0.4s 0.2s ease both;
+}
+.lock-note img { border-radius: 8px; }
+.lock-note span { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.lock-note small { opacity: 0.8; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.lock-note code { font-size: 11px; }
+.lock-note a { color: inherit; }
+.lock-note time { font-size: 11px; opacity: 0.6; }
 .lock-user { margin-top: auto; margin-bottom: 70px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .lock-avatar { border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px rgb(255 255 255 / 0.35), 0 6px 20px rgb(0 0 0 / 0.3); }
 .lock-user b { font-size: 16px; }
