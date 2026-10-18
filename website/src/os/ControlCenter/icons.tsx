@@ -32,3 +32,13 @@ export const icons = {
   pause: <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" aria-hidden><path d="M6 4h4v16H6zM14 4h4v16h-4z" /></svg>,
   chevron: svg(<path d="M9 6l6 6-6 6" />, 16),
 };
+
+// Visor's padlock; `open` swings the shackle up, animated by .closed-lock-shackle in Island.css.
+export function Padlock({ size, open = false }: { size: number; open?: boolean }) {
+  return (
+    <svg className={open ? 'is-open' : ''} viewBox="0 0 24 24" width={size} height={size} aria-hidden>
+      <path className="closed-lock-shackle" d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+      <rect x="5" y="11" width="14" height="10" rx="2.5" fill="currentColor" />
+    </svg>
+  );
+}

@@ -4,6 +4,7 @@ import { links } from '../links';
 import { Cover } from '../notch/Cover';
 import { useNotch } from '../notch/store';
 import { trackAt } from '../notch/tracks';
+import { Padlock } from '../os/ControlCenter/icons';
 import { useNow } from '../os/useNow';
 import { batteryColor, useBattery } from '../store/battery';
 import { useLock } from '../store/lock';
@@ -164,10 +165,7 @@ function StarWidget() {
 function LockWidget() {
   return (
     <button className="widget widget-wide widget-lock" onClick={() => useLock.getState().lock()}>
-      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
-        <path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-        <rect x="5" y="11" width="14" height="10" rx="2.5" fill="currentColor" />
-      </svg>
+      <Padlock size={18} />
       <span><b>Lock Screen</b><small>See Visor’s padlock in the notch</small></span>
       <kbd>⌃⌘Q</kbd>
     </button>

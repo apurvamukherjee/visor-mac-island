@@ -4,7 +4,7 @@ import { trackAt } from './tracks';
 import { batteryColor } from '../store/battery';
 import { useLock } from '../store/lock';
 import { useNow } from '../os/useNow';
-import { icons } from '../os/ControlCenter/icons';
+import { Padlock, icons } from '../os/ControlCenter/icons';
 
 const NOTCH_W = 200;
 
@@ -36,10 +36,7 @@ export function Closed() {
   if (locked || transient?.kind === 'unlock') {
     return (
       <div className="closed closed-lock" role="status" aria-label={locked ? 'Locked' : 'Unlocked'}>
-        <svg className={locked ? '' : 'is-open'} viewBox="0 0 24 24" width="16" height="16" aria-hidden>
-          <path className="closed-lock-shackle" d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" />
-          <rect x="5" y="11" width="14" height="10" rx="2.5" fill="#fff" />
-        </svg>
+        <Padlock size={16} open={!locked} />
       </div>
     );
   }
