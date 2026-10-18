@@ -15,12 +15,15 @@ function track(e: PointerEvent<HTMLElement>, onMove: (dx: number, dy: number) =>
   const sy = e.clientY;
   el.setPointerCapture(e.pointerId);
   const move = (ev: globalThis.PointerEvent) => onMove(ev.clientX - sx, ev.clientY - sy);
+  // A cancelled touch (a scroll or system gesture taking over) ends the drag too, or the window stays stuck to the finger.
   const up = () => {
     el.removeEventListener('pointermove', move);
     el.removeEventListener('pointerup', up);
+    el.removeEventListener('pointercancel', up);
   };
   el.addEventListener('pointermove', move);
   el.addEventListener('pointerup', up);
+  el.addEventListener('pointercancel', up);
 }
 
 export function Window({ id, children, title }: Props) {
