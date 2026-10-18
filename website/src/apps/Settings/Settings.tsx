@@ -80,6 +80,7 @@ export function Settings() {
           {pane === 'Visor' && (
             <>
               <Row label="Open the notch on hover"><Switch on={st.hoverOpen} onChange={(v) => st.set({ hoverOpen: v })} label="Open the notch on hover" /></Row>
+              <Row label="Vinyl mode"><Switch on={st.vinyl} onChange={(v) => st.set({ vinyl: v })} label="Vinyl mode" /></Row>
               <Row label="Shortcut"><small>⌘ ⇧ I</small></Row>
               <Row label="Get the real thing"><a className="app-btn is-primary" href={links.dmg}>Download Visor</a></Row>
             </>

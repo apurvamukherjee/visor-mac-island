@@ -11,6 +11,7 @@ interface Settings {
   hoverOpen: boolean;
   wifi: boolean;
   bluetooth: boolean;
+  vinyl: boolean;
   set: (patch: Partial<Omit<Settings, 'set'>>) => void;
 }
 
@@ -26,6 +27,7 @@ export const useSettings = create<Settings>()(
       hoverOpen: true,
       wifi: true,
       bluetooth: true,
+      vinyl: false,
       set: (patch) => set(patch),
     }),
     { name: 'visor-site-settings' },

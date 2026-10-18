@@ -1,7 +1,8 @@
+import { useSettings } from '../store/settings';
 import { Calendar } from './Calendar';
 import { useNotch } from './store';
 import { Cover } from './Cover';
-import { PREVIEW_S, formatTime, trackAt } from './tracks';
+import { PREVIEW_S, formatTime, trackAt, type Track } from './tracks';
 
 const icon = {
   prev: <path d="M11 6v12L2 12zM21 6v12l-9-6z" />,
@@ -18,12 +19,23 @@ function Control({ label, path, big, onClick }: { label: string; path: React.Rea
   );
 }
 
+// Visor's vinyl mode: the art becomes the label of a spinning record, and the tonearm drops on play.
+function Vinyl({ track, playing }: { track: Track; playing: boolean }) {
+  return (
+    <span className={`vinyl${playing ? ' is-playing' : ''}`}>
+      <span className="vinyl-disc"><img src={track.art} alt="" /></span>
+      <i className="vinyl-arm" aria-hidden />
+    </span>
+  );
+}
+
 export function Player() {
   const { track: index, playing, position, togglePlay, skip, seek } = useNotch();
   const track = trackAt(index);
+  const vinyl = useSettings((s) => s.vinyl);
   return (
     <div className="player">
-      <Cover track={track} size={118} badge />
+      {vinyl ? <Vinyl track={track} playing={playing} /> : <Cover track={track} size={118} badge />}
       <div className="player-main">
         <div className="player-title">{track.title}</div>
         <div className="player-artist">{track.artist}</div>
