@@ -4,6 +4,10 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.7.1 (build 52) · 2026-10-18
+
+- **A fresh build with the new website.** The app is the same as 3.7.0. The website that ships with it got a round of fixes and extras: a vinyl mode, real files on the shelf, notch gestures, media keys and a few hidden surprises.
+
 ## 3.7.0 (build 51) · 2026-10-18
 
 - **Screenshots land on the shelf.** New screenshots now show up in the notch's shelf as soon as they're saved, with no setup needed. If you'd turned this off before, it stays off; switch it on in Settings.
