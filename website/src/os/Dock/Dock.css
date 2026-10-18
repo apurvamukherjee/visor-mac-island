@@ -1,6 +1,6 @@
 .dock {
-  /* Icon size at rest, shrinking so all 23 fit on narrow screens. */
-  --w: min(52px, (100vw - 80px) / 23);
+  /* Icon size at rest, shrinking so all 22 fit on narrow screens. */
+  --w: min(52px, (100vw - 80px) / 22);
   --gap: 4px;
   position: fixed; left: 50%; bottom: 6px; transform: translateX(-50%); z-index: 9000;
 }
@@ -8,7 +8,7 @@
 /* The glass pill is sized from the resting icons, so magnifying never stretches it, as on macOS. */
 .dock::before {
   content: ''; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); z-index: -1;
-  width: calc(23 * (var(--w) + var(--gap)) + 21px); height: calc(var(--w) + 12px);
+  width: calc(22 * (var(--w) + var(--gap)) + 25px); height: calc(var(--w) + 12px);
   border-radius: 20px; background: rgb(255 255 255 / 0.18);
   backdrop-filter: blur(24px) saturate(1.6);
   box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.35), 0 10px 30px rgb(0 0 0 / 0.25);
