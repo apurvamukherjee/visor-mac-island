@@ -1,20 +1,14 @@
+import { icons } from '../os/ControlCenter/icons';
 import { useSettings } from '../store/settings';
 import { Calendar } from './Calendar';
 import { useNotch } from './store';
 import { Cover } from './Cover';
 import { PREVIEW_S, formatTime, trackAt, type Track } from './tracks';
 
-const icon = {
-  prev: <path d="M11 6v12L2 12zM21 6v12l-9-6z" />,
-  next: <path d="M3 6v12l9-6zM13 6v12l9-6z" />,
-  play: <path d="M7 4v16l13-8z" />,
-  pause: <path d="M6 4h4v16H6zM14 4h4v16h-4z" />,
-};
-
-function Control({ label, path, big, onClick }: { label: string; path: React.ReactNode; big?: boolean; onClick: () => void }) {
+function Control({ label, icon, big, onClick }: { label: string; icon: React.ReactNode; big?: boolean; onClick: () => void }) {
   return (
     <button className={`player-btn${big ? ' is-big' : ''}`} aria-label={label} onClick={onClick}>
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden>{path}</svg>
+      {icon}
     </button>
   );
 }
@@ -51,9 +45,9 @@ export function Player() {
         />
         <div className="player-times"><span>{formatTime(position)}</span><span>Preview · {formatTime(PREVIEW_S)}</span></div>
         <div className="player-controls">
-          <Control label="Previous track" path={icon.prev} onClick={() => skip(-1)} />
-          <Control label={playing ? 'Pause' : 'Play'} path={playing ? icon.pause : icon.play} big onClick={togglePlay} />
-          <Control label="Next track" path={icon.next} onClick={() => skip(1)} />
+          <Control label="Previous track" icon={icons.prev} onClick={() => skip(-1)} />
+          <Control label={playing ? 'Pause' : 'Play'} icon={playing ? icons.pause : icons.play} big onClick={togglePlay} />
+          <Control label="Next track" icon={icons.next} onClick={() => skip(1)} />
         </div>
       </div>
     </div>
