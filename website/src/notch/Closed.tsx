@@ -3,6 +3,7 @@ import { Cover, Visualizer } from './Cover';
 import { trackAt } from './tracks';
 import { useLock } from '../store/lock';
 import { useNow } from '../os/useNow';
+import { icons } from '../os/ControlCenter/icons';
 
 const NOTCH_W = 200;
 
@@ -12,7 +13,8 @@ export function closedWidth(transient: Transient | null, locked: boolean, timer:
   return { hud: 380, battery: 360, peek: 420, download: NOTCH_W + 90, join: 400, unlock: NOTCH_W + 70 }[transient.kind];
 }
 
-const hudIcon: Record<HudKind, string> = { volume: '🔊', brightness: '☀', backlight: '⌨' };
+// The same line icons as Control Center's sliders, so the HUD reads as part of the system.
+const hudIcon: Record<HudKind, React.ReactNode> = { volume: icons.speakerLoud, brightness: icons.sunLarge, backlight: icons.keyboardDim };
 
 function Hud({ hud, value }: { hud: HudKind; value: number }) {
   return (

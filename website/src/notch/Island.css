@@ -106,7 +106,8 @@
 @media (max-width: 680px) { .calendar { display: none; } }
 
 .closed-hud { gap: 12px; }
-.closed-hud-icon { width: 22px; text-align: center; font-size: 14px; }
+.closed-hud-icon { width: 22px; display: grid; place-items: center; }
+.closed-hud-icon svg { width: 18px; height: 18px; }
 .closed-hud-bar { width: 110px; height: 6px; border-radius: 3px; background: rgb(255 255 255 / 0.2); overflow: hidden; }
 .closed-hud-bar i { display: block; height: 100%; background: var(--accent); transition: width 0.08s linear; }
 
