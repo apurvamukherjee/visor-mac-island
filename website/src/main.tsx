@@ -3,6 +3,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { openStartupWindows, syncTitle } from './os/boot';
+import { watchDownloads } from './os/downloads';
 import { installShortcuts } from './os/shortcuts';
 import './App.css';
 
@@ -10,6 +11,7 @@ import './App.css';
 const BOOT_OUT_MS = 900;
 
 syncTitle();
+watchDownloads();
 openStartupWindows();
 installShortcuts();
 

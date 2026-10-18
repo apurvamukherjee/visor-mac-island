@@ -5,6 +5,7 @@ import folder from '../../icons/apps/folder.webp';
 import { links } from '../../links';
 import { openNote } from '../Notes/Notes';
 import { isTap } from '../../os/Desktop/DesktopIcons';
+import { openUrl } from '../../os/downloads';
 import { useWindows } from '../../store/windows';
 import './Finder.css';
 
@@ -16,7 +17,7 @@ interface Entry {
   open: () => void;
 }
 
-const url = (href: string) => () => window.open(href, '_blank', 'noopener');
+const url = (href: string) => () => openUrl(href);
 const app = (id: AppId) => () => useWindows.getState().open(id);
 
 const places: Record<Place, Entry[]> = {

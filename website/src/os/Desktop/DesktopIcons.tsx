@@ -5,6 +5,7 @@ import folder from '../../icons/apps/folder.webp';
 import { openNote } from '../../apps/Notes/Notes';
 import { links } from '../../links';
 import { useWindows } from '../../store/windows';
+import { openUrl } from '../downloads';
 import './DesktopIcons.css';
 
 interface Item {
@@ -25,7 +26,7 @@ const items: Item[] = [
 function launch(target: Item['open']) {
   if (typeof target === 'function') target();
   else if (target in apps) useWindows.getState().open(target as AppId);
-  else window.open(target, '_blank', 'noopener');
+  else openUrl(target);
 }
 
 // Single click selects, double click (or Enter) opens, as in Finder. A tap opens, since touch has no double click.

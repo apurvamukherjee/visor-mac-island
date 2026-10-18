@@ -1,4 +1,5 @@
 import { useRef, useState, type KeyboardEvent } from 'react';
+import { openUrl } from '../../os/downloads';
 import { useWindows } from '../../store/windows';
 import { complete, run } from './commands';
 import './Terminal.css';
@@ -26,7 +27,7 @@ export function Terminal() {
     setInput('');
     if (result.effect?.kind === 'clear') return setEntries([]);
     if (result.effect?.kind === 'open') useWindows.getState().open(result.effect.app);
-    if (result.effect?.kind === 'url') window.open(result.effect.href, '_blank', 'noopener');
+    if (result.effect?.kind === 'url') openUrl(result.effect.href);
     setEntries((e) => [...e, { input, lines: result.lines }]);
     requestAnimationFrame(() => bottomRef.current?.scrollIntoView({ block: 'end' }));
   };
