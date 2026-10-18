@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNotch } from '../../notch/store';
 import './FaceTime.css';
 
 type State = 'idle' | 'on' | 'denied';
@@ -11,7 +12,11 @@ export function FaceTime() {
 
   useEffect(() => {
     if (video.current) video.current.srcObject = stream;
-    return () => stream?.getTracks().forEach((t) => t.stop());
+    useNotch.setState({ camera: stream !== null });
+    return () => {
+      stream?.getTracks().forEach((t) => t.stop());
+      useNotch.setState({ camera: false });
+    };
   }, [stream]);
 
   const start = async () => {

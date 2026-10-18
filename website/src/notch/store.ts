@@ -29,6 +29,8 @@ interface Notch {
   timerEnd: number | null;
   /** Files dropped or screenshotted this visit, newest first. */
   shelf: ShelfFile[];
+  /** A page camera is live; Visor shows its green privacy dot. */
+  camera: boolean;
   addToShelf: (files: ShelfFile[]) => void;
   setOpen: (open: boolean) => void;
   setTab: (tab: Tab) => void;
@@ -56,6 +58,7 @@ export const useNotch = create<Notch>()((set, get) => ({
   transient: null,
   timerEnd: null,
   shelf: [],
+  camera: false,
   addToShelf: (files) => set((s) => ({ shelf: [...files, ...s.shelf], tab: 'shelf', open: true })),
   setOpen: (open) => set({ open }),
   setTab: (tab) => set({ tab, open: true }),

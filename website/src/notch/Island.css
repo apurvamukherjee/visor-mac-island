@@ -16,6 +16,8 @@
 .island::before { left: -10px; background: radial-gradient(circle at 0 100%, transparent 9.5px, #000 10px); }
 .island::after { right: -10px; background: radial-gradient(circle at 100% 100%, transparent 9.5px, #000 10px); }
 
+/* The camera-in-use dot sits just outside the right ear, where macOS puts its own. */
+.island-camera { position: absolute; top: 12px; right: -20px; width: 8px; height: 8px; border-radius: 50%; background: #30d158; box-shadow: 0 0 6px #30d158; }
 .island-hit { all: unset; position: absolute; inset: 0; cursor: pointer; }
 .island-hit:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: inherit; }
 

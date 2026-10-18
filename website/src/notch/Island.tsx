@@ -49,6 +49,7 @@ export function Island() {
   const transient = useNotch((s) => s.transient);
   const locked = useLock((s) => s.locked);
   const timer = useNotch((s) => s.timerEnd !== null);
+  const camera = useNotch((s) => s.camera);
   const accent = useSettings((s) => s.accent);
   const hoverOpen = useSettings((s) => s.hoverOpen);
   const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -100,6 +101,7 @@ export function Island() {
         if (e.dataTransfer.files.length) useNotch.getState().addToShelf(filesToShelf(e.dataTransfer.files));
       }}
     >
+      {camera && <i className="island-camera" role="status" aria-label="Camera in use" />}
       {open && !locked ? (
         <div className="island-open">
           <Header />
