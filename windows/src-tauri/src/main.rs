@@ -8,6 +8,7 @@ mod files;
 mod fullscreen;
 mod keys;
 mod media;
+mod net;
 mod pdf;
 mod prefs;
 mod state;
@@ -233,6 +234,7 @@ fn main() {
             tools::convert_image,
             tools::images_to_pdf,
             tools::pdf_to_images,
+            net::fetch_text,
         ])
         .setup(|app| {
             let handle = app.handle().clone();
