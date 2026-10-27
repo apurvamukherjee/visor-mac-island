@@ -8,11 +8,11 @@
 
 <br><br>
 
-<a href="https://github.com/apurvamukherjee/visor-mac-island/releases/latest"><img src="https://img.shields.io/github/v/release/apurvamukherjee/visor-mac-island?style=for-the-badge&logo=github&label=Release&color=e11d48&labelColor=18181b" alt="Latest release"></a>&nbsp;<img src="https://img.shields.io/badge/Open%20Source-Free-16a34a?style=for-the-badge&logo=opensourceinitiative&logoColor=white&labelColor=18181b" alt="Open source">&nbsp;<a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0-2563eb?style=for-the-badge&labelColor=18181b" alt="GPL-3.0"></a>&nbsp;<img src="https://img.shields.io/badge/macOS-14%2B-f4f4f5?style=for-the-badge&logo=apple&logoColor=white&labelColor=18181b" alt="macOS 14+">&nbsp;<img src="https://img.shields.io/badge/Swift-SwiftUI-F05138?style=for-the-badge&logo=swift&logoColor=white&labelColor=18181b" alt="Swift">
+<a href="https://github.com/apurvamukherjee/visor-mac-island/releases/latest"><img src="https://img.shields.io/github/v/release/apurvamukherjee/visor-mac-island?style=for-the-badge&logo=github&label=Release&color=e11d48&labelColor=18181b" alt="Latest release"></a>&nbsp;<img src="https://img.shields.io/badge/Open%20Source-Free-16a34a?style=for-the-badge&logo=opensourceinitiative&logoColor=white&labelColor=18181b" alt="Open source">&nbsp;<a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0-2563eb?style=for-the-badge&labelColor=18181b" alt="GPL-3.0"></a>&nbsp;<img src="https://img.shields.io/badge/macOS-14%2B-f4f4f5?style=for-the-badge&logo=apple&logoColor=white&labelColor=18181b" alt="macOS 14+">&nbsp;<img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078d4?style=for-the-badge&logo=windows&logoColor=white&labelColor=18181b" alt="Windows 10 and 11">&nbsp;<img src="https://img.shields.io/badge/Swift-SwiftUI-F05138?style=for-the-badge&logo=swift&logoColor=white&labelColor=18181b" alt="Swift">
 
 <br><br>
 
-**Visor** is a free, open-source Mac app by **Apurva Mukherjee** that turns the notch on your MacBook into something you can use.<br>Your music, your calendar, a shelf for files and the volume and brightness HUDs, right where the camera sits.
+**Visor** is a free, open-source Mac app by **Apurva Mukherjee** that turns the notch on your MacBook into something you can use.<br>Your music, your calendar, a shelf for files and the volume and brightness HUDs, right where the camera sits.<br>**Now on Windows too**: the same island floats at the top of every screen on Windows 10 and 11.
 
 <br>
 
@@ -21,7 +21,7 @@
 
 <br><br>
 
-<a href="https://github.com/apurvamukherjee/visor-mac-island/releases/latest/download/Visor.dmg"><img src="assets/readme/download.svg" height="64" alt="Download for macOS"></a>
+<a href="https://github.com/apurvamukherjee/visor-mac-island/releases/latest/download/Visor.dmg"><img src="assets/readme/download.svg" height="64" alt="Download for macOS"></a>&nbsp;&nbsp;<a href="https://github.com/apurvamukherjee/visor-mac-island/releases/download/windows-v3.7.2/Visor-Setup-3.7.2.exe"><img src="assets/readme/download-windows.svg" height="64" alt="Download for Windows"></a>
 
 </div>
 
@@ -150,6 +150,8 @@ Connect AirPods, OnePlus Buds or a JBL soundbar and a 3D model of it turns slowl
    ```
 
 4. Open Visor. The welcome tour explains each permission before it asks for it.
+
+**On Windows 10 or 11:** download **[Visor-Setup-3.7.2.exe](https://github.com/apurvamukherjee/visor-mac-island/releases/download/windows-v3.7.2/Visor-Setup-3.7.2.exe)** and run it. It installs for your user only, no admin needed. The installer isn't signed yet, so SmartScreen asks once: **More info › Run anyway**. What works differently on Windows: [`windows/README.md`](windows/README.md).
 
 **Updating from 3.6.1 or earlier?** Those builds were signed differently, so macOS forgets the Accessibility permission once and the HUD stays off. Open Settings → HUDs, click **Reset and Ask Again** and allow Visor. From 3.6.2 on, updates keep the permission.
 

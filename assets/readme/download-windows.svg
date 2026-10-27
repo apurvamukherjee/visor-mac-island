@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="64" viewBox="0 0 320 64" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <title>Download for Windows</title>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#60a5fa"/>
+      <stop offset="0.5" stop-color="#0078d4"/>
+      <stop offset="1" stop-color="#005a9e"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="c"><rect width="320" height="64" rx="32"/></clipPath>
+  </defs>
+  <g clip-path="url(#c)">
+    <rect width="320" height="64" fill="url(#g)"/>
+    <rect x="-80" width="60" height="64" fill="url(#shine)" transform="skewX(-20)">
+      <animate attributeName="x" values="-80;-80;400" keyTimes="0;0.45;1" dur="4s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+  <circle cx="40" cy="32" r="19" fill="#fff" fill-opacity="0.18"/>
+  <g fill="#fff">
+    <rect x="31" y="23" width="8.5" height="8.5"/><rect x="40.5" y="23" width="8.5" height="8.5"/>
+    <rect x="31" y="32.5" width="8.5" height="8.5"/><rect x="40.5" y="32.5" width="8.5" height="8.5"/>
+  </g>
+  <text x="70" y="30" fill="#fff" font-size="19" font-weight="800">Download for Windows</text>
+  <text x="70" y="47" fill="#fff" fill-opacity="0.8" font-size="12.5" font-weight="600" letter-spacing="0.4">Free · Windows 10 and 11</text>
+</svg>
