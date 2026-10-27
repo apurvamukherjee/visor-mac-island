@@ -114,6 +114,14 @@ final class MediaKeyInterceptor {
             return Unmanaged.passRetained(cgEvent)
         }
 
+        let isVolume = keyType == .soundUp || keyType == .soundDown || keyType == .mute
+        switch Defaults[.hudControls] {
+        case .volume where !isVolume, .brightness where isVolume:
+            return Unmanaged.passRetained(cgEvent)
+        default:
+            break
+        }
+
         let flags = nsEvent.modifierFlags
         let option = flags.contains(.option)
         let shift = flags.contains(.shift)

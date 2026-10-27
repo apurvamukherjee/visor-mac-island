@@ -40,6 +40,15 @@ enum OptionKeyAction: String, CaseIterable, Identifiable, Defaults.Serializable 
     var id: String { self.rawValue }
 }
 
+// Which media keys the HUD replacement takes over; the rest stay with macOS.
+enum HUDControls: String, CaseIterable, Identifiable, Defaults.Serializable {
+    case volume = "Volume"
+    case brightness = "Brightness"
+    case both = "Both"
+
+    var id: String { self.rawValue }
+}
+
 extension Defaults.Keys {
     // MARK: General
     static let menubarIcon = Key<Bool>("menubarIcon", default: true)
@@ -121,6 +130,8 @@ extension Defaults.Keys {
 
     // MARK: HUD
     static let hudReplacement = Key<Bool>("hudReplacement", default: false)
+    // Visor: brightness steps aren't as smooth as the native HUD, so volume only by default.
+    static let hudControls = Key<HUDControls>("hudControls", default: .volume)
     static let inlineHUD = Key<Bool>("inlineHUD", default: false)
     static let enableGradient = Key<Bool>("enableGradient", default: false)
     static let systemEventIndicatorShadow = Key<Bool>("systemEventIndicatorShadow", default: false)

@@ -346,6 +346,7 @@ struct HUD: View {
     @Default(.enableGradient) var enableGradient
     @Default(.optionKeyAction) var optionKeyAction
     @Default(.hudReplacement) var hudReplacement
+    @Default(.hudControls) var hudControls
     @State private var accessibilityAuthorized = false
 
     var body: some View {
@@ -393,6 +394,12 @@ struct HUD: View {
             }
 
             Section {
+                Picker("Controls", selection: $hudControls) {
+                    ForEach(HUDControls.allCases) { opt in
+                        Text(opt.rawValue).tag(opt)
+                    }
+                }
+
                 Picker("Option key behaviour", selection: $optionKeyAction) {
                     ForEach(OptionKeyAction.allCases) { opt in
                         Text(opt.rawValue).tag(opt)
