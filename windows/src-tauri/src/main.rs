@@ -7,6 +7,7 @@ mod error;
 mod keys;
 mod media;
 mod state;
+mod system;
 
 use std::{collections::HashMap, sync::Mutex, thread, time::Duration};
 use tauri::{
@@ -170,6 +171,8 @@ fn main() {
                 })
                 .build(app)?;
 
+            let system_app = handle.clone();
+            thread::spawn(move || system::watch(system_app));
             let brightness_app = handle.clone();
             thread::spawn(move || brightness::watch(brightness_app));
             let keys_app = handle.clone();
