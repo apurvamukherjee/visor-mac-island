@@ -219,8 +219,8 @@ fn open_settings(app: &AppHandle) -> tauri::Result<()> {
     }
     WebviewWindowBuilder::new(app, "settings", WebviewUrl::default())
         .title("Visor Settings")
-        .inner_size(520.0, 640.0)
-        .resizable(false)
+        .inner_size(780.0, 560.0)
+        .min_inner_size(700.0, 480.0)
         .center()
         .build()?;
     Ok(())
