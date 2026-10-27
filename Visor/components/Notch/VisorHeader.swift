@@ -63,7 +63,9 @@ struct VisorHeader: View {
                         if Defaults[.showTimer] {
                             timerControl
                         }
-                        if Defaults[.showMirror] {
+                        // Visor: Join plus a running countdown leave no room for
+                        // the mirror button beside the notch.
+                        if Defaults[.showMirror] && !(meetings.active != nil && timer.endDate != nil) {
                             headerButton(systemImage: "web.camera") {
                                 vm.toggleCameraPreview()
                             }
@@ -108,9 +110,15 @@ struct VisorHeader: View {
                 HStack(spacing: 4) {
                     Text(timerInterval: start...end, countsDown: true)
                         .monospacedDigit()
-                    Image(systemName: "xmark")
-                        .imageScale(.small)
+                        .lineLimit(1)
+                    // Visor: an hour-long countdown beside Join is too wide
+                    // with the ✕; the pill still cancels on tap.
+                    if meetings.active == nil {
+                        Image(systemName: "xmark")
+                            .imageScale(.small)
+                    }
                 }
+                .fixedSize()
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(.white)
                 .padding(.horizontal, 10)
