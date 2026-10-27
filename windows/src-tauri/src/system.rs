@@ -1,7 +1,10 @@
 use crate::state;
 use std::{thread, time::Duration};
 use tauri::AppHandle;
-use windows::Win32::System::Power::{GetSystemPowerStatus, SYSTEM_POWER_STATUS};
+use windows::{
+    UI::ViewManagement::{UIColorType, UISettings},
+    Win32::System::Power::{GetSystemPowerStatus, SYSTEM_POWER_STATUS},
+};
 use windows_registry::{Key, CURRENT_USER};
 
 const POLL: Duration = Duration::from_secs(1);
@@ -11,16 +14,27 @@ const CHARGING: u8 = 8;
 
 /// Everything that changes on a human timescale, checked once a second.
 pub fn watch(app: AppHandle) {
+    let ui = UISettings::new().map_err(|e| eprintln!("visor: no accent color: {e}")).ok();
     loop {
+        let accent = ui.as_ref().and_then(accent);
         let battery = battery();
         let (camera, mic) = (in_use("webcam"), in_use("microphone"));
         state::update(&app, |s| {
             s.battery = battery;
             s.camera = camera;
             s.mic = mic;
+            if let Some(accent) = accent {
+                s.accent = accent;
+            }
         });
         thread::sleep(POLL);
     }
+}
+
+/// The accent color from Settings > Personalization, so the island tints like the rest of Windows.
+fn accent(ui: &UISettings) -> Option<String> {
+    let c = ui.GetColorValue(UIColorType::Accent).ok()?;
+    Some(format!("#{:02x}{:02x}{:02x}", c.R, c.G, c.B))
 }
 
 fn battery() -> Option<state::Battery> {
