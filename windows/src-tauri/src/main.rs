@@ -1,6 +1,7 @@
 // No console window behind the app in release builds.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod audio;
 mod error;
 mod media;
 mod state;
@@ -144,7 +145,7 @@ fn main() {
     tauri::Builder::default()
         .manage(Hits::default())
         .manage(state::Shared::default())
-        .invoke_handler(tauri::generate_handler![set_hit, state::get_state, media::media, media::media_cover])
+        .invoke_handler(tauri::generate_handler![set_hit, state::get_state, media::media, media::media_cover, audio::set_volume, audio::set_output])
         .setup(|app| {
             let handle = app.handle().clone();
             place_islands(&handle, 0)?;
@@ -167,6 +168,8 @@ fn main() {
                 })
                 .build(app)?;
 
+            let audio_app = handle.clone();
+            thread::spawn(move || audio::watch(audio_app));
             let media_app = handle.clone();
             thread::spawn(move || media::watch(media_app));
             thread::spawn(move || track_cursor(handle));

@@ -11,6 +11,8 @@ tauri = { version = "2", features = ["tray-icon"] }
 serde = { version = "1", features = ["derive"] }
 drag = "2"
 windows-registry = "0.6"
+# The #[interface] macro for IPolicyConfig expands to paths in this crate.
+windows-core = "0.62"
 
 [dependencies.windows]
 version = "0.62"
