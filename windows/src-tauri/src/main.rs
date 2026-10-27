@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod audio;
+mod brightness;
 mod error;
 mod keys;
 mod media;
@@ -169,6 +170,8 @@ fn main() {
                 })
                 .build(app)?;
 
+            let brightness_app = handle.clone();
+            thread::spawn(move || brightness::watch(brightness_app));
             let keys_app = handle.clone();
             thread::spawn(move || keys::run(keys_app));
             let audio_app = handle.clone();
