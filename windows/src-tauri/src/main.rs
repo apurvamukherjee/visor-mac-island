@@ -1,6 +1,9 @@
 // No console window behind the app in release builds.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod error;
+mod state;
+
 use std::{collections::HashMap, sync::Mutex, thread, time::Duration};
 use tauri::{
     menu::{Menu, MenuItem},
@@ -139,7 +142,8 @@ fn open_settings(app: &AppHandle) -> tauri::Result<()> {
 fn main() {
     tauri::Builder::default()
         .manage(Hits::default())
-        .invoke_handler(tauri::generate_handler![set_hit])
+        .manage(state::Shared::default())
+        .invoke_handler(tauri::generate_handler![set_hit, state::get_state])
         .setup(|app| {
             let handle = app.handle().clone();
             place_islands(&handle, 0)?;
