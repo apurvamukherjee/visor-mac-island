@@ -6,7 +6,10 @@ use windows::{
     Win32::System::{
         Com::{CoCreateInstance, CLSCTX_INPROC_SERVER},
         Variant::{VariantClear, VariantToUInt32, VARIANT},
-        Wmi::{IWbemLocator, IWbemServices, WbemLocator, WBEM_FLAG_FORWARD_ONLY, WBEM_FLAG_RETURN_IMMEDIATELY, WBEM_INFINITE},
+        Wmi::{
+            IWbemLocator, IWbemServices, WbemLocator, WBEM_FLAG_FORWARD_ONLY,
+            WBEM_FLAG_RETURN_IMMEDIATELY, WBEM_INFINITE,
+        },
     },
 };
 
@@ -35,7 +38,15 @@ fn connect() -> Result<IWbemServices> {
     unsafe {
         let locator: IWbemLocator = CoCreateInstance(&WbemLocator, None, CLSCTX_INPROC_SERVER)?;
         let empty = BSTR::new();
-        Ok(locator.ConnectServer(&BSTR::from("ROOT\\WMI"), &empty, &empty, &empty, 0, &empty, None)?)
+        Ok(locator.ConnectServer(
+            &BSTR::from("ROOT\\WMI"),
+            &empty,
+            &empty,
+            &empty,
+            0,
+            &empty,
+            None,
+        )?)
     }
 }
 

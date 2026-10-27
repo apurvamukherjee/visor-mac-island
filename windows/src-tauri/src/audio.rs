@@ -6,10 +6,13 @@ use windows::{
     Win32::{
         Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
         Media::Audio::{
-            eConsole, eRender, Endpoints::IAudioEndpointVolume, IMMDeviceEnumerator, MMDeviceEnumerator,
-            DEVICE_STATE_ACTIVE,
+            eConsole, eRender, Endpoints::IAudioEndpointVolume, IMMDeviceEnumerator,
+            MMDeviceEnumerator, DEVICE_STATE_ACTIVE,
         },
-        System::Com::{CoCreateInstance, CoInitializeEx, CoTaskMemFree, CLSCTX_ALL, COINIT_MULTITHREADED, STGM_READ},
+        System::Com::{
+            CoCreateInstance, CoInitializeEx, CoTaskMemFree, CLSCTX_ALL, COINIT_MULTITHREADED,
+            STGM_READ,
+        },
     },
 };
 
@@ -27,7 +30,11 @@ fn enumerator() -> Result<IMMDeviceEnumerator> {
 }
 
 pub fn endpoint_volume() -> Result<IAudioEndpointVolume> {
-    Ok(unsafe { enumerator()?.GetDefaultAudioEndpoint(eRender, eConsole)?.Activate(CLSCTX_ALL, None)? })
+    Ok(unsafe {
+        enumerator()?
+            .GetDefaultAudioEndpoint(eRender, eConsole)?
+            .Activate(CLSCTX_ALL, None)?
+    })
 }
 
 fn take(text: PWSTR) -> Result<String> {
@@ -43,8 +50,16 @@ fn outputs(en: &IMMDeviceEnumerator) -> Result<Vec<state::Output>> {
         .map(|i| {
             let device = unsafe { devices.Item(i)? };
             let id = take(unsafe { device.GetId()? })?;
-            let name = unsafe { device.OpenPropertyStore(STGM_READ)?.GetValue(&PKEY_Device_FriendlyName)? };
-            Ok(state::Output { default: id == default, id, name: name.to_string() })
+            let name = unsafe {
+                device
+                    .OpenPropertyStore(STGM_READ)?
+                    .GetValue(&PKEY_Device_FriendlyName)?
+            };
+            Ok(state::Output {
+                default: id == default,
+                id,
+                name: name.to_string(),
+            })
         })
         .collect()
 }
@@ -58,14 +73,17 @@ pub fn watch(app: AppHandle) {
     loop {
         if tick % OUTPUTS_EVERY == 0 {
             // The default device can change under us, so the endpoint is fetched again with the list.
-            volume = endpoint_volume().map_err(|e| eprintln!("visor: no output volume: {e}")).ok();
+            volume = endpoint_volume()
+                .map_err(|e| eprintln!("visor: no output volume: {e}"))
+                .ok();
             match enumerator().and_then(|en| outputs(&en)) {
                 Ok(list) => state::update(&app, |s| s.outputs = list),
                 Err(e) => eprintln!("visor: listing outputs failed: {e}"),
             }
         }
         if let Some(v) = &volume {
-            if let (Ok(level), Ok(muted)) = unsafe { (v.GetMasterVolumeLevelScalar(), v.GetMute()) } {
+            if let (Ok(level), Ok(muted)) = unsafe { (v.GetMasterVolumeLevelScalar(), v.GetMute()) }
+            {
                 state::update(&app, |s| {
                     s.volume = (level * 100.0).round() / 100.0;
                     s.muted = muted.as_bool();
@@ -108,12 +126,19 @@ mod policy {
         fn GetDeviceFormat(&self, id: PCWSTR, default: i32, format: *mut *mut c_void) -> HRESULT;
         fn ResetDeviceFormat(&self, id: PCWSTR) -> HRESULT;
         fn SetDeviceFormat(&self, id: PCWSTR, endpoint: *mut c_void, mix: *mut c_void) -> HRESULT;
-        fn GetProcessingPeriod(&self, id: PCWSTR, default: i32, period: *mut i64, min: *mut i64) -> HRESULT;
+        fn GetProcessingPeriod(
+            &self,
+            id: PCWSTR,
+            default: i32,
+            period: *mut i64,
+            min: *mut i64,
+        ) -> HRESULT;
         fn SetProcessingPeriod(&self, id: PCWSTR, period: *mut i64) -> HRESULT;
         fn GetShareMode(&self, id: PCWSTR, mode: *mut c_void) -> HRESULT;
         fn SetShareMode(&self, id: PCWSTR, mode: *mut c_void) -> HRESULT;
         fn GetPropertyValue(&self, id: PCWSTR, key: *const c_void, value: *mut c_void) -> HRESULT;
-        fn SetPropertyValue(&self, id: PCWSTR, key: *const c_void, value: *const c_void) -> HRESULT;
+        fn SetPropertyValue(&self, id: PCWSTR, key: *const c_void, value: *const c_void)
+            -> HRESULT;
         fn SetDefaultEndpoint(&self, id: PCWSTR, role: ERole) -> HRESULT;
         fn SetEndpointVisibility(&self, id: PCWSTR, visible: i32) -> HRESULT;
     }
@@ -121,7 +146,8 @@ mod policy {
     const POLICY_CONFIG_CLIENT: GUID = GUID::from_u128(0x870af99c_171d_4f9e_af0d_e63df40c2bc9);
 
     pub fn set_default(id: &str) -> Result<()> {
-        let policy: IPolicyConfig = unsafe { CoCreateInstance(&POLICY_CONFIG_CLIENT, None, CLSCTX_ALL)? };
+        let policy: IPolicyConfig =
+            unsafe { CoCreateInstance(&POLICY_CONFIG_CLIENT, None, CLSCTX_ALL)? };
         let id = HSTRING::from(id);
         for role in [eConsole, eMultimedia, eCommunications] {
             unsafe { policy.SetDefaultEndpoint(PCWSTR(id.as_ptr()), role).ok()? };

@@ -74,7 +74,8 @@ fn read(session: &Session, key: &mut String, cover: &mut u32) -> Result<state::M
         can_seek: info.Controls()?.IsPlaybackPositionEnabled()?,
         position: seconds(timeline.Position()?.Duration - start),
         duration: seconds(timeline.EndTime()?.Duration - start),
-        updated_at: ((timeline.LastUpdatedTime()?.UniversalTime - UNIX_EPOCH_TICKS) / 10_000) as f64,
+        updated_at: ((timeline.LastUpdatedTime()?.UniversalTime - UNIX_EPOCH_TICKS) / 10_000)
+            as f64,
         cover: *cover,
     })
 }
@@ -114,14 +115,19 @@ pub enum Action {
 
 #[tauri::command]
 pub async fn media(action: Action) -> Result<()> {
-    let session = MANAGER.get().ok_or("media sessions are unavailable")?.GetCurrentSession()?;
+    let session = MANAGER
+        .get()
+        .ok_or("media sessions are unavailable")?
+        .GetCurrentSession()?;
     let done = match action {
         Action::Toggle => session.TryTogglePlayPauseAsync()?.join()?,
         Action::Next => session.TrySkipNextAsync()?.join()?,
         Action::Previous => session.TrySkipPreviousAsync()?.join()?,
         Action::Seek { seconds } => {
             let start = session.GetTimelineProperties()?.StartTime()?.Duration;
-            session.TryChangePlaybackPositionAsync(start + (seconds * 1e7) as i64)?.join()?
+            session
+                .TryChangePlaybackPositionAsync(start + (seconds * 1e7) as i64)?
+                .join()?
         }
     };
     if done {

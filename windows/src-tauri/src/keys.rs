@@ -15,9 +15,10 @@ use windows::{
         UI::{
             Input::KeyboardAndMouse::{VIRTUAL_KEY, VK_VOLUME_DOWN, VK_VOLUME_MUTE, VK_VOLUME_UP},
             WindowsAndMessaging::{
-                CallNextHookEx, CreateWindowExW, DefWindowProcW, GetMessageW, RegisterClassW, SetWindowsHookExW,
-                HWND_MESSAGE, KBDLLHOOKSTRUCT, MSG, WH_KEYBOARD_LL, WINDOW_EX_STYLE, WINDOW_STYLE, WM_KEYDOWN,
-                WM_SYSKEYDOWN, WM_WTSSESSION_CHANGE, WNDCLASSW, WTS_SESSION_LOCK, WTS_SESSION_UNLOCK,
+                CallNextHookEx, CreateWindowExW, DefWindowProcW, GetMessageW, RegisterClassW,
+                SetWindowsHookExW, HWND_MESSAGE, KBDLLHOOKSTRUCT, MSG, WH_KEYBOARD_LL,
+                WINDOW_EX_STYLE, WINDOW_STYLE, WM_KEYDOWN, WM_SYSKEYDOWN, WM_WTSSESSION_CHANGE,
+                WNDCLASSW, WTS_SESSION_LOCK, WTS_SESSION_UNLOCK,
             },
         },
     },
@@ -46,7 +47,12 @@ fn install() -> Result<()> {
         SetWindowsHookExW(WH_KEYBOARD_LL, Some(on_key), Some(module.into()), 0)?;
 
         // A message-only window, just to be told when the session locks and unlocks.
-        let class = WNDCLASSW { lpfnWndProc: Some(on_message), hInstance: module.into(), lpszClassName: w!("VisorSession"), ..Default::default() };
+        let class = WNDCLASSW {
+            lpfnWndProc: Some(on_message),
+            hInstance: module.into(),
+            lpszClassName: w!("VisorSession"),
+            ..Default::default()
+        };
         RegisterClassW(&class);
         let window = CreateWindowExW(
             WINDOW_EX_STYLE(0),
@@ -67,7 +73,12 @@ fn install() -> Result<()> {
     Ok(())
 }
 
-unsafe extern "system" fn on_message(window: HWND, msg: u32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
+unsafe extern "system" fn on_message(
+    window: HWND,
+    msg: u32,
+    wparam: WPARAM,
+    lparam: LPARAM,
+) -> LRESULT {
     if msg == WM_WTSSESSION_CHANGE {
         if let Some(app) = APP.get() {
             match wparam.0 as u32 {

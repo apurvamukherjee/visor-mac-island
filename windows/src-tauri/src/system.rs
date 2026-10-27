@@ -8,14 +8,16 @@ use std::{
 use tauri::{AppHandle, Emitter};
 use windows::{
     core::GUID,
-    UI::ViewManagement::{UIColorType, UISettings},
     Win32::{
         System::{
             Com::CoTaskMemFree,
             Power::{GetSystemPowerStatus, SYSTEM_POWER_STATUS},
         },
-        UI::Shell::{FOLDERID_Downloads, FOLDERID_Screenshots, SHGetKnownFolderPath, KF_FLAG_DEFAULT},
+        UI::Shell::{
+            FOLDERID_Downloads, FOLDERID_Screenshots, SHGetKnownFolderPath, KF_FLAG_DEFAULT,
+        },
     },
+    UI::ViewManagement::{UIColorType, UISettings},
 };
 use windows_registry::{Key, CURRENT_USER};
 
@@ -29,13 +31,20 @@ const IMAGES: [&str; 3] = ["png", "jpg", "jpeg"];
 
 /// Everything that changes on a human timescale, checked once a second.
 pub fn watch(app: AppHandle) {
-    let ui = UISettings::new().map_err(|e| eprintln!("visor: no accent color: {e}")).ok();
+    let ui = UISettings::new()
+        .map_err(|e| eprintln!("visor: no accent color: {e}"))
+        .ok();
     let downloads = known_folder(&FOLDERID_Downloads);
     // Win+PrtScn and the Snipping Tool both save here. Shots already there at launch are not new.
     let screenshots = known_folder(&FOLDERID_Screenshots);
-    let mut seen = screenshots.as_deref().map(newest).unwrap_or(SystemTime::UNIX_EPOCH);
+    let mut seen = screenshots
+        .as_deref()
+        .map(newest)
+        .unwrap_or(SystemTime::UNIX_EPOCH);
     loop {
-        let downloading = downloads.as_deref().is_some_and(|d| !files(d, &PARTIAL).is_empty());
+        let downloading = downloads
+            .as_deref()
+            .is_some_and(|d| !files(d, &PARTIAL).is_empty());
         if let Some(dir) = &screenshots {
             let mut shots = files(dir, &IMAGES);
             // Oldest first, so two shots in one second both land.
@@ -74,7 +83,10 @@ fn accent(ui: &UISettings) -> Option<String> {
 fn battery() -> Option<state::Battery> {
     let mut p = SYSTEM_POWER_STATUS::default();
     unsafe { GetSystemPowerStatus(&mut p) }.ok()?;
-    if p.BatteryFlag & NO_BATTERY != 0 || p.BatteryFlag == UNKNOWN || p.BatteryLifePercent == UNKNOWN {
+    if p.BatteryFlag & NO_BATTERY != 0
+        || p.BatteryFlag == UNKNOWN
+        || p.BatteryLifePercent == UNKNOWN
+    {
         return None;
     }
     Some(state::Battery {
@@ -87,12 +99,25 @@ fn battery() -> Option<state::Battery> {
 
 /// Windows' own privacy record: an app holding the camera or mic has a start time and no stop time yet.
 fn in_use(device: &str) -> bool {
-    let path = format!(r"Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\{device}");
-    let Ok(store) = CURRENT_USER.open(path) else { return false };
-    let active = |app: &Key| app.get_u64("LastUsedTimeStart").is_ok_and(|t| t > 0) && app.get_u64("LastUsedTimeStop") == Ok(0);
+    let path = format!(
+        r"Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\{device}"
+    );
+    let Ok(store) = CURRENT_USER.open(path) else {
+        return false;
+    };
+    let active = |app: &Key| {
+        app.get_u64("LastUsedTimeStart").is_ok_and(|t| t > 0)
+            && app.get_u64("LastUsedTimeStop") == Ok(0)
+    };
     // Store apps sit directly under the device; desktop apps one level down, under NonPackaged.
-    let any_active = |key: &Key| key.keys().is_ok_and(|mut names| names.any(|n| key.open(&n).is_ok_and(|app| active(&app))));
-    any_active(&store) || store.open("NonPackaged").is_ok_and(|desktop| any_active(&desktop))
+    let any_active = |key: &Key| {
+        key.keys()
+            .is_ok_and(|mut names| names.any(|n| key.open(&n).is_ok_and(|app| active(&app))))
+    };
+    any_active(&store)
+        || store
+            .open("NonPackaged")
+            .is_ok_and(|desktop| any_active(&desktop))
 }
 
 fn known_folder(id: &GUID) -> Option<PathBuf> {
@@ -106,16 +131,25 @@ fn known_folder(id: &GUID) -> Option<PathBuf> {
 
 /// Files in `dir` with one of `extensions`, and when each last changed.
 fn files(dir: &Path, extensions: &[&str]) -> Vec<(PathBuf, SystemTime)> {
-    let Ok(entries) = fs::read_dir(dir) else { return Vec::new() };
+    let Ok(entries) = fs::read_dir(dir) else {
+        return Vec::new();
+    };
     entries
         .flatten()
         .filter(|e| {
-            e.path().extension().and_then(|x| x.to_str()).is_some_and(|x| extensions.contains(&x.to_ascii_lowercase().as_str()))
+            e.path()
+                .extension()
+                .and_then(|x| x.to_str())
+                .is_some_and(|x| extensions.contains(&x.to_ascii_lowercase().as_str()))
         })
         .filter_map(|e| Some((e.path(), e.metadata().ok()?.modified().ok()?)))
         .collect()
 }
 
 fn newest(dir: &Path) -> SystemTime {
-    files(dir, &IMAGES).into_iter().map(|(_, t)| t).max().unwrap_or(SystemTime::UNIX_EPOCH)
+    files(dir, &IMAGES)
+        .into_iter()
+        .map(|(_, t)| t)
+        .max()
+        .unwrap_or(SystemTime::UNIX_EPOCH)
 }
