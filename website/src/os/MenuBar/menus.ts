@@ -88,6 +88,7 @@ export const visorAppMenu: Menu = {
   items: () => [
     { label: 'About Visor', run: open('visor') },
     { label: 'Download Visor', href: links.dmg },
+    { label: 'Download for Windows', href: links.exe },
     { label: 'View on GitHub', href: links.repo },
     'separator',
     { label: 'Quit All Apps', run: () => Object.values(win().wins).forEach((w) => win().close(w.id)) },

@@ -1,5 +1,5 @@
 import { QUARANTINE_CMD, links } from '../../links';
-import { Command } from '../ui';
+import { Command, WindowsLogo } from '../ui';
 import './Downloads.css';
 
 export function Downloads() {
@@ -24,6 +24,10 @@ export function Downloads() {
       </ol>
       <p className="app-muted downloads-foot">
         Needs macOS 14 Sonoma or later on Apple silicon. <a href={links.releases} target="_blank" rel="noreferrer">All releases ↗</a>
+      </p>
+      <a className="app-btn is-big downloads-cta downloads-windows" href={links.exe}><WindowsLogo /> Download for Windows</a>
+      <p className="app-muted downloads-foot">
+        Windows 10 or 11. Installs for your user only, no admin needed. The installer isn’t signed yet, so SmartScreen asks once: More info › Run anyway.
       </p>
     </div>
   );

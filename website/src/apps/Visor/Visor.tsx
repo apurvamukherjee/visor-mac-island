@@ -1,5 +1,6 @@
 import { links } from '../../links';
 import { features } from '../features';
+import { WindowsLogo } from '../ui';
 import './Visor.css';
 
 export function Visor() {
@@ -10,12 +11,13 @@ export function Visor() {
         <img src={`${import.meta.env.BASE_URL}icon.png`} alt="" width={96} height={96} />
         <div>
           <h1>Visor</h1>
-          <p>Your MacBook’s notch, put to work: music, calendar, a file shelf and the HUDs, right where the camera sits.</p>
+          <p>Your MacBook’s notch, put to work: music, calendar, a file shelf and the HUDs, right where the camera sits. Now on Windows too, as an island at the top of the screen.</p>
           <div className="visor-actions">
             <a className="app-btn is-primary is-big" href={links.dmg}>Download for macOS</a>
+            <a className="app-btn is-primary is-big" href={links.exe}><WindowsLogo /> Download for Windows</a>
             <a className="app-btn is-big" href={links.repo} target="_blank" rel="noreferrer">View on GitHub ↗</a>
           </div>
-          <small className="app-muted">Version {version} ({build}) · Free and open source · macOS 14+ · Apple silicon</small>
+          <small className="app-muted">Version {version} ({build}) · Free and open source · macOS 14+ · Apple silicon · Windows 10 and 11</small>
         </div>
       </header>
       <p className="visor-hint app-muted">Hover the notch at the top of the screen to try it.</p>

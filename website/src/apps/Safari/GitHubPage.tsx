@@ -52,8 +52,9 @@ export function GitHubPage() {
           <article className="gh-readme">
             <h4>README.md</h4>
             <img src={hero} alt="Visor: the notch opens into an island" />
-            <p><b>Visor</b> is a free, open-source Mac app by <b>Apurva Mukherjee</b> that turns the notch on your MacBook into something you can use.</p>
-            <a className="gh-btn is-green" href={links.dmg}>Download Visor.dmg</a>
+            <p><b>Visor</b> is a free, open-source Mac and Windows app by <b>Apurva Mukherjee</b> that turns the notch on your MacBook into something you can use.</p>
+            <a className="gh-btn is-green" href={links.dmg}>Download Visor.dmg</a>{' '}
+            <a className="gh-btn is-green" href={links.exe}>Download for Windows</a>
           </article>
         </main>
         <aside className="gh-side">
