@@ -8,9 +8,11 @@ mod files;
 mod fullscreen;
 mod keys;
 mod media;
+mod pdf;
 mod prefs;
 mod state;
 mod system;
+mod tools;
 
 use std::{
     collections::{HashMap, HashSet},
@@ -228,6 +230,9 @@ fn main() {
             files::reveal,
             files::start_drag,
             files::share,
+            tools::convert_image,
+            tools::images_to_pdf,
+            tools::pdf_to_images,
         ])
         .setup(|app| {
             let handle = app.handle().clone();
