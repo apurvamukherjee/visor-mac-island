@@ -22,6 +22,8 @@ const CLOSE_DELAY_MS = 100;
 // One trackpad swipe sends a burst of wheel events; this keeps it to one gesture.
 const GESTURE_GAP_MS = 450;
 const GESTURE_MIN = 15;
+// Share of the close spring the open content stays for; past this it's too small to see.
+const LINGER = 0.6;
 
 export function Island() {
   const { open, tab, transient, timerEnd, ringing, mirror, setOpen, setTab } = useIsland();
@@ -36,6 +38,10 @@ export function Island() {
   const { accent, camera, mic } = useSystem();
   const joining = useMeeting() !== null;
   const [hover, setHover] = useState(false);
+  // The open content outlives `open` by part of the close, so the shrinking shape clips and fades it
+  // instead of it vanishing on the first frame.
+  const [showOpen, setShowOpen] = useState(open);
+  if (open && !showOpen) setShowOpen(true);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const lastGesture = useRef(0);
 
@@ -47,6 +53,12 @@ export function Island() {
   useEffect(() => {
     void invoke('set_hit', { rect: { x: (window.innerWidth - size.w) / 2, y: 0, w: size.w, h: size.h } });
   }, [size.w, size.h]);
+
+  useEffect(() => {
+    if (open) return;
+    const t = setTimeout(() => setShowOpen(false), CLOSE_SPRING.ms * LINGER);
+    return () => clearTimeout(t);
+  }, [open]);
 
   // Files dragged from Explorer arrive through Tauri, not the DOM: hovering opens the shelf to catch them.
   useEffect(() => {
@@ -108,24 +120,27 @@ export function Island() {
           {mic && <i className="is-mic" />}
         </span>
       )}
-      {open ? (
-        <div className="island-open">
-          <Header />
-          {tab === 'home' ? (
-            <div className="home">
-              <Player />
-              {showCalendar && <Calendar />}
-              {mirror && <Mirror />}
-            </div>
-          ) : (
-            <Shelf />
-          )}
-        </div>
-      ) : (
-        <button className="island-hit" aria-label="Open Visor" onClick={() => setOpen(true)}>
-          <Closed />
-        </button>
-      )}
+      <div className="island-clip">
+        {showOpen && (
+          <div className={`island-open${open ? '' : ' is-leaving'}`} inert={!open}>
+            <Header />
+            {tab === 'home' ? (
+              <div className="home">
+                <Player />
+                {showCalendar && <Calendar />}
+                {mirror && open && <Mirror />}
+              </div>
+            ) : (
+              <Shelf />
+            )}
+          </div>
+        )}
+        {!open && (
+          <button className="island-hit" aria-label="Open Visor" onClick={() => setOpen(true)}>
+            <Closed />
+          </button>
+        )}
+      </div>
     </div>
   );
 }
