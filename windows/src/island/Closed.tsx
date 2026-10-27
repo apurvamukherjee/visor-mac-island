@@ -173,9 +173,9 @@ export function Closed() {
 
   // Wings: music on the left; on the right a timer, then a download, then the visualizer.
   const right = ringing ? (
-    <span className="closed-bell" role="status" aria-label="Timer done">
-      🔔
-    </span>
+    <svg className="closed-bell" viewBox="0 0 24 24" width="16" height="16" role="status" aria-label="Timer done">
+      <path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9M10 20.5a2.2 2.2 0 0 0 4 0" />
+    </svg>
   ) : timerEnd ? (
     <Countdown end={timerEnd} />
   ) : downloading ? (

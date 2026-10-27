@@ -18,7 +18,7 @@ html.is-island button { font: inherit; color: inherit; transition: background-co
     box-shadow 0.45s ease, scale 0.35s cubic-bezier(0.3, 1.5, 0.5, 1);
 }
 /* There's no notch on a PC for the island to hide in, so it floats with a glow in the cover's color. */
-.island.is-playing, .island.has-transient { box-shadow: 0 6px 22px -6px color-mix(in srgb, var(--tint) 65%, transparent); }
+.island.is-playing, .island.has-transient { box-shadow: 0 5px 18px -8px color-mix(in srgb, var(--tint) 55%, transparent); }
 .island.is-hover:not(.is-open) { scale: 1.05; box-shadow: 0 8px 24px -4px rgb(0 0 0 / 0.8), 0 6px 22px -6px color-mix(in srgb, var(--tint) 65%, transparent); }
 .island.is-open { box-shadow: 0 18px 40px -12px rgb(0 0 0 / 0.9), 0 10px 36px -14px color-mix(in srgb, var(--tint) 70%, transparent), inset 0 -1px 0 rgb(255 255 255 / 0.08); }
 
@@ -104,7 +104,7 @@ html.is-island button { font: inherit; color: inherit; transition: background-co
 .closed-join-title { flex: 1; font-size: 12px; color: rgb(255 255 255 / 0.8); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .closed-join-pill { padding: 2px 10px; border-radius: 10px; background: #34c759; font-size: 12px; font-weight: 700; }
 .closed-timer { font-size: 13px; font-weight: 600; color: #ff9f0a; font-variant-numeric: tabular-nums; }
-.closed-bell { animation: notch-wiggle 0.6s ease-in-out infinite; }
+.closed-bell { fill: none; stroke: #ff9f0a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transform-origin: 50% 10%; animation: notch-wiggle 0.6s ease-in-out infinite; }
 @keyframes notch-wiggle { 25% { transform: rotate(-14deg); } 75% { transform: rotate(14deg); } }
 
 .closed-device { gap: 12px; padding: 10px 16px; justify-content: flex-start; }
@@ -208,7 +208,8 @@ button.calendar-empty { cursor: pointer; }
 .shelf-zone { margin: 0; border: 2px dashed rgb(255 255 255 / 0.18); border-radius: 18px; }
 .shelf-share { flex: none; width: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: none; cursor: pointer; }
 .shelf-share:disabled { opacity: 0.4; cursor: default; }
-.shelf-share-circle { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; background: rgb(255 255 255 / 0.1); font-size: 20px; }
+.shelf-share-circle { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; background: rgb(255 255 255 / 0.1); }
+.shelf-share-circle svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .shelf-share:hover:enabled .shelf-share-circle { background: var(--accent); }
 .shelf-main { flex: 1; min-width: 0; position: relative; display: flex; flex-direction: column; }
 .shelf-files { flex: 1; min-height: 0; margin: 0; list-style: none; padding: 8px 12px; display: flex; align-items: center; gap: 10px; overflow-x: auto; scrollbar-width: none; }

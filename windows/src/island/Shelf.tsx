@@ -52,7 +52,9 @@ export function Shelf() {
     <div className="shelf">
       <button className="shelf-zone shelf-share" disabled={!files.length} onClick={() => share(targets).catch(report)}>
         <span className="shelf-share-circle" aria-hidden>
-          ⇪
+          <svg viewBox="0 0 24 24" width="20" height="20">
+            <path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M6 12v7a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-7" />
+          </svg>
         </span>
         Share
       </button>
