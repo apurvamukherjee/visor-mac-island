@@ -202,7 +202,8 @@ fn hide_under_fullscreen(app: &AppHandle, hidden: &mut HashSet<String>) {
 }
 
 #[tauri::command]
-fn show_settings(app: AppHandle) -> error::Result<()> {
+// Async: building a window inside a sync command deadlocks WebView2 on Windows (tauri docs, wry#583).
+async fn show_settings(app: AppHandle) -> error::Result<()> {
     Ok(open_settings(&app)?)
 }
 
