@@ -4,6 +4,11 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.7.2 (build 53) · 2026-10-27
+
+- **The Join button fits in the open notch.** It's now a camera button the size of the ones beside it, so it no longer squeezes the battery percentage into a column. With a timer running as well, the mirror button steps aside until the call is over.
+- **Visor for Windows.** This release carries the Windows installer, `Visor-Setup-3.7.2.exe`, beside the Mac download.
+
 ## 3.7.1 (build 52) · 2026-10-18
 
 - **A fresh build with the new website.** The app is the same as 3.7.0. The website that ships with it got a round of fixes and extras: a vinyl mode, real files on the shelf, notch gestures, media keys and a few hidden surprises.
