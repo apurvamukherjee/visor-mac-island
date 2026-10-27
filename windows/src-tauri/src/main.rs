@@ -226,6 +226,7 @@ fn main() {
             files::thumbnail,
             files::open,
             files::reveal,
+            files::start_drag,
         ])
         .setup(|app| {
             let handle = app.handle().clone();

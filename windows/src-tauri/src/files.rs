@@ -2,8 +2,12 @@ use crate::{
     error::{Error, Result},
     media::read_stream,
 };
-use std::{os::windows::process::CommandExt, path::Path, process::Command};
-use tauri::ipc::Response;
+use std::{
+    os::windows::process::CommandExt,
+    path::{Path, PathBuf},
+    process::Command,
+};
+use tauri::{ipc::Response, WebviewWindow};
 use windows::{
     core::{Interface, HSTRING, PCWSTR},
     Storage::{FileProperties::ThumbnailMode, StorageFile, StorageFolder},
@@ -75,5 +79,30 @@ pub fn reveal(path: String) -> Result<()> {
     Command::new("explorer")
         .raw_arg(format!("/select,\"{}\"", p.display()))
         .spawn()?;
+    Ok(())
+}
+
+/// Drags shelf files out to Explorer, a mail, a chat.
+#[tauri::command]
+pub async fn start_drag(window: WebviewWindow, paths: Vec<String>) -> Result<()> {
+    let files = paths
+        .iter()
+        .map(|p| existing(p).map(PathBuf::from))
+        .collect::<Result<Vec<_>>>()?;
+    let target = window.clone();
+    // OLE drag runs its own loop on the window's thread, so it starts there, not on this one.
+    window.run_on_main_thread(move || {
+        let icon = drag::Image::Raw(include_bytes!("../icons/32x32.png").to_vec());
+        let started = drag::start_drag(
+            &target,
+            drag::DragItem::Files(files),
+            icon,
+            |_, _| {},
+            drag::Options::default(),
+        );
+        if let Err(e) = started {
+            eprintln!("visor: dragging files out failed: {e}");
+        }
+    })?;
     Ok(())
 }
