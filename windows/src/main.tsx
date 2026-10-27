@@ -18,8 +18,9 @@ const isSettings = label === 'settings';
 document.documentElement.classList.add(isSettings ? 'is-settings' : 'is-island');
 
 startNativeSettings();
+// Settings reads the accent and battery too, so every window listens to the system state.
+startSystem();
 if (!isSettings) {
-  startSystem();
   startTransients();
   // First launch: the first monitor's island opens Settings, which starts with the welcome.
   if (label.endsWith('-0') && !useSettings.getState().onboarded) showSettings().catch(report);

@@ -1,18 +1,96 @@
-html.is-settings { color-scheme: light dark; background: Canvas; color: CanvasText; font: 14px 'Inter Variable', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif; }
-html.is-settings body { margin: 0; }
-.settings { padding: 20px 24px 28px; display: grid; gap: 20px; }
-.settings h1 { font-size: 22px; font-weight: 600; margin: 0 0 6px; }
-.settings h2 { font-size: 13px; font-weight: 600; margin: 0 0 4px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.04em; }
-.settings section { display: grid; gap: 2px; }
-.settings-welcome { padding: 16px; border-radius: 10px; background: color-mix(in srgb, AccentColor 14%, Canvas); }
-.settings-welcome p { margin: 0 0 8px; line-height: 1.45; }
-.settings-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 38px; }
-.settings-row > span:first-child { display: flex; flex-direction: column; }
-.settings small { font-size: 12px; opacity: 0.65; }
-.settings-range { display: flex; align-items: center; gap: 10px; }
-.settings-range output { width: 3ch; font-variant-numeric: tabular-nums; }
-.settings-stack { display: grid; gap: 4px; padding: 6px 0; }
-.settings textarea { font: 12px Consolas, monospace; padding: 6px 8px; border-radius: 6px; resize: vertical; }
-.settings input[role='switch'] { width: 18px; height: 18px; accent-color: AccentColor; }
-.settings button { padding: 5px 14px; border-radius: 6px; font: inherit; cursor: pointer; }
-.settings-primary { justify-self: start; border: 0; background: AccentColor; color: AccentColorText; }
+/* Windows 11's own Settings palette, light and dark, under macOS System Settings' layout. */
+html.is-settings {
+  --bg: #f3f3f3; --sidebar: #ebebeb; --card: #fbfbfb; --line: rgb(0 0 0 / 0.07); --text: #1b1b1b; --dim: rgb(0 0 0 / 0.55);
+  --hover: rgb(0 0 0 / 0.045); --selected: rgb(0 0 0 / 0.07); --knob: #fff; --track: rgb(0 0 0 / 0.16);
+  color-scheme: light; background: var(--bg); color: var(--text);
+  font: 13.5px/1.4 'Inter Variable', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif; letter-spacing: -0.006em;
+}
+@media (prefers-color-scheme: dark) {
+  html.is-settings {
+    --bg: #202020; --sidebar: #1a1a1a; --card: #2b2b2b; --line: rgb(255 255 255 / 0.07); --text: #f3f3f3; --dim: rgb(255 255 255 / 0.55);
+    --hover: rgb(255 255 255 / 0.05); --selected: rgb(255 255 255 / 0.08); --knob: #fff; --track: rgb(255 255 255 / 0.2);
+    color-scheme: dark;
+  }
+}
+html.is-settings body { margin: 0; user-select: none; }
+.settings { --accent: #0078d4; display: grid; grid-template-columns: 220px 1fr; height: 100vh; }
+.settings button { font: inherit; color: inherit; }
+.settings h1, .settings h2, .settings h3, .settings p { margin: 0; }
+
+.sidebar { display: flex; flex-direction: column; gap: 2px; padding: 16px 10px; background: var(--sidebar); border-right: 1px solid var(--line); }
+.sidebar-app { display: flex; align-items: center; gap: 10px; padding: 4px 8px 16px; font-weight: 650; font-size: 15px; letter-spacing: -0.015em; }
+.sidebar-app span { display: flex; flex-direction: column; line-height: 1.15; }
+.sidebar-app small { font-size: 11.5px; font-weight: 450; color: var(--dim); letter-spacing: 0; }
+.sidebar-item { position: relative; display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 8px; border: 0; border-radius: 7px; background: none; text-align: left; cursor: pointer; transition: background-color 0.15s ease; }
+.sidebar-item:hover { background: var(--hover); }
+.sidebar-item[aria-current='page'] { background: var(--selected); font-weight: 600; }
+/* Windows 11's selection pill on the leading edge. */
+.sidebar-item[aria-current='page']::before { content: ''; position: absolute; left: 0; top: 50%; width: 3px; height: 16px; translate: 0 -50%; border-radius: 2px; background: var(--accent); }
+.sidebar-badge { width: 7px; height: 7px; margin-left: auto; border-radius: 50%; background: var(--accent); }
+.tile { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.25), 0 1px 2px rgb(0 0 0 / 0.2); }
+.tile svg { width: 14px; height: 14px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+.pane { overflow-y: auto; padding: 28px 32px 32px; display: flex; flex-direction: column; gap: 22px; animation: pane-in 0.28s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+@keyframes pane-in { from { opacity: 0; translate: 0 6px; } }
+.pane header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; }
+.pane header p { margin-top: 2px; color: var(--dim); }
+
+.group { display: flex; flex-direction: column; gap: 7px; }
+.group h3 { padding-left: 4px; font-size: 12.5px; font-weight: 600; color: var(--dim); }
+.group-card { border-radius: 10px; background: var(--card); box-shadow: 0 0 0 1px var(--line), 0 1px 2px rgb(0 0 0 / 0.04); overflow: hidden; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 20px; width: 100%; min-height: 50px; box-sizing: border-box; padding: 9px 16px; border: 0; background: none; text-align: left; }
+.row + .row { box-shadow: inset 0 1px 0 var(--line); }
+.row.is-disabled { opacity: 0.45; }
+.row-text { display: flex; flex-direction: column; gap: 1px; font-weight: 500; }
+.row-text small { font-size: 12px; font-weight: 400; color: var(--dim); }
+.row-stack { flex-direction: column; align-items: stretch; gap: 10px; padding-block: 14px; }
+.row-link { cursor: pointer; transition: background-color 0.15s ease; font-weight: 500; }
+.row-link:hover { background: var(--hover); }
+.row-link span { font-size: 18px; color: var(--dim); }
+
+/* The Mac's switch, in the Windows accent. */
+.switch { appearance: none; flex: none; position: relative; width: 40px; height: 22px; margin: 0; border-radius: 11px; background: var(--track); cursor: pointer; transition: background-color 0.2s ease; }
+.switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: var(--knob); box-shadow: 0 1px 3px rgb(0 0 0 / 0.3); transition: translate 0.25s cubic-bezier(0.3, 1.4, 0.5, 1), width 0.15s ease; }
+.switch:checked { background: var(--accent); }
+.switch:checked::after { translate: 18px 0; }
+.switch:active:not(:disabled)::after { width: 22px; }
+.switch:checked:active:not(:disabled)::after { translate: 14px 0; }
+.switch:focus-visible, .button:focus-visible, .sidebar-item:focus-visible, .row-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.switch:disabled { cursor: default; }
+
+.range { display: flex; align-items: center; gap: 12px; }
+.range input { --p: 30%; appearance: none; width: 140px; height: 4px; margin: 0; border-radius: 2px; background: linear-gradient(to right, var(--accent) var(--p), var(--track) var(--p)); cursor: pointer; }
+.range input::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--knob); box-shadow: 0 0 0 1px var(--line), 0 1px 4px rgb(0 0 0 / 0.3); transition: scale 0.15s ease; }
+.range input:active::-webkit-slider-thumb { scale: 1.12; }
+.range output { width: 3ch; color: var(--dim); font-variant-numeric: tabular-nums; }
+
+.settings textarea { font: 12px/1.5 'Cascadia Mono', Consolas, monospace; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--text); resize: vertical; user-select: text; }
+.settings textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+.button { height: 32px; padding: 0 16px; border: 1px solid var(--line); border-radius: 7px; background: var(--card); font-weight: 550; cursor: pointer; transition: background-color 0.15s ease, scale 0.1s ease; }
+.button:hover:enabled { background: var(--hover); }
+.button:active:enabled { scale: 0.97; }
+.button:disabled { opacity: 0.55; cursor: default; }
+.button.is-primary { border: 0; background: var(--accent); color: #fff; }
+.button.is-primary:hover { filter: brightness(1.08); }
+.button.is-large { height: 40px; padding: 0 28px; font-size: 14.5px; }
+
+.about { display: flex; align-items: center; gap: 16px; padding: 18px 20px; border-radius: 12px; background: var(--card); box-shadow: 0 0 0 1px var(--line); }
+.about img { filter: drop-shadow(0 4px 10px rgb(0 0 0 / 0.25)); }
+.about div { flex: 1; }
+.about h2 { font-size: 17px; font-weight: 650; letter-spacing: -0.015em; }
+.about p { color: var(--dim); font-variant-numeric: tabular-nums; }
+
+.welcome { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; max-width: 420px; margin: 0 auto; padding: 32px; text-align: center; animation: pane-in 0.5s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+.welcome img { filter: drop-shadow(0 8px 18px rgb(0 40 100 / 0.3)); }
+.welcome h1 { font-size: 30px; font-weight: 750; letter-spacing: -0.03em; }
+.welcome > p { color: var(--dim); font-size: 14.5px; }
+.welcome ul { display: flex; flex-direction: column; gap: 8px; margin: 4px 0; padding: 0; list-style: none; text-align: left; }
+.welcome li { padding-left: 22px; position: relative; }
+.welcome li::before { content: ''; position: absolute; left: 4px; top: 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.welcome .group { align-self: stretch; text-align: left; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pane, .welcome { animation: none; }
+  .switch, .switch::after { transition: none; }
+}
