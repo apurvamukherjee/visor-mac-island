@@ -86,6 +86,11 @@ export const useShelf = create<{ files: string[]; add: (paths: string[]) => void
   ),
 );
 
+// Each monitor's island is its own webview; a drop on one shows on all.
+window.addEventListener('storage', (e) => {
+  if (e.key === 'visor-shelf') void useShelf.persist.rehydrate();
+});
+
 const trackKey = (m: { title: string; artist: string } | null) => (m ? `${m.title}|${m.artist}` : '');
 
 /** Turns system changes into the closed island's live activities. Each island runs its own. */
