@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod error;
+mod media;
 mod state;
 
 use std::{collections::HashMap, sync::Mutex, thread, time::Duration};
@@ -143,7 +144,7 @@ fn main() {
     tauri::Builder::default()
         .manage(Hits::default())
         .manage(state::Shared::default())
-        .invoke_handler(tauri::generate_handler![set_hit, state::get_state])
+        .invoke_handler(tauri::generate_handler![set_hit, state::get_state, media::media, media::media_cover])
         .setup(|app| {
             let handle = app.handle().clone();
             place_islands(&handle, 0)?;
@@ -166,6 +167,8 @@ fn main() {
                 })
                 .build(app)?;
 
+            let media_app = handle.clone();
+            thread::spawn(move || media::watch(media_app));
             thread::spawn(move || track_cursor(handle));
             Ok(())
         })
