@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing release to attach the installer to, e.g. v3.7.1
+        description: Existing release to attach the installer to, e.g. windows-v3.7.2
         required: false
 
 permissions:
@@ -49,7 +49,10 @@ jobs:
 
       # A release builds as its tag's version, so the app's update check compares like with like.
       - if: env.TAG != ''
-        run: echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
+        # windows-v3.7.2 and v3.7.2 both build as 3.7.2.
+        run: |
+          v=${TAG#windows-}
+          echo "VERSION=${v#v}" >> "$GITHUB_ENV"
       - run: npx tauri build ${VERSION:+--config "{\"version\":\"$VERSION\"}"}
       # After the build, which leaves the dist/ that generate_context! needs.
       - run: cargo test --release --manifest-path src-tauri/Cargo.toml

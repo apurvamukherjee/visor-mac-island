@@ -18,7 +18,7 @@ From a Mac, `cargo check --target x86_64-pc-windows-msvc` type-checks the Rust o
 
 ## Releases
 
-Publishing a GitHub release runs `.github/workflows/windows.yml`. It builds the release's version, attaches `Visor-Setup-<version>.exe`, and leaves a filled-in winget manifest as a run artifact for submitting to `microsoft/winget-pkgs`. Builds are unsigned, so SmartScreen asks once: More info › Run anyway.
+Windows releases are tagged `windows-v<version>` and never marked latest, so the Mac's update check and the site's DMG link keep pointing at the Mac release. Publishing one runs `.github/workflows/windows.yml`. It builds the tag's version, attaches `Visor-Setup-<version>.exe`, and leaves a filled-in winget manifest as a run artifact for submitting to `microsoft/winget-pkgs`. Builds are unsigned, so SmartScreen asks once: More info › Run anyway.
 
 ## Where the Mac and Windows differ
 
