@@ -8,6 +8,10 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release to attach the installer to, e.g. v3.7.1
+        required: false
 
 permissions:
   # Only to attach the installer to a published release.
@@ -16,6 +20,8 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
     defaults:
       run:
         working-directory: windows
@@ -42,8 +48,8 @@ jobs:
       - run: npm test
 
       # A release builds as its tag's version, so the app's update check compares like with like.
-      - if: github.event_name == 'release'
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+      - if: env.TAG != ''
+        run: echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
       - run: npx tauri build ${VERSION:+--config "{\"version\":\"$VERSION\"}"}
       # After the build, which leaves the dist/ that generate_context! needs.
       - run: cargo test --release --manifest-path src-tauri/Cargo.toml
@@ -54,22 +60,22 @@ jobs:
           path: windows/src-tauri/target/release/bundle/nsis/*.exe
 
       - name: Attach the installer to the release
-        if: github.event_name == 'release'
+        if: env.TAG != ''
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           cp src-tauri/target/release/bundle/nsis/*.exe "Visor-Setup-$VERSION.exe"
-          gh release upload "$GITHUB_REF_NAME" "Visor-Setup-$VERSION.exe" --clobber
+          gh release upload "$TAG" "Visor-Setup-$VERSION.exe" --clobber
 
       - name: Fill in the winget manifest
-        if: github.event_name == 'release'
+        if: env.TAG != ''
         run: |
           sha=$(sha256sum "Visor-Setup-$VERSION.exe" | cut -d' ' -f1)
           mkdir -p manifest
           for f in winget/*.yaml; do
             sed -e "s/{{VERSION}}/$VERSION/g" -e "s/{{SHA256}}/$sha/g" "$f" > "manifest/$(basename "$f")"
           done
-      - if: github.event_name == 'release'
+      - if: env.TAG != ''
         uses: actions/upload-artifact@v4
         with:
           name: winget-manifest
