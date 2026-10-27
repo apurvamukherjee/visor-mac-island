@@ -23,6 +23,7 @@ features = [
   "Graphics_Imaging",
   "Media_Control",
   "Storage_FileProperties",
+  "Storage_Search",
   "Storage_Streams",
   "UI_ViewManagement",
   "Web_Http",

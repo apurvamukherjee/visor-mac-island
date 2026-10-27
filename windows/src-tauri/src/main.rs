@@ -4,6 +4,7 @@
 mod audio;
 mod brightness;
 mod error;
+mod files;
 mod fullscreen;
 mod keys;
 mod media;
@@ -221,7 +222,10 @@ fn main() {
             audio::set_volume,
             audio::set_output,
             prefs::apply_settings,
-            show_settings
+            show_settings,
+            files::thumbnail,
+            files::open,
+            files::reveal,
         ])
         .setup(|app| {
             let handle = app.handle().clone();
