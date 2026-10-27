@@ -1,0 +1,6 @@
+html.is-settings { color-scheme: light dark; background: Canvas; color: CanvasText; font: 14px 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif; }
+.settings { padding: 20px 24px; display: grid; gap: 4px; }
+.settings h1 { font-size: 20px; font-weight: 600; margin: 0 0 12px; }
+.settings-row { display: flex; justify-content: space-between; align-items: center; min-height: 40px; }
+.settings-row span { display: flex; align-items: center; gap: 10px; }
+.settings-row output { width: 3ch; font-variant-numeric: tabular-nums; }
