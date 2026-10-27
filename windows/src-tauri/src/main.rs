@@ -177,7 +177,8 @@ fn track_cursor(app: AppHandle) {
     }
 }
 
-/// Visor steps aside for a full-screen game or video, but only on the monitor showing it.
+/// Visor stays on top of everything, but steps aside for a full-screen game or video when
+/// the setting asks, and only on the monitor showing it.
 fn hide_under_fullscreen(app: &AppHandle, hidden: &mut HashSet<String>) {
     let full = prefs::HIDE_IN_FULLSCREEN
         .load(Ordering::Relaxed)
@@ -189,6 +190,11 @@ fn hide_under_fullscreen(app: &AppHandle, hidden: &mut HashSet<String>) {
         }
         let Ok(hwnd) = window.hwnd() else { continue };
         let hide = full.is_some_and(|m| fullscreen::monitor_of(hwnd) == m);
+        if !hide {
+            if let Err(e) = fullscreen::raise(hwnd) {
+                eprintln!("visor: {label} raise failed: {e}");
+            }
+        }
         if hide == hidden.contains(&label) {
             continue;
         }

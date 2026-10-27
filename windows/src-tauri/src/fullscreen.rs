@@ -3,8 +3,29 @@ use windows::Win32::{
     Graphics::Gdi::{
         GetMonitorInfoW, MonitorFromWindow, HMONITOR, MONITORINFO, MONITOR_DEFAULTTONULL,
     },
-    UI::WindowsAndMessaging::{GetClassNameW, GetForegroundWindow, GetShellWindow, GetWindowRect},
+    UI::WindowsAndMessaging::{
+        GetClassNameW, GetForegroundWindow, GetShellWindow, GetWindowRect, SetWindowPos,
+        HWND_TOPMOST, SWP_ASYNCWINDOWPOS, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOOWNERZORDER,
+        SWP_NOSIZE,
+    },
 };
+
+/// Puts the window back on top of the topmost band: any other always-on-top app that
+/// activates later lands above it, and Windows never moves it back.
+pub fn raise(window: HWND) -> windows::core::Result<()> {
+    unsafe {
+        SetWindowPos(
+            window,
+            Some(HWND_TOPMOST),
+            0,
+            0,
+            0,
+            0,
+            // Async so the tracker thread never waits on the main thread's message loop.
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_ASYNCWINDOWPOS,
+        )
+    }
+}
 
 /// The monitor the foreground window fills edge to edge (a game, a video, a slideshow), if any.
 /// A maximized window stops at the taskbar, so it doesn't count.
