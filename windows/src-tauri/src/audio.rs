@@ -71,7 +71,7 @@ pub fn watch(app: AppHandle) {
     let mut tick = 0u32;
     let mut volume: Option<IAudioEndpointVolume> = None;
     loop {
-        if tick % OUTPUTS_EVERY == 0 {
+        if tick.is_multiple_of(OUTPUTS_EVERY) {
             // The default device can change under us, so the endpoint is fetched again with the list.
             volume = endpoint_volume()
                 .map_err(|e| eprintln!("visor: no output volume: {e}"))

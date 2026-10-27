@@ -124,7 +124,7 @@ fn track_cursor(app: AppHandle) {
         tick = tick.wrapping_add(1);
 
         // Tauri has no display-change event, so hot-plugging and rescaling are polled.
-        if tick % MONITOR_CHECK_TICKS == 0 {
+        if tick.is_multiple_of(MONITOR_CHECK_TICKS) {
             match monitor_key(&app) {
                 Ok(now) if now != monitors => {
                     monitors = now;
@@ -139,7 +139,7 @@ fn track_cursor(app: AppHandle) {
             }
         }
 
-        if tick % FULLSCREEN_CHECK_TICKS == 0 {
+        if tick.is_multiple_of(FULLSCREEN_CHECK_TICKS) {
             hide_under_fullscreen(&app, &mut hidden);
         }
 
