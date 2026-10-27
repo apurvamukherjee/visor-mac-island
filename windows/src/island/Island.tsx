@@ -9,7 +9,7 @@ import { Closed, closedSize } from './Closed';
 import { Header } from './Header';
 import { Mirror } from './Mirror';
 import { Player } from './Player';
-import { useMeeting } from './queries';
+import { useCover, useMeeting } from './queries';
 import { Shelf } from './Shelf';
 import { useIsland, useShelf } from './store';
 import './Island.css';
@@ -30,6 +30,8 @@ export function Island() {
   const showCalendar = useSettings((s) => s.showCalendar);
   const showDownloads = useSettings((s) => s.showDownloads);
   const playing = useSystem((s) => s.media !== null);
+  const audible = useSystem((s) => s.media?.playing ?? false);
+  const cover = useCover();
   const downloading = useSystem((s) => s.downloading) && showDownloads;
   const { accent, camera, mic } = useSystem();
   const joining = useMeeting() !== null;
@@ -82,7 +84,7 @@ export function Island() {
 
   return (
     <div
-      className={`island${open ? ' is-open' : ''}${hover ? ' is-hover' : ''}`}
+      className={`island${open ? ' is-open' : ''}${hover ? ' is-hover' : ''}${audible ? ' is-playing' : ''}${transient ? ' has-transient' : ''}`}
       style={
         {
           '--w': `${size.w}px`,
@@ -92,12 +94,14 @@ export function Island() {
           '--ms': `${motion.ms}ms`,
           '--ease': motion.easing,
           '--accent': accent,
+          '--cover': cover ? `url(${cover})` : 'none',
         } as React.CSSProperties
       }
       onPointerEnter={enter}
       onPointerLeave={leave}
       onWheel={gesture}
     >
+      <span className="island-ambient" aria-hidden />
       {(camera || mic) && (
         <span className="island-privacy" role="status" aria-label={[camera && 'Camera', mic && 'Microphone'].filter(Boolean).join(' and ') + ' in use'}>
           {camera && <i className="is-camera" />}
