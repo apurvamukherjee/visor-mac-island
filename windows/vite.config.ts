@@ -7,5 +7,7 @@ export default defineConfig({
   resolve: { dedupe: ['react', 'react-dom'] },
   // Tauri's devUrl points here, so the port can't drift.
   server: { port: 1420, strictPort: true, fs: { allow: ['..'] } },
+  // three.js is one lazy chunk, loaded only when earbuds or a soundbar connect.
+  build: { chunkSizeWarningLimit: 600 },
   clearScreen: false,
 });
