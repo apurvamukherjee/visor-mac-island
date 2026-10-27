@@ -9,7 +9,7 @@ import { Closed, closedSize } from './Closed';
 import { Header } from './Header';
 import { Mirror } from './Mirror';
 import { Player } from './Player';
-import { useCover, useMeeting } from './queries';
+import { useCover, useCoverColor, useMeeting } from './queries';
 import { Shelf } from './Shelf';
 import { useIsland, useShelf } from './store';
 import './Island.css';
@@ -34,6 +34,7 @@ export function Island() {
   const playing = useSystem((s) => s.media !== null);
   const audible = useSystem((s) => s.media?.playing ?? false);
   const cover = useCover();
+  const tint = useCoverColor();
   const downloading = useSystem((s) => s.downloading) && showDownloads;
   const { accent, camera, mic } = useSystem();
   const joining = useMeeting() !== null;
@@ -107,6 +108,7 @@ export function Island() {
           '--ease': motion.easing,
           '--accent': accent,
           '--cover': cover ? `url(${cover})` : 'none',
+          '--tint': tint ?? accent,
         } as React.CSSProperties
       }
       onPointerEnter={enter}

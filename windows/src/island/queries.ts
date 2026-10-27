@@ -37,6 +37,30 @@ export function useCover() {
   }).data;
 }
 
+/** The cover's average color: Visor on the Mac tints the visualizer and glow with it. */
+export function useCoverColor() {
+  const cover = useCover();
+  return useQuery({
+    queryKey: ['cover-color', cover],
+    queryFn: async () => {
+      if (!cover) return null;
+      const image = new Image();
+      image.src = cover;
+      await image.decode();
+      // Scaling the whole cover into one pixel makes the browser average it.
+      const canvas = new OffscreenCanvas(1, 1);
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error('No 2D canvas to average the cover with');
+      context.imageSmoothingQuality = 'high';
+      context.drawImage(image, 0, 0, 1, 1);
+      const [r = 0, g = 0, b = 0] = context.getImageData(0, 0, 1, 1).data;
+      return `rgb(${r} ${g} ${b})`;
+    },
+    enabled: cover != null,
+    staleTime: Infinity,
+  }).data;
+}
+
 export function useThumbnail(path: string) {
   return useQuery({ queryKey: ['thumb', path], queryFn: async () => toDataUrl(await thumbnail(path)), staleTime: Infinity, retry: false });
 }
