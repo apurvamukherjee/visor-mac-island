@@ -1,0 +1,6 @@
+# Filled in by .github/workflows/windows.yml for each release, then submitted to microsoft/winget-pkgs by hand.
+PackageIdentifier: ApurvaMukherjee.Visor
+PackageVersion: {{VERSION}}
+DefaultLocale: en-US
+ManifestType: version
+ManifestVersion: 1.6.0

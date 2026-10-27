@@ -1,0 +1,13 @@
+PackageIdentifier: ApurvaMukherjee.Visor
+PackageVersion: {{VERSION}}
+PackageLocale: en-US
+Publisher: Apurva Mukherjee
+PackageName: Visor
+PackageUrl: https://github.com/apurvamukherjee/visor-mac-island
+License: GPL-3.0
+LicenseUrl: https://github.com/apurvamukherjee/visor-mac-island/blob/main/LICENSE
+ShortDescription: A Dynamic Island for Windows
+Description: Music, volume and brightness HUDs, a file shelf, calendar, timer and more in an island at the top of each screen.
+Tags: [dynamic-island, notch, music, productivity]
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0

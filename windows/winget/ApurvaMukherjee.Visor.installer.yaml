@@ -1,0 +1,10 @@
+PackageIdentifier: ApurvaMukherjee.Visor
+PackageVersion: {{VERSION}}
+InstallerType: nullsoft
+Scope: user
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/apurvamukherjee/visor-mac-island/releases/download/v{{VERSION}}/Visor-Setup-{{VERSION}}.exe
+    InstallerSha256: {{SHA256}}
+ManifestType: installer
+ManifestVersion: 1.6.0
