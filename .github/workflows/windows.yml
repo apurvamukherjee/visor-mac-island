@@ -21,12 +21,17 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: windows/package-lock.json
+          cache-dependency-path: |
+            windows/package-lock.json
+            website/package-lock.json
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: windows/src-tauri
       - run: npm ci
+      # Shared components import from website/, whose types resolve from its own node_modules.
+      - run: npm ci
+        working-directory: website
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test
