@@ -12,6 +12,8 @@ impl fmt::Display for Error {
     }
 }
 
+impl std::error::Error for Error {}
+
 impl serde::Serialize for Error {
     fn serialize<S: serde::Serializer>(&self, s: S) -> std::result::Result<S::Ok, S::Error> {
         s.serialize_str(&self.0)
@@ -27,4 +29,11 @@ macro_rules! from {
         }
     )*};
 }
-from!(windows::core::Error, tauri::Error, std::io::Error, std::string::FromUtf16Error, String, &str);
+from!(
+    windows::core::Error,
+    tauri::Error,
+    std::io::Error,
+    std::string::FromUtf16Error,
+    String,
+    &str
+);

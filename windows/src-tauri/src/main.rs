@@ -4,12 +4,19 @@
 mod audio;
 mod brightness;
 mod error;
+mod fullscreen;
 mod keys;
 mod media;
+mod prefs;
 mod state;
 mod system;
 
-use std::{collections::HashMap, sync::Mutex, thread, time::Duration};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::{atomic::Ordering, Mutex},
+    thread,
+    time::Duration,
+};
 use tauri::{
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
@@ -21,6 +28,7 @@ const WINDOW_W: f64 = 720.0;
 const WINDOW_H: f64 = 230.0;
 const TICK: Duration = Duration::from_millis(16);
 const MONITOR_CHECK_TICKS: u32 = 120;
+const FULLSCREEN_CHECK_TICKS: u32 = 15;
 
 /// The island's rect in CSS pixels, per window, as the frontend last reported it.
 #[derive(serde::Deserialize, Clone, Copy)]
@@ -45,13 +53,21 @@ fn monitor_key(app: &AppHandle) -> tauri::Result<MonitorKey> {
     Ok(app
         .available_monitors()?
         .iter()
-        .map(|m| (m.position().x, m.position().y, m.size().width, m.size().height, m.scale_factor().to_bits()))
+        .map(|m| {
+            (
+                m.position().x,
+                m.position().y,
+                m.size().width,
+                m.size().height,
+                m.scale_factor().to_bits(),
+            )
+        })
         .collect())
 }
 
 /// One island per monitor, top center, where the Mac has its notch.
 /// Labels carry a generation so a rebuild never collides with windows still being destroyed.
-fn place_islands(app: &AppHandle, generation: u32) -> tauri::Result<()> {
+fn place_islands(app: &AppHandle, generation: u32) -> error::Result<()> {
     for (label, window) in app.webview_windows() {
         if label.starts_with("island-") {
             window.destroy()?;
@@ -61,22 +77,30 @@ fn place_islands(app: &AppHandle, generation: u32) -> tauri::Result<()> {
 
     for (i, monitor) in app.available_monitors()?.iter().enumerate() {
         let scale = monitor.scale_factor();
-        let (w, h) = ((WINDOW_W * scale).round() as u32, (WINDOW_H * scale).round() as u32);
+        let (w, h) = (
+            (WINDOW_W * scale).round() as u32,
+            (WINDOW_H * scale).round() as u32,
+        );
         let x = monitor.position().x + (monitor.size().width as i32 - w as i32) / 2;
-        let window = WebviewWindowBuilder::new(app, format!("island-{generation}-{i}"), WebviewUrl::default())
-            .transparent(true)
-            .decorations(false)
-            .shadow(false)
-            .resizable(false)
-            .always_on_top(true)
-            .skip_taskbar(true)
-            .focused(false)
-            .focusable(false)
-            .visible(false)
-            .build()?;
+        let window = WebviewWindowBuilder::new(
+            app,
+            format!("island-{generation}-{i}"),
+            WebviewUrl::default(),
+        )
+        .transparent(true)
+        .decorations(false)
+        .shadow(false)
+        .resizable(false)
+        .always_on_top(true)
+        .skip_taskbar(true)
+        .focused(false)
+        .focusable(false)
+        .visible(false)
+        .build()?;
         window.set_size(PhysicalSize::new(w, h))?;
         window.set_position(PhysicalPosition::new(x, monitor.position().y))?;
         window.set_ignore_cursor_events(true)?;
+        prefs::capture(&window)?;
         window.show()?;
     }
     Ok(())
@@ -87,6 +111,7 @@ fn place_islands(app: &AppHandle, generation: u32) -> tauri::Result<()> {
 // ponytail: 60 Hz cursor poll; swap for a WH_MOUSE_LL hook if it ever shows up in CPU.
 fn track_cursor(app: AppHandle) {
     let mut interactive: HashMap<String, bool> = HashMap::new();
+    let mut hidden: HashSet<String> = HashSet::new();
     let mut monitors = monitor_key(&app).unwrap_or_default();
     let mut generation = 0;
     let mut tick = 0u32;
@@ -110,11 +135,22 @@ fn track_cursor(app: AppHandle) {
             }
         }
 
-        let Ok(cursor) = app.cursor_position() else { continue };
+        if tick % FULLSCREEN_CHECK_TICKS == 0 {
+            hide_under_fullscreen(&app, &mut hidden);
+        }
+
+        let Ok(cursor) = app.cursor_position() else {
+            continue;
+        };
         let hits = app.state::<Hits>().0.lock().unwrap().clone();
         for (label, window) in app.webview_windows() {
             let Some(r) = hits.get(&label) else { continue };
-            let (Ok(origin), Ok(scale)) = (window.outer_position(), window.scale_factor()) else { continue };
+            if hidden.contains(&label) {
+                continue;
+            }
+            let (Ok(origin), Ok(scale)) = (window.outer_position(), window.scale_factor()) else {
+                continue;
+            };
             let (left, top) = (origin.x as f64 + r.x * scale, origin.y as f64 + r.y * scale);
             let inside = cursor.x >= left
                 && cursor.x < left + r.w * scale
@@ -131,13 +167,42 @@ fn track_cursor(app: AppHandle) {
     }
 }
 
+/// Visor steps aside for a full-screen game or video, but only on the monitor showing it.
+fn hide_under_fullscreen(app: &AppHandle, hidden: &mut HashSet<String>) {
+    let full = prefs::HIDE_IN_FULLSCREEN
+        .load(Ordering::Relaxed)
+        .then(fullscreen::monitor)
+        .flatten();
+    for (label, window) in app.webview_windows() {
+        if !label.starts_with("island-") {
+            continue;
+        }
+        let Ok(hwnd) = window.hwnd() else { continue };
+        let hide = full.is_some_and(|m| fullscreen::monitor_of(hwnd) == m);
+        if hide == hidden.contains(&label) {
+            continue;
+        }
+        let done = if hide { window.hide() } else { window.show() };
+        match done {
+            Ok(()) if hide => drop(hidden.insert(label)),
+            Ok(()) => drop(hidden.remove(&label)),
+            Err(e) => eprintln!("visor: {label} fullscreen hide failed: {e}"),
+        }
+    }
+}
+
+#[tauri::command]
+fn show_settings(app: AppHandle) -> error::Result<()> {
+    Ok(open_settings(&app)?)
+}
+
 fn open_settings(app: &AppHandle) -> tauri::Result<()> {
     if let Some(window) = app.get_webview_window("settings") {
         return window.set_focus();
     }
     WebviewWindowBuilder::new(app, "settings", WebviewUrl::default())
         .title("Visor Settings")
-        .inner_size(420.0, 200.0)
+        .inner_size(520.0, 640.0)
         .resizable(false)
         .center()
         .build()?;
@@ -148,14 +213,26 @@ fn main() {
     tauri::Builder::default()
         .manage(Hits::default())
         .manage(state::Shared::default())
-        .invoke_handler(tauri::generate_handler![set_hit, state::get_state, media::media, media::media_cover, audio::set_volume, audio::set_output])
+        .invoke_handler(tauri::generate_handler![
+            set_hit,
+            state::get_state,
+            media::media,
+            media::media_cover,
+            audio::set_volume,
+            audio::set_output,
+            prefs::apply_settings,
+            show_settings
+        ])
         .setup(|app| {
             let handle = app.handle().clone();
             place_islands(&handle, 0)?;
 
             let settings = MenuItem::with_id(app, "settings", "Settings…", true, None::<&str>)?;
             let quit = MenuItem::with_id(app, "quit", "Quit Visor", true, None::<&str>)?;
-            let icon = app.default_window_icon().cloned().ok_or("bundle has no icon")?;
+            let icon = app
+                .default_window_icon()
+                .cloned()
+                .ok_or("bundle has no icon")?;
             TrayIconBuilder::new()
                 .icon(icon)
                 .tooltip("Visor")
