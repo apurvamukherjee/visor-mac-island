@@ -9,7 +9,8 @@ html.is-island button { font: inherit; color: inherit; }
   /* Centered by margin, not transform, so the hover lift's scale keeps the top edge pinned. */
   position: absolute; top: 0; left: 0; right: 0; margin-inline: auto; isolation: isolate;
   width: var(--w); height: var(--h);
-  background: #000; color: #fff; font: 13px 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  /* Inter stands in for San Francisco, which Windows doesn't have; the tracking matches SF Text at 13px. */
+  background: #000; color: #fff; font: 13px 'Inter Variable', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif; letter-spacing: -0.006em;
   border-radius: 0 0 var(--bottom) var(--bottom);
   transform-origin: 50% 0;
   transition:
@@ -122,7 +123,7 @@ html.is-island button { font: inherit; color: inherit; }
 .home { flex: 1; display: flex; gap: 22px; padding-top: 8px; min-height: 0; }
 .player { display: flex; gap: 18px; flex: 1.15; min-width: 0; align-items: center; }
 .player-main { flex: 1; min-width: 0; }
-.player-title { font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.player-title { font-size: 16px; font-weight: 650; letter-spacing: -0.015em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .player-artist { font-size: 13px; color: rgb(255 255 255 / 0.55); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .player.is-empty .player-artist { white-space: normal; }
 
@@ -166,7 +167,7 @@ html.is-island button { font: inherit; color: inherit; }
 .calendar { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
 .calendar-top { display: flex; gap: 12px; align-items: center; }
 .calendar-month { display: flex; flex-direction: column; line-height: 1.15; white-space: nowrap; }
-.calendar-month b { font-size: 16px; }
+.calendar-month b { font-size: 16px; font-weight: 650; letter-spacing: -0.015em; }
 .calendar-month span { font-size: 13px; color: rgb(255 255 255 / 0.55); }
 .calendar-days { display: flex; gap: 2px; flex: 1; justify-content: space-between; }
 .calendar-day { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 34px; padding: 4px 0 5px; border: 0; border-radius: 9px; background: none; color: rgb(255 255 255 / 0.85); cursor: pointer; }

@@ -1,4 +1,4 @@
-html.is-settings { color-scheme: light dark; background: Canvas; color: CanvasText; font: 14px 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif; }
+html.is-settings { color-scheme: light dark; background: Canvas; color: CanvasText; font: 14px 'Inter Variable', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif; }
 html.is-settings body { margin: 0; }
 .settings { padding: 20px 24px 28px; display: grid; gap: 20px; }
 .settings h1 { font-size: 22px; font-weight: 600; margin: 0 0 6px; }

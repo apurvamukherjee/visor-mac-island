@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { getCurrentWindow } from '@tauri-apps/api/window';
+import '@fontsource-variable/inter/wght.css';
 import { Island } from './island/Island';
 import { startTransients } from './island/store';
 import { report, showSettings, startSystem } from './native';
