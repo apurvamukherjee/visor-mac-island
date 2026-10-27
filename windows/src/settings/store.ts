@@ -9,7 +9,7 @@ const defaults = {
   /** Seconds the pointer rests on the closed island before it opens; Visor's minimumHoverDuration. */
   hoverDelay: 0.3,
   launchAtLogin: false,
-  hideInFullscreen: true,
+  hideInFullscreen: false,
   hideFromCapture: false,
   /** Take the volume keys and show Visor's HUD instead of the Windows flyout. */
   replaceHud: false,
@@ -39,7 +39,16 @@ interface Settings extends SettingsValues {
 const KEY = 'visor-settings';
 
 export const useSettings = create<Settings>()(
-  persist((set) => ({ ...defaults, set: (patch) => set(patch) }), { name: KEY }),
+  persist((set) => ({ ...defaults, set: (patch) => set(patch) }), {
+    name: KEY,
+    // v1 keeps the island over full-screen apps by default; v0 installs saved the old default.
+    version: 1,
+    migrate: (saved, version) => {
+      const state = { ...defaults, ...(typeof saved === 'object' ? saved : {}) };
+      if (version < 1) state.hideInFullscreen = false;
+      return state as Settings;
+    },
+  }),
 );
 
 // The settings window and every island are separate webviews sharing one localStorage.

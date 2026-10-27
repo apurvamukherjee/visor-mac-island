@@ -7,7 +7,7 @@ use windows::Win32::UI::WindowsAndMessaging::{
 use windows_registry::CURRENT_USER;
 
 pub static HIDE_FROM_CAPTURE: AtomicBool = AtomicBool::new(false);
-pub static HIDE_IN_FULLSCREEN: AtomicBool = AtomicBool::new(true);
+pub static HIDE_IN_FULLSCREEN: AtomicBool = AtomicBool::new(false);
 const RUN: &str = r"Software\Microsoft\Windows\CurrentVersion\Run";
 
 /// The settings Rust acts on. The rest live only in the frontend.
