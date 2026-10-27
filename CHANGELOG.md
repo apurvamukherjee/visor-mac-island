@@ -4,6 +4,10 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.8.0 (build 54) · 2026-10-27
+
+- **Pick which keys the HUD takes over.** Settings › HUDs › Controls offers Volume, Brightness or Both. It starts on Volume, so brightness keys go back to the smooth macOS HUD; choose Brightness or Both to bring Visor's back.
+
 ## 3.7.2 (build 53) · 2026-10-27
 
 - **The Join button fits in the open notch.** It's now a camera button the size of the ones beside it, so it no longer squeezes the battery percentage into a column. With a timer running as well, the mirror button steps aside until the call is over.
