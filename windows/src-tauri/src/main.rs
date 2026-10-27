@@ -104,7 +104,13 @@ fn place_islands(app: &AppHandle, generation: u32) -> error::Result<()> {
         window.set_size(PhysicalSize::new(w, h))?;
         window.set_position(PhysicalPosition::new(x, monitor.position().y))?;
         window.set_ignore_cursor_events(true)?;
-        prefs::capture(&window)?;
+        // Display affinity only takes from the window's own thread, and rebuilds run on the tracker's.
+        let target = window.clone();
+        app.run_on_main_thread(move || {
+            if let Err(e) = prefs::capture(&target) {
+                eprintln!("visor: capture setting failed: {e}");
+            }
+        })?;
         window.show()?;
     }
     Ok(())
