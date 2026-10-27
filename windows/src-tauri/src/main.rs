@@ -3,6 +3,7 @@
 
 mod audio;
 mod error;
+mod keys;
 mod media;
 mod state;
 
@@ -168,6 +169,8 @@ fn main() {
                 })
                 .build(app)?;
 
+            let keys_app = handle.clone();
+            thread::spawn(move || keys::run(keys_app));
             let audio_app = handle.clone();
             thread::spawn(move || audio::watch(audio_app));
             let media_app = handle.clone();
