@@ -24,12 +24,25 @@ pub fn write(pages: &[Page]) -> Vec<u8> {
     };
 
     // Objects 1 and 2, then three per page: the page, its drawing, its image.
-    let kids: Vec<String> = (0..pages.len()).map(|i| format!("{} 0 R", 3 + 3 * i)).collect();
+    let kids: Vec<String> = (0..pages.len())
+        .map(|i| format!("{} 0 R", 3 + 3 * i))
+        .collect();
     object(&mut out, "<< /Type /Catalog /Pages 2 0 R >>".into(), None);
-    object(&mut out, format!("<< /Type /Pages /Kids [{}] /Count {} >>", kids.join(" "), pages.len()), None);
+    object(
+        &mut out,
+        format!(
+            "<< /Type /Pages /Kids [{}] /Count {} >>",
+            kids.join(" "),
+            pages.len()
+        ),
+        None,
+    );
     for (i, page) in pages.iter().enumerate() {
         let n = 3 + 3 * i;
-        let (w, h) = (page.width as f64 * POINTS_PER_PIXEL, page.height as f64 * POINTS_PER_PIXEL);
+        let (w, h) = (
+            page.width as f64 * POINTS_PER_PIXEL,
+            page.height as f64 * POINTS_PER_PIXEL,
+        );
         let draw = format!("q {w:.2} 0 0 {h:.2} 0 0 cm /Im0 Do Q");
         object(
             &mut out,
@@ -40,7 +53,11 @@ pub fn write(pages: &[Page]) -> Vec<u8> {
             ),
             None,
         );
-        object(&mut out, format!("<< /Length {} >>", draw.len()), Some(draw.as_bytes()));
+        object(
+            &mut out,
+            format!("<< /Length {} >>", draw.len()),
+            Some(draw.as_bytes()),
+        );
         object(
             &mut out,
             format!(
@@ -54,12 +71,18 @@ pub fn write(pages: &[Page]) -> Vec<u8> {
     }
 
     let xref = out.len();
-    out.extend_from_slice(format!("xref\n0 {}\n0000000000 65535 f \n", offsets.len() + 1).as_bytes());
+    out.extend_from_slice(
+        format!("xref\n0 {}\n0000000000 65535 f \n", offsets.len() + 1).as_bytes(),
+    );
     for offset in &offsets {
         out.extend_from_slice(format!("{offset:010} 00000 n \n").as_bytes());
     }
     out.extend_from_slice(
-        format!("trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n", offsets.len() + 1).as_bytes(),
+        format!(
+            "trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n",
+            offsets.len() + 1
+        )
+        .as_bytes(),
     );
     out
 }
@@ -70,7 +93,11 @@ mod tests {
 
     #[test]
     fn every_xref_entry_points_at_its_object() {
-        let page = |w| Page { width: w, height: 50, jpeg: vec![0xff, 0xd8, 0xff, 0xd9] };
+        let page = |w| Page {
+            width: w,
+            height: 50,
+            jpeg: vec![0xff, 0xd8, 0xff, 0xd9],
+        };
         let pdf = write(&[page(100), page(200)]);
         // Offsets are in bytes, and the header and JPEGs aren't UTF-8, so compare bytes.
         let at = |i: usize, text: &str| pdf[i..].starts_with(text.as_bytes());
@@ -78,7 +105,15 @@ mod tests {
         assert!(pdf.ends_with(b"%%EOF\n"));
 
         let tail = String::from_utf8_lossy(&pdf[pdf.len() - 40..]).into_owned();
-        let xref: usize = tail.rsplit("startxref\n").next().unwrap().lines().next().unwrap().parse().unwrap();
+        let xref: usize = tail
+            .rsplit("startxref\n")
+            .next()
+            .unwrap()
+            .lines()
+            .next()
+            .unwrap()
+            .parse()
+            .unwrap();
         assert!(at(xref, "xref\n0 9\n"));
         let table = String::from_utf8_lossy(&pdf[xref..]).into_owned();
         for (i, entry) in table.lines().skip(3).take(8).enumerate() {
