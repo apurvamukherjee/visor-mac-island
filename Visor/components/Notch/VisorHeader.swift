@@ -40,19 +40,25 @@ struct VisorHeader: View {
                     } else if isChoosingTimer {
                         timerPresets
                     } else {
+                        // Visor: icon-only so it fits beside the other buttons in
+                        // the half-width beside the notch; a "Join" label pushed
+                        // the battery percentage into wrapping.
                         if let meeting = meetings.active {
                             Button {
                                 meetings.join()
                             } label: {
-                                Label("Join", systemImage: "video.fill")
-                                    .font(.system(size: 12, weight: .semibold))
-                                    .foregroundStyle(.white)
-                                    .padding(.horizontal, 10)
-                                    .frame(height: 30)
-                                    .background(Capsule().fill(Color.effectiveAccent))
+                                Capsule()
+                                    .fill(Color.effectiveAccent)
+                                    .frame(width: 30, height: 30)
+                                    .overlay {
+                                        Image(systemName: "video.fill")
+                                            .font(.system(size: 12, weight: .semibold))
+                                            .foregroundStyle(.white)
+                                    }
                             }
                             .buttonStyle(PlainButtonStyle())
                             .help("Join \(meeting.title)")
+                            .accessibilityLabel("Join \(meeting.title)")
                         }
                         if Defaults[.showTimer] {
                             timerControl

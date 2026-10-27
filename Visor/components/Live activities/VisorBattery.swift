@@ -179,6 +179,8 @@ struct VisorBatteryView: View {
             HStack {
                 if Defaults[.showBatteryPercentage] {
                     Text("\(Int32(levelBattery))%")
+                        .lineLimit(1)
+                        .fixedSize()
                         .font(.callout)
                         .foregroundStyle(.white)
                 }
