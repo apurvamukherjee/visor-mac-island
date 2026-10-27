@@ -98,7 +98,7 @@ export function Header() {
         <button className={`header-btn${update ? ' has-update' : ''}`} aria-label={update ? `Settings, Visor ${update.version} is out` : 'Settings'} onClick={() => showSettings().catch(report)}>
           {gearIcon}
         </button>
-        {showBattery && battery && <BatteryCell level={battery.level} charging={battery.charging} />}
+        {showBattery && battery && <BatteryCell level={battery.level} charging={battery.charging} saver={battery.saver} />}
       </div>
     </div>
   );

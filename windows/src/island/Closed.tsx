@@ -45,13 +45,24 @@ export function Visualizer({ playing }: { playing: boolean }) {
   );
 }
 
-export function BatteryCell({ level, charging }: { level: number; charging: boolean }) {
-  const color = charging ? '#34c759' : level < 0.2 ? '#ff453a' : '#fff';
+/** The Mac's menu bar battery: green charging, yellow in energy saver, red at 20% and under. */
+export function BatteryCell({ level, charging, saver = false }: { level: number; charging: boolean; saver?: boolean }) {
+  const percent = Math.round(level * 100);
+  const mood = charging ? ' is-charging' : saver ? ' is-saver' : level <= 0.2 ? ' is-low' : '';
   return (
-    <span className="battery">
-      {Math.round(level * 100)}%
-      <span className="battery-cell">
-        <i style={{ width: `${level * 100}%`, background: color }} />
+    <span className={`battery${mood}`} role="img" aria-label={`Battery ${percent}%${charging ? ', charging' : ''}`}>
+      <span aria-hidden>
+        {percent}
+        <small>%</small>
+      </span>
+      <span className="battery-cell" aria-hidden>
+        {/* A sliver stays at 0% so the cell never reads as empty outline. */}
+        <i style={{ width: `${Math.max(level, 0.06) * 100}%` }} />
+        {charging && (
+          <svg className="battery-bolt" viewBox="0 0 24 24">
+            <path d="M13.5 2 4 13.5h7L10 22l9.5-11.5h-7z" />
+          </svg>
+        )}
       </span>
     </span>
   );
@@ -112,8 +123,8 @@ export function Closed() {
   if (transient?.kind === 'battery') {
     return (
       <div className="closed closed-battery" role="status">
-        <span className={transient.charging ? 'is-charging' : ''}>{transient.charging ? '⚡︎ Charging' : battery?.saver ? 'Energy saver' : 'On battery'}</span>
-        <BatteryCell level={transient.level} charging={transient.charging} />
+        <span className={transient.charging ? 'is-charging' : ''}>{transient.charging ? 'Charging' : battery?.saver ? 'Energy saver' : 'On battery'}</span>
+        <BatteryCell level={transient.level} charging={transient.charging} saver={battery?.saver} />
       </div>
     );
   }
