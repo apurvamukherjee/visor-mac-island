@@ -1,0 +1,24 @@
+html.is-island, html.is-island body { margin: 0; background: transparent; overflow: hidden; user-select: none; }
+
+/* Registered so the ears' radius animates with the body instead of snapping. */
+@property --top { syntax: '<length>'; inherits: true; initial-value: 6px; }
+
+.island {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: var(--w); height: var(--h);
+  background: #000; color: #fff; font: 14px 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  border-radius: 0 0 var(--bottom) var(--bottom);
+  transition-property: width, height, border-radius, --top;
+  transition-duration: var(--ms); transition-timing-function: var(--ease);
+}
+/* Visor's shadow shows while hovered or open: black at 0.7, radius 6. */
+.island.is-hover, .island.is-open { box-shadow: 0 0 12px rgb(0 0 0 / 0.7); }
+
+/* The concave ears where the island meets the top edge of the screen. */
+.island::before, .island::after { content: ''; position: absolute; top: 0; width: var(--top); height: var(--top); }
+.island::before { right: 100%; background: radial-gradient(circle at 0 100%, transparent calc(var(--top) - 0.5px), #000 var(--top)); }
+.island::after { left: 100%; background: radial-gradient(circle at 100% 100%, transparent calc(var(--top) - 0.5px), #000 var(--top)); }
+
+.island-hit { all: unset; position: absolute; inset: 0; cursor: pointer; }
+.island-open { position: absolute; inset: 0; display: grid; place-items: center; color: rgb(255 255 255 / 0.55); animation: island-in 0.35s 0.08s both; }
+@keyframes island-in { from { opacity: 0; filter: blur(6px); } }
