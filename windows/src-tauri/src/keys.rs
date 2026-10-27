@@ -24,8 +24,8 @@ use windows::{
     },
 };
 
-/// The Settings switch "Replace the Windows volume flyout".
-pub static REPLACE_HUD: AtomicBool = AtomicBool::new(true);
+/// The Settings switch "Volume and brightness in the island", off until the frontend says, as on the Mac.
+pub static REPLACE_HUD: AtomicBool = AtomicBool::new(false);
 static APP: OnceLock<AppHandle> = OnceLock::new();
 /// Windows' own step for the volume keys.
 const STEP: f32 = 0.02;
