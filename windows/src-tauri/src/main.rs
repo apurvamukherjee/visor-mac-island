@@ -227,6 +227,7 @@ fn main() {
             files::open,
             files::reveal,
             files::start_drag,
+            files::share,
         ])
         .setup(|app| {
             let handle = app.handle().clone();

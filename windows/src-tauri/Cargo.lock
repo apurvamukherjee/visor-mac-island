@@ -3682,6 +3682,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "windows 0.62.2",
+ "windows-collections",
  "windows-core 0.62.2",
  "windows-registry",
 ]

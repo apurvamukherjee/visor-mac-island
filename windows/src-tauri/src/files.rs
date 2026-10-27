@@ -3,16 +3,23 @@ use crate::{
     media::read_stream,
 };
 use std::{
+    cell::RefCell,
     os::windows::process::CommandExt,
     path::{Path, PathBuf},
     process::Command,
 };
 use tauri::{ipc::Response, WebviewWindow};
 use windows::{
-    core::{Interface, HSTRING, PCWSTR},
-    Storage::{FileProperties::ThumbnailMode, StorageFile, StorageFolder},
-    Win32::UI::{Shell::ShellExecuteW, WindowsAndMessaging::SW_SHOWNORMAL},
+    core::{factory, AgileReference, Interface, HSTRING, PCWSTR},
+    ApplicationModel::DataTransfer::{DataRequestedEventArgs, DataTransferManager},
+    Foundation::TypedEventHandler,
+    Storage::{FileProperties::ThumbnailMode, IStorageItem, StorageFile, StorageFolder},
+    Win32::UI::{
+        Shell::{IDataTransferManagerInterop, ShellExecuteW},
+        WindowsAndMessaging::SW_SHOWNORMAL,
+    },
 };
+use windows_collections::IIterable;
 
 const THUMB_SIZE: u32 = 128;
 
@@ -105,4 +112,58 @@ pub async fn start_drag(window: WebviewWindow, paths: Vec<String>) -> Result<()>
         }
     })?;
     Ok(())
+}
+
+thread_local! {
+    /// The handler from the last share, removed before the next so they don't pile up.
+    /// The manager belongs to the window's thread, hence thread-local rather than shared.
+    static SHARING: RefCell<Option<(DataTransferManager, i64)>> = const { RefCell::new(None) };
+}
+
+/// The Windows share sheet (Nearby Share, Mail, Teams…), Visor's AirDrop circle on Windows.
+#[tauri::command]
+pub async fn share(window: WebviewWindow, paths: Vec<String>) -> Result<()> {
+    // The files reach the window's thread through agile references, the COM way to share them.
+    let mut files = Vec::new();
+    for path in &paths {
+        let file = StorageFile::GetFileFromPathAsync(&HSTRING::from(existing(path)?.as_os_str()))?
+            .join()?;
+        files.push(AgileReference::new(&file.cast::<IStorageItem>()?)?);
+    }
+    let target = window.clone();
+    let (done, result) = std::sync::mpsc::channel();
+    // The share sheet asks for its data on the window's own thread.
+    window.run_on_main_thread(move || {
+        let shown = (|| -> Result<()> {
+            let hwnd = target.hwnd()?;
+            let interop = factory::<DataTransferManager, IDataTransferManagerInterop>()?;
+            let manager: DataTransferManager = unsafe { interop.GetForWindow(hwnd)? };
+            if let Some((old, token)) = SHARING.take() {
+                old.RemoveDataRequested(token)?;
+            }
+            let count = files.len();
+            let token = manager.DataRequested(&TypedEventHandler::new(
+                move |_, args: windows_core::Ref<DataRequestedEventArgs>| {
+                    let request = args.ok()?.Request()?;
+                    let data = request.Data()?;
+                    data.Properties()?.SetTitle(&HSTRING::from(format!(
+                        "{count} item{}",
+                        if count == 1 { "" } else { "s" }
+                    )))?;
+                    let items = files
+                        .iter()
+                        .map(|f| f.resolve().map(Some))
+                        .collect::<windows::core::Result<Vec<_>>>()?;
+                    data.SetStorageItemsReadOnly(&IIterable::<IStorageItem>::from(items))
+                },
+            ))?;
+            SHARING.set(Some((manager, token)));
+            unsafe { interop.ShowShareUIForWindow(hwnd)? };
+            Ok(())
+        })();
+        if let Err(e) = done.send(shown) {
+            eprintln!("visor: share result lost: {e}");
+        }
+    })?;
+    result.recv().map_err(|e| Error(e.to_string()))?
 }
