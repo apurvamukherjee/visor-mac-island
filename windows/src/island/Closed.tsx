@@ -12,9 +12,12 @@ const Device = lazy(() => import('./Device').then((m) => ({ default: m.Device })
 export const CLOSED_W = 185;
 export const CLOSED_H = 32;
 const WING = 50;
+// A PC has no notch to hide an idle pill in: top center is where tabs and title bars sit, and
+// the pill would cover them. With nothing to show it's a sliver at the screen edge until hovered.
+const SLIVER = { w: 150, h: 7 };
 
-/** The closed island's size: the bare pill, or wider for whatever it's showing. */
-export function closedSize(transient: Transient | null, hasActivity: boolean, timer: boolean, joining: boolean) {
+/** The closed island's size: a sliver, the bare pill, or wider for whatever it's showing. */
+export function closedSize(transient: Transient | null, hasActivity: boolean, timer: boolean, joining: boolean, hover: boolean) {
   const h = CLOSED_H;
   if (transient) {
     const w = { hud: 380, battery: 360, peek: 420, unlock: CLOSED_W + 70, screenshot: 360, device: 400 }[transient.kind];
@@ -22,7 +25,8 @@ export function closedSize(transient: Transient | null, hasActivity: boolean, ti
   }
   if (joining) return { w: 400, h };
   if (timer) return { w: CLOSED_W + 130, h };
-  return { w: hasActivity ? CLOSED_W + 2 * WING : CLOSED_W, h };
+  if (hasActivity) return { w: CLOSED_W + 2 * WING, h };
+  return hover ? { w: CLOSED_W, h } : SLIVER;
 }
 
 export function Cover({ size }: { size: number }) {

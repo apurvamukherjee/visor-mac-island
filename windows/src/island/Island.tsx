@@ -46,7 +46,7 @@ export function Island() {
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const lastGesture = useRef(0);
 
-  const size = open ? OPEN : closedSize(transient, playing || downloading || ringing, timerEnd !== null && !ringing, joining);
+  const size = open ? OPEN : closedSize(transient, playing || downloading || ringing, timerEnd !== null && !ringing, joining, hover);
   const radii = open || size.h > OPEN.h / 2 ? RADII.open : RADII.closed;
   const motion = open ? OPEN_SPRING : CLOSE_SPRING;
 
