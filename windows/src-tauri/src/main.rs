@@ -7,6 +7,7 @@ mod error;
 mod files;
 mod fullscreen;
 mod keys;
+mod log;
 mod media;
 mod net;
 mod pdf;
@@ -245,6 +246,11 @@ fn main() {
     if already_running() {
         return;
     }
+    // A release build has no console, so without this every eprintln! goes nowhere.
+    #[cfg(not(debug_assertions))]
+    if let Err(e) = log::to_file() {
+        eprintln!("visor: no log file: {e}");
+    }
     tauri::Builder::default()
         .manage(Hits::default())
         .manage(state::Shared::default())
@@ -266,6 +272,8 @@ fn main() {
             tools::images_to_pdf,
             tools::pdf_to_images,
             net::fetch_text,
+            log::log,
+            log::show_log,
         ])
         .setup(|app| {
             let handle = app.handle().clone();

@@ -64,6 +64,7 @@ export function report(e: unknown) {
   console.error('visor:', e);
   const text = typeof e === 'string' ? e : e instanceof Error ? e.message : String(e);
   window.dispatchEvent(new CustomEvent('visor-error', { detail: text }));
+  invoke('log', { message: text }).catch((failed: unknown) => console.error('visor: logging failed', failed));
 }
 
 export function startSystem() {
@@ -90,6 +91,7 @@ export const pdfToImages = (path: string) => invoke<string[]>('pdf_to_images', {
 
 export const fetchText = (url: string) => invoke<string>('fetch_text', { url });
 export const showSettings = () => invoke('show_settings');
+export const showLog = () => invoke('show_log');
 
 /** The settings Rust acts on; see src-tauri/src/prefs.rs. */
 export interface NativeSettings {

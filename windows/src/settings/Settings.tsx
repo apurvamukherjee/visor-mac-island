@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getVersion } from '@tauri-apps/api/app';
 import { links } from '../../../website/src/links';
 import { useUpdate } from '../island/queries';
-import { openTarget, report, useSystem } from '../native';
+import { openTarget, report, showLog, useSystem } from '../native';
 import icon from '../../src-tauri/icons/128x128.png';
 import { useSettings, type SettingsValues } from './store';
 import './Settings.css';
@@ -193,6 +193,9 @@ function About() {
         </button>
         <button className="row row-link" onClick={() => open(links.newIssue)}>
           Report a problem <span aria-hidden>›</span>
+        </button>
+        <button className="row row-link" onClick={() => showLog().catch(report)}>
+          Show log file <span aria-hidden>›</span>
         </button>
         <button className="row row-link" onClick={() => open(links.repo)}>
           Source on GitHub <span aria-hidden>›</span>
