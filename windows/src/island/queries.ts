@@ -118,6 +118,8 @@ export function useLyric(position: number) {
     queryFn: () => fetchLyrics(title, artist),
     enabled: enabled && title !== '',
     staleTime: Infinity,
+    // Three retries keep "Loading lyrics…" up for about 7 s when LRCLIB is down; one is enough.
+    retry: 1,
   });
   if (!enabled || !title) return null;
   if (isPending) return 'Loading lyrics…';
