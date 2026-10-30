@@ -71,25 +71,31 @@ pub fn watch(app: AppHandle) {
     let mut tick = 0u32;
     let mut volume: Option<IAudioEndpointVolume> = None;
     loop {
+        let mut list = None;
         if tick.is_multiple_of(OUTPUTS_EVERY) {
             // The default device can change under us, so the endpoint is fetched again with the list.
             volume = endpoint_volume()
                 .map_err(|e| eprintln!("visor: no output volume: {e}"))
                 .ok();
-            match enumerator().and_then(|en| outputs(&en)) {
-                Ok(list) => state::update(&app, |s| s.outputs = list),
-                Err(e) => eprintln!("visor: listing outputs failed: {e}"),
-            }
+            list = enumerator()
+                .and_then(|en| outputs(&en))
+                .map_err(|e| eprintln!("visor: listing outputs failed: {e}"))
+                .ok();
         }
-        if let Some(v) = &volume {
-            if let (Ok(level), Ok(muted)) = unsafe { (v.GetMasterVolumeLevelScalar(), v.GetMute()) }
-            {
-                state::update(&app, |s| {
-                    s.volume = (level * 100.0).round() / 100.0;
-                    s.muted = muted.as_bool();
-                });
+        let level = volume.as_ref().and_then(|v| unsafe {
+            Some((v.GetMasterVolumeLevelScalar().ok()?, v.GetMute().ok()?))
+        });
+        // One update for both, so a new output's volume arrives with the switch itself and the
+        // islands can tell it from a volume change.
+        state::update(&app, |s| {
+            if let Some(list) = list {
+                s.outputs = list;
             }
-        }
+            if let Some((level, muted)) = level {
+                s.volume = (level * 100.0).round() / 100.0;
+                s.muted = muted.as_bool();
+            }
+        });
         tick = tick.wrapping_add(1);
         thread::sleep(VOLUME_POLL);
     }

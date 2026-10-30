@@ -111,6 +111,7 @@ window.addEventListener('storage', (e) => {
 });
 
 const trackKey = (m: { title: string; artist: string } | null) => (m ? `${m.title}|${m.artist}` : '');
+const defaultOutput = (s: { outputs: { id: string; default: boolean }[] }) => s.outputs.find((o) => o.default)?.id;
 
 /** Turns system changes into the closed island's live activities. Each island runs its own. */
 export function startTransients() {
@@ -128,7 +129,8 @@ export function startTransients() {
   useSystem.subscribe((s, prev) => {
     // The first state is how things are, not a change.
     if (!prev.ready) return;
-    if (s.volume !== prev.volume || s.muted !== prev.muted) volume();
+    // A new output brings its own volume with it; that's a switch, not a change to show.
+    if ((s.volume !== prev.volume || s.muted !== prev.muted) && defaultOutput(s) === defaultOutput(prev)) volume();
     if (s.brightness !== null && prev.brightness !== null && s.brightness !== prev.brightness && settings().replaceHud) {
       flash({ kind: 'hud', hud: 'brightness', value: s.brightness, muted: false });
     }
