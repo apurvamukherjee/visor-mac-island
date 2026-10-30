@@ -46,7 +46,22 @@ fn file(path: &Path) -> Result<StorageFile> {
 
 fn decode(path: &Path, alpha: BitmapAlphaMode) -> Result<SoftwareBitmap> {
     let stream = file(path)?.OpenAsync(FileAccessMode::Read)?.join()?;
-    let decoder = BitmapDecoder::CreateAsync(&stream)?.join()?;
+    let decoder = BitmapDecoder::CreateAsync(&stream)?.join().map_err(|e| {
+        // Windows reads these only with a free add-on, which the bare decoder error never mentions.
+        let ext = path.extension().map(|x| x.to_string_lossy().to_lowercase());
+        match ext.as_deref() {
+            Some("heic" | "heif") => Error(
+                "Windows needs HEIF Image Extensions from the Microsoft Store to read this".into(),
+            ),
+            Some("webp") => Error(
+                "Windows needs Webp Image Extensions from the Microsoft Store to read this".into(),
+            ),
+            Some("avif") => Error(
+                "Windows needs AV1 Video Extension from the Microsoft Store to read this".into(),
+            ),
+            _ => Error::from(e),
+        }
+    })?;
     Ok(decoder
         .GetSoftwareBitmapConvertedAsync(BitmapPixelFormat::Bgra8, alpha)?
         .join()?)
