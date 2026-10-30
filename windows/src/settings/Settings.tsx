@@ -1,15 +1,14 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getVersion } from '@tauri-apps/api/app';
 import { links } from '../../../website/src/links';
 import { useUpdate } from '../island/queries';
 import { openTarget, report, showLog, useSystem } from '../native';
 import icon from '../../src-tauri/icons/128x128.png';
-import { useSettings, type HudControls, type SettingsValues } from './store';
+import { useSettings, type HudControls, type PaneId, type SettingsValues } from './store';
 import './Settings.css';
 
 type Flag = { [K in keyof SettingsValues]: SettingsValues[K] extends boolean ? K : never }[keyof SettingsValues];
-type PaneId = 'general' | 'music' | 'calendar' | 'shelf' | 'extras' | 'about';
 
 const glyph = (d: string) => (
   <svg viewBox="0 0 24 24" aria-hidden>
@@ -254,7 +253,8 @@ export function Settings() {
   const accent = useSystem((s) => s.accent);
   const hasUpdate = useUpdate().data != null;
   const version = useVersion();
-  const [id, setId] = useState<PaneId>('general');
+  const id = useSettings((s) => s.settingsPane);
+  const set = useSettings((s) => s.set);
   const pane = panes[id];
   const Body = bodies[id];
 
@@ -273,7 +273,7 @@ export function Settings() {
               </span>
             </div>
             {order.map((key) => (
-              <button key={key} className="sidebar-item" aria-current={key === id ? 'page' : undefined} onClick={() => setId(key)}>
+              <button key={key} className="sidebar-item" aria-current={key === id ? 'page' : undefined} onClick={() => set({ settingsPane: key })}>
                 <span className="tile" style={{ background: panes[key].color }}>
                   {panes[key].icon}
                 </span>

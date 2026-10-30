@@ -46,7 +46,13 @@ export function Calendar() {
         </div>
       </div>
       {!hasFeeds ? (
-        <button className="calendar-empty" onClick={() => showSettings().catch(report)}>
+        <button
+          className="calendar-empty"
+          onClick={() => {
+            useSettings.getState().set({ settingsPane: 'calendar' });
+            showSettings().catch(report);
+          }}
+        >
           <b>No calendars yet</b>
           <span>Add an ICS link in Settings</span>
         </button>

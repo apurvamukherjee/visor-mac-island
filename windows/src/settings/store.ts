@@ -3,10 +3,13 @@ import { persist } from 'zustand/middleware';
 import { applySettings, report } from '../native';
 
 export type HudControls = 'volume' | 'brightness' | 'both';
+export type PaneId = 'general' | 'music' | 'calendar' | 'shelf' | 'extras' | 'about';
 
 // Defaults follow the Mac app's Constants.swift wherever the setting exists there.
 const defaults = {
   onboarded: false,
+  /** Stored, so an island can open Settings on the pane it needs. */
+  settingsPane: 'general' as PaneId,
   hoverOpen: true,
   /** Seconds the pointer rests on the closed island before it opens; Visor's minimumHoverDuration. */
   hoverDelay: 0.3,
