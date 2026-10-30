@@ -15,7 +15,7 @@ export function Mirror() {
         stream = s;
         if (video.current) video.current.srcObject = s;
       },
-      (e: unknown) => setError(e instanceof DOMException && e.name === 'NotAllowedError' ? 'Camera access is off' : 'No camera found'),
+      (e: unknown) => setError(e instanceof DOMException && e.name === 'NotAllowedError' ? 'Camera is off in Windows privacy settings' : 'No camera found'),
     );
     return () => {
       gone = true;

@@ -123,7 +123,7 @@ function Calendar() {
       <Group>
         <Toggle flag="showCalendar" label="Calendar in the island" />
         <Toggle flag="meetingAlerts" label="Join button before video calls" hint="Zoom, Meet, Teams, Webex, Whereby and Slack links." />
-        <Toggle flag="showWeather" label="Weather beside the calendar" hint={showCalendar ? 'Uses Windows location, rounded to about a kilometre.' : 'Turn on the calendar first.'} disabled={!showCalendar} />
+        <Toggle flag="showWeather" label="Weather beside the calendar" hint={showCalendar ? 'Uses Windows location, rounded to about a kilometre. Needs Privacy & security › Location on.' : 'Turn on the calendar first.'} disabled={!showCalendar} />
       </Group>
       <Group title="Calendar links">
         <label className="row row-stack">
@@ -162,7 +162,7 @@ function Extras() {
   return (
     <Group>
       <Toggle flag="showTimer" label="Timer" />
-      <Toggle flag="showMirror" label="Mirror" hint="A camera preview, for a quick check before a call." />
+      <Toggle flag="showMirror" label="Mirror" hint="A camera preview, for a quick check before a call. Needs Privacy & security › Camera › desktop apps on." />
       <Toggle flag="deviceAnimation" label="3D model when headphones or a soundbar connect" hint="AirPods, OnePlus Buds, boAt Rockerz and JBL bars." />
     </Group>
   );
