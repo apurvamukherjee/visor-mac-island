@@ -14,23 +14,37 @@ use windows::{
 };
 
 const POLL: Duration = Duration::from_millis(300);
+const RETRY: Duration = Duration::from_secs(30);
 
 /// A laptop's built-in panel, as the brightness keys change it. Windows still shows its own
 /// brightness flyout too: those keys are handled in firmware, so there is nothing to intercept.
 // ponytail: polled; WmiMonitorBrightnessEvent if the 300 ms poll ever shows in CPU.
 pub fn watch(app: AppHandle) {
     com();
-    let services = match connect() {
-        Ok(s) => s,
-        Err(e) => return eprintln!("visor: no WMI, so no brightness HUD: {e}"),
-    };
+    let mut services = None;
+    let mut failing = false;
     loop {
-        match read(&services) {
-            Ok(level) => state::update(&app, |s| s.brightness = level),
-            // External monitors have no WMI brightness; there is nothing to watch.
-            Err(e) => return eprintln!("visor: no brightness to watch: {e}"),
+        let level = match services.take().map_or_else(connect, Ok) {
+            Ok(s) => read(&s).inspect(|_| services = Some(s)),
+            Err(e) => Err(e),
+        };
+        match level {
+            Ok(level) => {
+                failing = false;
+                state::update(&app, |s| s.brightness = level);
+                thread::sleep(POLL);
+            }
+            // External monitors have no WMI brightness, and a laptop panel's can drop out across
+            // sleep or a closed lid, so it's tried again now and then on a fresh connection.
+            Err(e) => {
+                if !failing {
+                    eprintln!("visor: no brightness to watch, retrying: {e}");
+                }
+                failing = true;
+                state::update(&app, |s| s.brightness = None);
+                thread::sleep(RETRY);
+            }
         }
-        thread::sleep(POLL);
     }
 }
 
