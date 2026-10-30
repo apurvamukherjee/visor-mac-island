@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { icons } from '../../../website/src/os/ControlCenter/icons';
 import { useNow } from '../../../website/src/os/useNow';
 import { media as send, report, setOutput, useSystem, type Media } from '../native';
@@ -29,9 +29,21 @@ function Vinyl({ playing }: { playing: boolean }) {
 function Outputs() {
   const outputs = useSystem((s) => s.outputs);
   const [open, setOpen] = useState(false);
+  const box = useRef<HTMLSpanElement>(null);
+
+  // A press anywhere else in the island closes the list, as a menu does.
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: PointerEvent) => {
+      if (e.target instanceof Node && !box.current?.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('pointerdown', close);
+    return () => document.removeEventListener('pointerdown', close);
+  }, [open]);
+
   if (outputs.length < 2) return null;
   return (
-    <span className="outputs">
+    <span className="outputs" ref={box}>
       <button className="player-btn" aria-label="Sound output" aria-expanded={open} onClick={() => setOpen(!open)}>
         {icons.airplay}
       </button>
