@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { listen } from '@tauri-apps/api/event';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useSystem } from '../native';
 import { connectedDevice, type DeviceKind } from './devices';
 import { useSettings } from '../settings/store';
@@ -42,37 +43,54 @@ const DEVICE_MS = 5000;
 
 let clearTransient: ReturnType<typeof setTimeout> | undefined;
 let ring: ReturnType<typeof setTimeout> | undefined;
+let quiet: ReturnType<typeof setTimeout> | undefined;
 
-export const useIsland = create<Island>()((set, get) => ({
-  open: false,
-  tab: 'home',
-  transient: null,
-  timerEnd: null,
-  ringing: false,
-  mirror: false,
-  setOpen: (open) => set({ open }),
-  setTab: (tab) => set({ tab, open: true }),
-  flash: (transient, ms = FLASH_MS) => {
-    clearTimeout(clearTransient);
-    set({ transient });
-    clearTransient = setTimeout(() => set({ transient: null }), ms);
-  },
-  startTimer: (minutes) => {
-    clearTimeout(ring);
-    // One timeout, no ticking: the views redraw from timerEnd on their own clock.
-    ring = setTimeout(() => {
-      ringBell();
-      set({ timerEnd: null, ringing: true });
-      ring = setTimeout(() => set({ ringing: false }), RING_MS);
-    }, minutes * 60_000);
-    set({ timerEnd: Date.now() + minutes * 60_000, ringing: false });
-  },
-  stopTimer: () => {
-    clearTimeout(ring);
-    set({ timerEnd: null, ringing: false });
-  },
-  toggleMirror: () => set({ mirror: !get().mirror }),
-}));
+/** The timer lives in localStorage, so every monitor's island shows it and a rebuilt island picks it back up. */
+export const useIsland = create<Island>()(
+  persist(
+    (set, get) => ({
+      open: false,
+      tab: 'home',
+      transient: null,
+      timerEnd: null,
+      ringing: false,
+      mirror: false,
+      setOpen: (open) => set({ open }),
+      setTab: (tab) => set({ tab, open: true }),
+      flash: (transient, ms = FLASH_MS) => {
+        clearTimeout(clearTransient);
+        set({ transient });
+        clearTransient = setTimeout(() => set({ transient: null }), ms);
+      },
+      startTimer: (minutes) => set({ timerEnd: Date.now() + minutes * 60_000, ringing: false }),
+      stopTimer: () => set({ timerEnd: null, ringing: false }),
+      toggleMirror: () => set({ mirror: !get().mirror }),
+    }),
+    { name: 'visor-timer', partialize: (s) => ({ timerEnd: s.timerEnd }) },
+  ),
+);
+
+/**
+ * One timeout to ring and one to go quiet, no ticking: the views redraw from timerEnd on their own clock.
+ * timerEnd stays set through the ring, so an island that hears about it late still rings with the rest.
+ */
+function scheduleRing(end: number | null) {
+  clearTimeout(ring);
+  clearTimeout(quiet);
+  if (end === null) {
+    if (useIsland.getState().ringing) useIsland.setState({ ringing: false });
+    return;
+  }
+  const left = end - Date.now();
+  // A timer that ran out while Visor was closed is stale, not something to ring for now.
+  if (left < -RING_MS) return useIsland.setState({ timerEnd: null });
+  ring = setTimeout(() => {
+    // Every island shows the bell, but only the first monitor's plays it, or several screens ring in chorus.
+    if (getCurrentWindow().label.endsWith('-0')) ringBell();
+    useIsland.setState({ ringing: true });
+  }, left);
+  quiet = setTimeout(() => useIsland.setState({ timerEnd: null, ringing: false }), left + RING_MS);
+}
 
 /** Files on the shelf, newest first, kept across restarts like the Mac's ShelfPersistenceService. */
 export const useShelf = create<{ files: string[]; add: (paths: string[]) => void; remove: (paths: string[]) => void }>()(
@@ -89,6 +107,7 @@ export const useShelf = create<{ files: string[]; add: (paths: string[]) => void
 // Each monitor's island is its own webview; a drop on one shows on all.
 window.addEventListener('storage', (e) => {
   if (e.key === 'visor-shelf') void useShelf.persist.rehydrate();
+  if (e.key === 'visor-timer') void useIsland.persist.rehydrate();
 });
 
 const trackKey = (m: { title: string; artist: string } | null) => (m ? `${m.title}|${m.artist}` : '');
@@ -96,6 +115,10 @@ const trackKey = (m: { title: string; artist: string } | null) => (m ? `${m.titl
 /** Turns system changes into the closed island's live activities. Each island runs its own. */
 export function startTransients() {
   const { flash } = useIsland.getState();
+  scheduleRing(useIsland.getState().timerEnd);
+  useIsland.subscribe((s, prev) => {
+    if (s.timerEnd !== prev.timerEnd) scheduleRing(s.timerEnd);
+  });
   const settings = useSettings.getState;
   const volume = () => {
     const s = useSystem.getState();
