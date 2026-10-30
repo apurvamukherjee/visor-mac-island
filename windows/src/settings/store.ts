@@ -71,5 +71,9 @@ function syncNative({ replaceHud, hudControls, hideFromCapture, hideInFullscreen
 /** Hands Rust the settings it acts on now and after every change. Idempotent, so every window may call it. */
 export function startNativeSettings() {
   syncNative(useSettings.getState());
-  useSettings.subscribe(syncNative);
+  // Not on every change: dragging the hover-delay slider would rewrite the registry in every window.
+  const NATIVE = ['replaceHud', 'hudControls', 'hideFromCapture', 'hideInFullscreen', 'launchAtLogin'] as const;
+  useSettings.subscribe((s, prev) => {
+    if (NATIVE.some((k) => s[k] !== prev[k])) syncNative(s);
+  });
 }
