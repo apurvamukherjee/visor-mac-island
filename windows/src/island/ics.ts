@@ -145,27 +145,37 @@ export function occurrences(start: Date, rule: string, exdates: Set<number>, fro
 /** Every event in an ICS feed that touches [from, to], recurring ones expanded. */
 export function parseIcs(text: string, from: Date, to: Date): CalEvent[] {
   const lines = text.replace(/\r?\n[ \t]/g, '').split(/\r?\n/);
-  const events: CalEvent[] = [];
+  const all: Map<string, Prop[]>[] = [];
   let props: Map<string, Prop[]> | null = null;
 
   for (const line of lines) {
     if (line === 'BEGIN:VEVENT') props = new Map();
     else if (line === 'END:VEVENT' && props) {
-      events.push(...expand(props, from, to));
+      all.push(props);
       props = null;
     } else if (props && line.includes(':')) {
       const [name, prop] = parseLine(line);
       props.set(name, [...(props.get(name) ?? []), prop]);
     }
   }
-  return events.sort((a, b) => a.start.getTime() - b.start.getTime());
+
+  // A moved or cancelled occurrence comes as its own event naming the slot it replaces;
+  // that slot leaves the series, and the moved one shows as a one-off.
+  const replaced = new Map<string, number[]>();
+  for (const p of all) {
+    const id = p.get('RECURRENCE-ID')?.[0];
+    const uid = p.get('UID')?.[0]?.value ?? '';
+    if (id) replaced.set(uid, [...(replaced.get(uid) ?? []), parseDate(id).date.getTime()]);
+  }
+  return all
+    .flatMap((p) => expand(p, from, to, replaced.get(p.get('UID')?.[0]?.value ?? '') ?? []))
+    .sort((a, b) => a.start.getTime() - b.start.getTime());
 }
 
-function expand(props: Map<string, Prop[]>, from: Date, to: Date): CalEvent[] {
+function expand(props: Map<string, Prop[]>, from: Date, to: Date, replaced: number[]): CalEvent[] {
   const one = (name: string) => props.get(name)?.[0];
   const startProp = one('DTSTART');
-  // Overridden instances of a series are skipped: the series itself already shows that slot.
-  if (!startProp || one('STATUS')?.value === 'CANCELLED' || one('RECURRENCE-ID')) return [];
+  if (!startProp || one('STATUS')?.value === 'CANCELLED') return [];
   const { date: start, allDay } = parseDate(startProp);
   const endProp = one('DTEND');
   const length = endProp
@@ -183,10 +193,11 @@ function expand(props: Map<string, Prop[]>, from: Date, to: Date): CalEvent[] {
     allDay,
     call: findCall(text('URL'), text('LOCATION'), text('DESCRIPTION'), one('X-GOOGLE-CONFERENCE')?.value ?? ''),
   };
-  const exdates = new Set(
-    (props.get('EXDATE') ?? []).flatMap((p) => p.value.split(',').map((value) => parseDate({ value, params: p.params }).date.getTime())),
-  );
-  const rule = one('RRULE')?.value;
+  const exdates = new Set([
+    ...replaced,
+    ...(props.get('EXDATE') ?? []).flatMap((p) => p.value.split(',').map((value) => parseDate({ value, params: p.params }).date.getTime())),
+  ]);
+  const rule = one('RECURRENCE-ID') ? undefined : one('RRULE')?.value;
   // Widened by the event's length, so one that started before `from` and is still on shows.
   const starts = rule
     ? occurrences(start, rule, exdates, new Date(from.getTime() - length), to)

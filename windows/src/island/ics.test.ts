@@ -36,19 +36,19 @@ test('weekly on two weekdays, minus an excluded date', () => {
   expect(events[0]?.call).toBeNull();
 });
 
-test('daily with COUNT stops, cancelled and overridden instances are skipped', () => {
+test('daily with COUNT stops, a cancelled event is skipped, a moved occurrence shows at its new time only', () => {
   const events = parseIcs(
     feed(
       'UID:3\r\nSUMMARY:Sprint\r\nDTSTART:20261025T100000\r\nDTEND:20261025T110000\r\nRRULE:FREQ=DAILY;COUNT=3',
       'UID:4\r\nSUMMARY:Gone\r\nSTATUS:CANCELLED\r\nDTSTART:20261027T100000',
       'UID:3\r\nRECURRENCE-ID:20261026T100000\r\nSUMMARY:Moved\r\nDTSTART:20261026T140000',
+      'UID:3\r\nRECURRENCE-ID:20261027T100000\r\nSTATUS:CANCELLED\r\nDTSTART:20261027T100000',
     ),
     from,
     to,
   );
-  expect(events.map((e) => [e.title, e.start.getDate()])).toEqual([
-    ['Sprint', 26],
-    ['Sprint', 27],
+  expect(events.map((e) => [e.title, e.start.getDate(), e.start.getHours()])).toEqual([
+    ['Moved', 26, 14],
   ]);
 });
 
