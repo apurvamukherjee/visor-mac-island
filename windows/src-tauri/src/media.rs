@@ -18,6 +18,8 @@ use windows::{
 
 // ponytail: polls the session; its change events need a handler per session, add if 500 ms ever feels late.
 const POLL: Duration = Duration::from_millis(500);
+/// Polls to keep re-reading the cover after a track change: about 5 s.
+const COVER_SETTLE: u32 = 10;
 /// 1601-01-01 to 1970-01-01, in the 100 ns ticks WinRT dates use.
 const UNIX_EPOCH_TICKS: i64 = 116_444_736_000_000_000;
 
@@ -32,10 +34,11 @@ pub fn watch(app: AppHandle) {
     };
     let mut key = String::new();
     let mut cover = 0;
+    let mut settle = 0;
     loop {
         // No current session is an error from WinRT, and simply means nothing is playing.
         let media = manager.GetCurrentSession().ok().and_then(|session| {
-            read(&session, &mut key, &mut cover)
+            read(&session, &mut key, &mut cover, &mut settle)
                 .map_err(|e| eprintln!("visor: reading media failed: {e}"))
                 .ok()
         });
@@ -44,7 +47,12 @@ pub fn watch(app: AppHandle) {
     }
 }
 
-fn read(session: &Session, key: &mut String, cover: &mut u32) -> Result<state::Media> {
+fn read(
+    session: &Session,
+    key: &mut String,
+    cover: &mut u32,
+    settle: &mut u32,
+) -> Result<state::Media> {
     let props = session.TryGetMediaPropertiesAsync()?.join()?;
     let info = session.GetPlaybackInfo()?;
     let timeline = session.GetTimelineProperties()?;
@@ -52,16 +60,21 @@ fn read(session: &Session, key: &mut String, cover: &mut u32) -> Result<state::M
     let title = props.Title()?.to_string();
     let artist = props.Artist()?.to_string();
 
-    // Players often send the cover a moment after the title, so an empty one is retried.
+    // Players send the new title before the new cover, handing over none or the last song's for a
+    // moment, so the cover is re-read for a few seconds after a change, and while there is none.
     let now = format!("{app}|{title}|{artist}");
-    if now != *key || COVER.lock().unwrap().is_empty() {
+    if now != *key {
+        *key = now;
+        *settle = COVER_SETTLE;
+    }
+    if *settle > 0 || COVER.lock().unwrap().is_empty() {
+        *settle = settle.saturating_sub(1);
         let bytes = cover_bytes(&props).unwrap_or_default();
         let mut stored = COVER.lock().unwrap();
-        if now != *key || !bytes.is_empty() {
+        if bytes != *stored {
             *stored = bytes;
             *cover += 1;
         }
-        *key = now;
     }
 
     let start = timeline.StartTime()?.Duration;

@@ -34,6 +34,8 @@ export function useCover() {
     },
     enabled: cover > 0,
     staleTime: Infinity,
+    // The last cover stays up while the next one loads, instead of a ♪ flash on every skip.
+    placeholderData: (last) => (cover > 0 ? last : undefined),
   }).data;
 }
 
