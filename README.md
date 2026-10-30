@@ -23,6 +23,9 @@
 
 <a href="https://github.com/apurvamukherjee/visor-mac-island/releases/latest/download/Visor.dmg"><img src="assets/readme/download.svg" height="64" alt="Download for macOS"></a>&nbsp;&nbsp;<a href="https://github.com/apurvamukherjee/visor-mac-island/releases/latest/download/Visor-Setup.exe"><img src="assets/readme/download-windows.svg" height="64" alt="Download for Windows"></a>
 
+<a href="https://github.com/apurvamukherjee/visor-mac-island/releases/latest"><img src="https://img.shields.io/github/v/release/apurvamukherjee/visor-mac-island?style=flat-square&label=Latest&color=16a34a&labelColor=18181b" alt="Latest version"></a>&nbsp;<a href="CHANGELOG.md"><img src="https://img.shields.io/github/release-date/apurvamukherjee/visor-mac-island?style=flat-square&label=Released&color=0078d4&labelColor=18181b" alt="Release date"></a><br>
+<sub>Both buttons always fetch the newest release. What changed: <a href="CHANGELOG.md">CHANGELOG.md</a> · older builds: <a href="https://github.com/apurvamukherjee/visor-mac-island/releases">Releases</a></sub>
+
 </div>
 
 <br>
@@ -137,6 +140,12 @@ Each new screenshot lands on the shelf the moment it's saved, ready to drag into
 Connect AirPods, OnePlus Buds or a JBL soundbar and a 3D model of it turns slowly under the notch: the case lid swings open and the buds rise out, or the soundbar's light sweeps on with a small bass pulse, with its name and, for AirPods, the battery of each bud and the case.
 </td>
 </tr>
+<tr>
+<td colspan="2" valign="top">
+<h3><img src="assets/readme/icons/displays.svg" width="40" align="center"> &nbsp;On Windows</h3>
+The same island floats at the top center of every screen on Windows 10 and 11. It plays whatever the Windows media flyout shows, from Spotify to a YouTube tab, with synced lyrics, shuffle and repeat, and the cover lighting the island from behind. The calendar reads ICS links from Outlook, Google or iCloud and puts a Join button up before calls, the shelf shares through the Windows share sheet and converts images and PDFs, and boAt Rockerz headphones get their own 3D model. <kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>Space</kbd> opens it from anywhere; with nothing to show it shrinks to a sliver, so it stays off your browser tabs. The tray icon opens Settings, hides the island or starts a timer. What works differently: <a href="windows/README.md"><code>windows/README.md</code></a>.
+</td>
+</tr>
 </table>
 
 ## <img src="assets/readme/icons/download.svg" width="34" align="center"> &nbsp;Install
@@ -171,14 +180,17 @@ What changed in each version: [`CHANGELOG.md`](CHANGELOG.md).
 | Drag a file toward the notch | opens the shelf for you to drop it |
 | Click the record icon in the menu bar | shows Settings, Restart and Quit |
 
+On Windows the island answers the same way. Hold <kbd>Shift</kbd> while scrolling to skip a track on a mouse without a sideways wheel, and the tray icon stands in for the menu bar one.
+
 ## <img src="assets/readme/icons/keyboard.svg" width="34" align="center"> &nbsp;Shortcuts
 
 | Keys | What it does |
 | --- | --- |
 | <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>I</kbd> | Open or close the notch |
 | <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>H</kbd> | Sneak peek at what's playing |
+| <kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>Space</kbd> | Open or close the island on Windows |
 
-Change either one in Settings → Shortcuts.
+Change the Mac ones in Settings → Shortcuts.
 
 ## <img src="assets/readme/icons/shield.svg" width="34" align="center"> &nbsp;Permissions
 
@@ -197,6 +209,7 @@ Each one is optional. Skip it and only the feature that needs it stays off.
 - macOS 14 Sonoma or later
 - Apple silicon
 - A MacBook with a notch for the full effect (other displays get a floating island)
+- Or Windows 10 or 11
 
 ## <img src="assets/readme/icons/terminal.svg" width="34" align="center"> &nbsp;Build from source
 
@@ -212,7 +225,7 @@ Package a styled `.dmg`:
 bash scripts/make-dmg.sh
 ```
 
-It writes `dist/Visor.dmg` and a dated copy in `new-releases/`. Attach both to the GitHub release; the README's download button points at `releases/latest/download/Visor.dmg`, so it always fetches the newest one:
+It writes `dist/Visor.dmg` and a dated copy in `new-releases/`. Attach both to the GitHub release; the README's download button points at `releases/latest/download/Visor.dmg`, so it always fetches the newest one. Publishing the release makes CI build the Windows app and attach `Visor-Setup-X.Y.Z.exe` and `Visor-Setup.exe`, the file the Windows button fetches. The Windows app's own build steps are in [`windows/README.md`](windows/README.md).
 
 ```bash
 gh release create vX.Y.Z new-releases/Visor-X.Y.Z-build….dmg dist/Visor.dmg --title "Visor X.Y.Z" --notes-file notes.md
