@@ -124,7 +124,11 @@ export function occurrences(start: Date, rule: string, exdates: Set<number>, fro
   const at = (base: Date, addDays: number, addMonths = 0) =>
     new Date(base.getFullYear(), base.getMonth() + addMonths, base.getDate() + addDays, base.getHours(), base.getMinutes(), base.getSeconds());
 
-  for (let i = 0; seen < count && i < MAX_OCCURRENCES; i++) {
+  // Without a COUNT to keep, a daily or weekly series started long ago skips ahead to near `from`,
+  // or MAX_OCCURRENCES runs out before it gets there: a daily stand-up from 2012 would never show.
+  const period = r.FREQ === 'DAILY' ? interval * DAY_MS : r.FREQ === 'WEEKLY' ? 7 * interval * DAY_MS : 0;
+  const first = period && count === Infinity ? Math.max(0, Math.floor((from.getTime() - start.getTime()) / period) - 1) : 0;
+  for (let i = first; seen < count && i < first + MAX_OCCURRENCES; i++) {
     let step: Date;
     if (r.FREQ === 'WEEKLY' && days?.length) {
       // Each week from the start's Sunday, every weekday the rule names.

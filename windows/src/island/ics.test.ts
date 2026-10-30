@@ -61,6 +61,12 @@ test('an unreadable event is left out, not the whole feed', () => {
   expect(events.map((e) => e.title)).toEqual(['Fine']);
 });
 
+test('a daily series from long ago still shows today', () => {
+  const events = parseIcs(feed('UID:8\r\nSUMMARY:Stand-up\r\nDTSTART:20000103T093000\r\nRRULE:FREQ=DAILY;INTERVAL=2'), from, to);
+  expect(events.map((e) => e.start.getDate())).toEqual([27, 29, 31]);
+  expect(events[0]?.start.getHours()).toBe(9);
+});
+
 test('all-day events last the day', () => {
   const [e] = parseIcs(feed('UID:5\r\nSUMMARY:Holiday\r\nDTSTART;VALUE=DATE:20261030'), from, to);
   expect(e?.allDay).toBe(true);

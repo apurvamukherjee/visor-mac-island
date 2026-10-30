@@ -5,7 +5,6 @@ import { useSettings } from '../settings/store';
 import { useEvents, useWeather } from './queries';
 import { formatTemperature } from './weather';
 
-const DAY_MS = 86_400_000;
 const sameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
 const hm = (d: Date, hour24: boolean) => d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: !hour24 });
 
@@ -17,16 +16,19 @@ export function Calendar() {
   const weather = useWeather();
   const fahrenheit = useSystem((s) => s.fahrenheit);
   const hour24 = useSystem((s) => s.hour24);
-  const days = Array.from({ length: 6 }, (_, i) => new Date(now.getTime() + (i - 2) * DAY_MS));
+  // Midnights by calendar date, not 24-hour steps, which skip or repeat a day around a daylight-saving change.
+  const days = Array.from({ length: 6 }, (_, i) => new Date(now.getFullYear(), now.getMonth(), now.getDate() + i - 2));
   const day = days[picked + 2] ?? now;
-  const today = (events ?? []).filter((e) => sameDay(e.start, day) || (e.allDay && e.start <= day && e.end > day));
+  const dayEnd = new Date(day.getFullYear(), day.getMonth(), day.getDate() + 1);
+  // Anything that overlaps the day, so an overnight or several-day event shows on each of them.
+  const today = (events ?? []).filter((e) => e.start < dayEnd && (e.end > day || e.start >= day));
 
   return (
     <div className="calendar">
       <div className="calendar-top">
         <div className="calendar-month">
-          <b>{now.toLocaleDateString(undefined, { month: 'short' })}</b>
-          <span>{weather ? `${weather.symbol} ${formatTemperature(weather.temperature, fahrenheit)}` : now.getFullYear()}</span>
+          <b>{day.toLocaleDateString(undefined, { month: 'short' })}</b>
+          <span>{weather ? `${weather.symbol} ${formatTemperature(weather.temperature, fahrenheit)}` : day.getFullYear()}</span>
         </div>
         <div className="calendar-days" role="listbox" aria-label="Days">
           {days.map((d, i) => (
@@ -59,7 +61,7 @@ export function Calendar() {
                   Join {e.call.app}
                 </button>
               )}
-              <time>{e.allDay ? 'All day' : hm(e.start, hour24)}</time>
+              <time>{e.allDay ? 'All day' : e.start < day ? `Until ${hm(e.end, hour24)}` : hm(e.start, hour24)}</time>
             </li>
           ))}
         </ul>
