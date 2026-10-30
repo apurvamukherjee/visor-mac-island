@@ -226,7 +226,25 @@ fn open_settings(app: &AppHandle) -> tauri::Result<()> {
     Ok(())
 }
 
+/// Sign-in start plus a click on the Start menu, or the installer's "Run Visor", would
+/// otherwise stack a second set of islands, tray icon and key hook on the first.
+fn already_running() -> bool {
+    use windows::{
+        core::w,
+        Win32::{
+            Foundation::{GetLastError, ERROR_ALREADY_EXISTS},
+            System::Threading::CreateMutexW,
+        },
+    };
+    // The handle is never closed: Windows drops the mutex when this process ends.
+    unsafe { CreateMutexW(None, false, w!("Local\\VisorSingleInstance")) }.is_ok()
+        && unsafe { GetLastError() } == ERROR_ALREADY_EXISTS
+}
+
 fn main() {
+    if already_running() {
+        return;
+    }
     tauri::Builder::default()
         .manage(Hits::default())
         .manage(state::Shared::default())
