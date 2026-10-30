@@ -32,6 +32,7 @@ class CalendarManager: ObservableObject {
         ) { [weak self] _ in
             Task {
                 await self?.reloadCalendarAndReminderLists()
+                await self?.updateEvents()
             }
             MainActor.assumeIsolated { MeetingMonitor.shared.reschedule() }
         }
@@ -119,6 +120,9 @@ class CalendarManager: ObservableObject {
 
     func updateCurrentDate(_ date: Date) async {
         currentWeekStartDate = Calendar.current.startOfDay(for: date)
+        // Google/CalDAV accounts only sync on macOS's own schedule; nudge them so
+        // an edit made elsewhere lands now and arrives via EKEventStoreChanged.
+        store.refreshSourcesIfNecessary()
         await updateEvents()
     }
 
