@@ -9,8 +9,8 @@ import { useCover, useLyric } from './queries';
 const time = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
 /** Players report a position now and then; the clock runs on from it between reports. */
-function usePosition(m: Media | null) {
-  const now = useNow(m?.playing ? 500 : 60_000).getTime();
+function usePosition(m: Media | null, tick: number) {
+  const now = useNow(m?.playing ? tick : 60_000).getTime();
   if (!m) return 0;
   const run = m.playing ? Math.max(0, (now - m.updatedAt) / 1000) : 0;
   return Math.min(m.duration || Infinity, m.position + run);
@@ -71,7 +71,8 @@ function Outputs() {
 export function Player() {
   const m = useSystem((s) => s.media);
   const vinyl = useSettings((s) => s.vinyl);
-  const position = usePosition(m);
+  // A lyric line can come in up to a tick late, so it ticks faster while lyrics show, as the Mac's 0.25 s.
+  const position = usePosition(m, useSettings((s) => s.lyrics) ? 250 : 500);
   const lyric = useLyric(position);
   const [drag, setDrag] = useState<number | null>(null);
   const run = (action: Parameters<typeof send>[0]) => send(action).catch(report);
