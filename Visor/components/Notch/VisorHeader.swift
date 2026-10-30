@@ -15,8 +15,11 @@ struct VisorHeader: View {
             HStack {
                 if (!tvm.isEmpty || coordinator.alwaysShowTabs) && Defaults[.visorShelf] {
                     TabSelectionView()
-                } else if vm.notchState == .open {
-                    EmptyView()
+                }
+                // Visor: Join gets the empty leading half with the meeting's
+                // name; beside the trailing controls it crowded the battery.
+                if vm.notchState == .open, let meeting = meetings.active {
+                    joinButton(meeting)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -40,32 +43,10 @@ struct VisorHeader: View {
                     } else if isChoosingTimer {
                         timerPresets
                     } else {
-                        // Visor: icon-only so it fits beside the other buttons in
-                        // the half-width beside the notch; a "Join" label pushed
-                        // the battery percentage into wrapping.
-                        if let meeting = meetings.active {
-                            Button {
-                                meetings.join()
-                            } label: {
-                                Capsule()
-                                    .fill(Color.effectiveAccent)
-                                    .frame(width: 30, height: 30)
-                                    .overlay {
-                                        Image(systemName: "video.fill")
-                                            .font(.system(size: 12, weight: .semibold))
-                                            .foregroundStyle(.white)
-                                    }
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .help("Join \(meeting.title)")
-                            .accessibilityLabel("Join \(meeting.title)")
-                        }
                         if Defaults[.showTimer] {
                             timerControl
                         }
-                        // Visor: Join plus a running countdown leave no room for
-                        // the mirror button beside the notch.
-                        if Defaults[.showMirror] && !(meetings.active != nil && timer.endDate != nil) {
+                        if Defaults[.showMirror] {
                             headerButton(systemImage: "web.camera") {
                                 vm.toggleCameraPreview()
                             }
@@ -111,12 +92,8 @@ struct VisorHeader: View {
                     Text(timerInterval: start...end, countsDown: true)
                         .monospacedDigit()
                         .lineLimit(1)
-                    // Visor: an hour-long countdown beside Join is too wide
-                    // with the ✕; the pill still cancels on tap.
-                    if meetings.active == nil {
-                        Image(systemName: "xmark")
-                            .imageScale(.small)
-                    }
+                    Image(systemName: "xmark")
+                        .imageScale(.small)
                 }
                 .fixedSize()
                 .font(.system(size: 12, weight: .semibold))
@@ -132,6 +109,31 @@ struct VisorHeader: View {
                 withAnimation(.smooth) { isChoosingTimer = true }
             }
         }
+    }
+
+    private func joinButton(_ meeting: EventModel) -> some View {
+        Button {
+            meetings.join()
+        } label: {
+            HStack(spacing: 5) {
+                Image(systemName: "video.fill")
+                Text("Join")
+                Text(meeting.title)
+                    .fontWeight(.medium)
+                    .opacity(0.8)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .layoutPriority(-1)
+            }
+            .font(.system(size: 12, weight: .semibold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 10)
+            .frame(height: 26)
+            .background(Capsule().fill(Color.effectiveAccent))
+        }
+        .buttonStyle(PlainButtonStyle())
+        .help("Join \(meeting.title)")
+        .transition(.opacity)
     }
 
     private var timerPresets: some View {
