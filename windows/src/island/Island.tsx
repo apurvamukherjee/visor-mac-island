@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { getCurrentWebview } from '@tauri-apps/api/webview';
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { media, report, useSystem } from '../native';
 import { useSettings } from '../settings/store';
 import { CLOSE_SPRING, OPEN_SPRING } from '../spring';
@@ -74,6 +75,12 @@ export function Island() {
     });
     return () => void off.then((stop) => stop());
   }, [setTab, setOpen]);
+
+  // Ctrl+Alt+Space, sent by Rust to the island on the pointer's monitor.
+  useEffect(() => {
+    const off = getCurrentWebviewWindow().listen('toggle-island', () => setOpen(!useIsland.getState().open));
+    return () => void off.then((stop) => stop());
+  }, [setOpen]);
 
   const enter = () => {
     clearTimeout(timer.current);

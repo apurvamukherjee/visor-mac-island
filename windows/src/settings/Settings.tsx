@@ -56,7 +56,7 @@ function General() {
   return (
     <>
       <Group title="Island">
-        <Toggle flag="hoverOpen" label="Open on hover" hint="Otherwise click the island, or scroll down on it." />
+        <Toggle flag="hoverOpen" label="Open on hover" hint="Otherwise click it, scroll down on it, or press Ctrl+Alt+Space." />
         <label className={`row${hoverOpen ? '' : ' is-disabled'}`}>
           <span className="row-text">
             Hover delay
@@ -223,6 +223,9 @@ function Welcome() {
         </li>
         <li>
           <b>Scroll sideways</b> on it to skip a song.
+        </li>
+        <li>
+          <b>Ctrl+Alt+Space</b> opens it from anywhere.
         </li>
       </ul>
       <Group>

@@ -7,7 +7,7 @@ use std::{
     },
     thread,
 };
-use tauri::{AppHandle, Emitter};
+use tauri::{AppHandle, Emitter, Manager};
 use windows::{
     core::w,
     Win32::{
@@ -17,12 +17,15 @@ use windows::{
             RemoteDesktop::{WTSRegisterSessionNotification, NOTIFY_FOR_THIS_SESSION},
         },
         UI::{
-            Input::KeyboardAndMouse::{VIRTUAL_KEY, VK_VOLUME_DOWN, VK_VOLUME_MUTE, VK_VOLUME_UP},
+            Input::KeyboardAndMouse::{
+                RegisterHotKey, MOD_ALT, MOD_CONTROL, MOD_NOREPEAT, VIRTUAL_KEY, VK_SPACE,
+                VK_VOLUME_DOWN, VK_VOLUME_MUTE, VK_VOLUME_UP,
+            },
             WindowsAndMessaging::{
                 CallNextHookEx, CreateWindowExW, DefWindowProcW, GetMessageW, RegisterClassW,
                 SetWindowsHookExW, HWND_MESSAGE, KBDLLHOOKSTRUCT, MSG, WH_KEYBOARD_LL,
-                WINDOW_EX_STYLE, WINDOW_STYLE, WM_KEYDOWN, WM_SYSKEYDOWN, WM_WTSSESSION_CHANGE,
-                WNDCLASSW, WTS_SESSION_LOCK, WTS_SESSION_UNLOCK,
+                WINDOW_EX_STYLE, WINDOW_STYLE, WM_HOTKEY, WM_KEYDOWN, WM_SYSKEYDOWN,
+                WM_WTSSESSION_CHANGE, WNDCLASSW, WTS_SESSION_LOCK, WTS_SESSION_UNLOCK,
             },
         },
     },
@@ -35,6 +38,7 @@ static APP: OnceLock<AppHandle> = OnceLock::new();
 static PRESSES: OnceLock<Sender<VIRTUAL_KEY>> = OnceLock::new();
 /// Windows' own step for the volume keys.
 const STEP: f32 = 0.02;
+const OPEN_HOTKEY: i32 = 1;
 
 /// Hook and session window both need a message loop on the thread that made them, so they share this one.
 pub fn run(app: AppHandle) {
@@ -55,8 +59,46 @@ pub fn run(app: AppHandle) {
     if let Err(e) = install() {
         return eprintln!("visor: media keys and lock watch unavailable: {e}");
     }
+    // Ctrl+Alt+Space opens the island under the pointer, for when reaching the top edge is a trek.
+    // Another app may hold the combination already; then there is simply no shortcut.
+    if let Err(e) = unsafe {
+        RegisterHotKey(
+            None,
+            OPEN_HOTKEY,
+            MOD_CONTROL | MOD_ALT | MOD_NOREPEAT,
+            VK_SPACE.0 as u32,
+        )
+    } {
+        eprintln!("visor: Ctrl+Alt+Space is taken: {e}");
+    }
     let mut msg = MSG::default();
-    while unsafe { GetMessageW(&mut msg, None, 0, 0) }.as_bool() {}
+    while unsafe { GetMessageW(&mut msg, None, 0, 0) }.as_bool() {
+        // A thread hotkey arrives here, not at a window procedure.
+        if msg.message == WM_HOTKEY && msg.wParam.0 == OPEN_HOTKEY as usize {
+            if let Some(Err(e)) = APP.get().map(toggle_island) {
+                eprintln!("visor: opening the island failed: {e}");
+            }
+        }
+    }
+}
+
+/// Tells the island on the pointer's monitor to open, or close if it's open.
+fn toggle_island(app: &AppHandle) -> Result<()> {
+    let cursor = app.cursor_position()?;
+    for (label, window) in app.webview_windows() {
+        let Some(monitor) = window.current_monitor()? else {
+            continue;
+        };
+        let (at, size) = (monitor.position(), monitor.size());
+        let inside = cursor.x >= at.x as f64
+            && cursor.x < at.x as f64 + size.width as f64
+            && cursor.y >= at.y as f64
+            && cursor.y < at.y as f64 + size.height as f64;
+        if label.starts_with("island-") && inside {
+            return Ok(app.emit_to(label.as_str(), "toggle-island", ())?);
+        }
+    }
+    Ok(())
 }
 
 fn install() -> Result<()> {
