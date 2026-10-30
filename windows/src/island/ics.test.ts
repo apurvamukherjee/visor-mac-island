@@ -21,9 +21,13 @@ test('a one-off event with a folded description and a Zoom link', () => {
   expect(e?.call).toEqual({ url: 'https://acme.zoom.us/j/12345?pwd=x', app: 'Zoom' });
 });
 
-test('a TZID wall time becomes the right instant', () => {
+test("a TZID wall time becomes the right instant, Outlook's Windows zone names too", () => {
   const { date } = parseDate({ value: '20261027T090000', params: { TZID: 'America/New_York' } });
   expect(date.toISOString()).toBe('2026-10-27T13:00:00.000Z');
+  const india = parseDate({ value: '20261027T090000', params: { TZID: 'India Standard Time' } }).date;
+  expect(india.toISOString()).toBe('2026-10-27T03:30:00.000Z');
+  const pacific = parseDate({ value: '20260701T090000', params: { TZID: 'Pacific Standard Time' } }).date;
+  expect(pacific.toISOString()).toBe('2026-07-01T16:00:00.000Z');
 });
 
 test('weekly on two weekdays, minus an excluded date', () => {

@@ -1,3 +1,5 @@
+import { WINDOWS_ZONES } from './windowsZones';
+
 export interface CalEvent {
   uid: string;
   title: string;
@@ -81,14 +83,14 @@ export function parseDate({ value, params }: Prop): { date: Date; allDay: boolea
   const [y = 0, mo = 1, d = 1, h = 0, mi = 0, s = 0] = m.slice(1, 7).map((x) => Number(x ?? 0));
   if (m[4] === undefined) return { date: new Date(y, mo - 1, d), allDay: true };
   if (m[7]) return { date: new Date(Date.UTC(y, mo - 1, d, h, mi, s)), allDay: false };
-  const zone = params.TZID;
+  const zone = params.TZID && (WINDOWS_ZONES[params.TZID] ?? params.TZID);
   if (zone) {
     try {
       // Wall time in the zone: guess it as UTC, then take the zone's offset back off.
       const guess = Date.UTC(y, mo - 1, d, h, mi, s);
       return { date: new Date(guess - zoneOffset(guess, zone)), allDay: false };
     } catch {
-      // ponytail: Outlook's Windows zone names ("Pacific Standard Time") aren't IANA; they read as local time.
+      // A zone neither Intl nor the Windows table knows reads as local time.
     }
   }
   return { date: new Date(y, mo - 1, d, h, mi, s), allDay: false };
