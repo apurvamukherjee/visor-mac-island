@@ -167,10 +167,19 @@ export function parseIcs(text: string, from: Date, to: Date): CalEvent[] {
   for (const p of all) {
     const id = p.get('RECURRENCE-ID')?.[0];
     const uid = p.get('UID')?.[0]?.value ?? '';
-    if (id) replaced.set(uid, [...(replaced.get(uid) ?? []), parseDate(id).date.getTime()]);
+    const slot = id && /^\d{8}/.test(id.value) ? parseDate(id).date.getTime() : null;
+    if (slot !== null) replaced.set(uid, [...(replaced.get(uid) ?? []), slot]);
   }
   return all
-    .flatMap((p) => expand(p, from, to, replaced.get(p.get('UID')?.[0]?.value ?? '') ?? []))
+    .flatMap((p) => {
+      // One event with a date nobody can read is left out, not the whole calendar.
+      try {
+        return expand(p, from, to, replaced.get(p.get('UID')?.[0]?.value ?? '') ?? []);
+      } catch (e) {
+        console.warn('visor: skipped an unreadable event', e);
+        return [];
+      }
+    })
     .sort((a, b) => a.start.getTime() - b.start.getTime());
 }
 

@@ -78,8 +78,12 @@ export function useEvents() {
       today.setHours(0, 0, 0, 0);
       const from = new Date(today.getTime() - 2 * DAY_MS);
       const to = new Date(today.getTime() + 4 * DAY_MS);
-      const feeds = await Promise.all(urls.map(fetchText));
-      return feeds.flatMap((f) => parseIcs(f, from, to)).sort((a, b) => a.start.getTime() - b.start.getTime());
+      // Each feed stands alone, so one dead link doesn't blank the others.
+      const feeds = await Promise.allSettled(urls.map(fetchText));
+      const read = feeds.flatMap((f) => (f.status === 'fulfilled' ? [f.value] : []));
+      for (const f of feeds) if (f.status === 'rejected') console.warn('visor: a calendar failed to load', f.reason);
+      if (!read.length) throw new Error('No calendar could be loaded');
+      return read.flatMap((f) => parseIcs(f, from, to)).sort((a, b) => a.start.getTime() - b.start.getTime());
     },
     enabled: urls.length > 0 && (showCalendar || meetingAlerts),
     refetchInterval: 15 * MINUTE,

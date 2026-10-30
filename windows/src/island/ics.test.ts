@@ -56,6 +56,11 @@ test('daily with COUNT stops, a cancelled event is skipped, a moved occurrence s
   ]);
 });
 
+test('an unreadable event is left out, not the whole feed', () => {
+  const events = parseIcs(feed('UID:6\r\nSUMMARY:Broken\r\nDTSTART:soon', 'UID:7\r\nSUMMARY:Fine\r\nDTSTART:20261028T100000Z'), from, to);
+  expect(events.map((e) => e.title)).toEqual(['Fine']);
+});
+
 test('all-day events last the day', () => {
   const [e] = parseIcs(feed('UID:5\r\nSUMMARY:Holiday\r\nDTSTART;VALUE=DATE:20261030'), from, to);
   expect(e?.allDay).toBe(true);
