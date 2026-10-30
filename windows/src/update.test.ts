@@ -13,7 +13,7 @@ const release = (tag: string, assets: string[], extra: Partial<GitHubRelease> = 
   html_url: `https://example.com/${tag}`,
   draft: false,
   prerelease: false,
-  assets: assets.map((name) => ({ name })),
+  assets: assets.map((name) => ({ name, browser_download_url: `https://example.com/${tag}/${name}` })),
   ...extra,
 });
 
@@ -24,7 +24,7 @@ test('updates come from the newest release with a windows installer, mac tags or
     release('windows-v3.7.2', ['Visor-Setup-3.7.2.exe']),
     release('v3.7.1', ['Visor.dmg', 'Visor-Setup-3.7.1.exe']),
   ];
-  expect(pickUpdate(releases, '3.7.1')).toEqual({ version: '3.7.2', url: 'https://example.com/windows-v3.7.2' });
+  expect(pickUpdate(releases, '3.7.1')).toEqual({ version: '3.7.2', url: 'https://example.com/windows-v3.7.2/Visor-Setup-3.7.2.exe' });
   expect(pickUpdate(releases, '3.7.2')).toBeNull();
   expect(pickUpdate([release('v3.8.0', ['Visor.dmg'])], '3.7.1')).toBeNull();
 });

@@ -24,17 +24,23 @@ export interface GitHubRelease {
   html_url: string;
   draft: boolean;
   prerelease: boolean;
-  assets: { name: string }[];
+  assets: { name: string; browser_download_url: string }[];
 }
 
-/** The highest-versioned published release that carries a Windows installer, if it's newer than this build. */
+const installer = (r: GitHubRelease) => r.assets.find((a) => a.name.endsWith('.exe'));
+
+/**
+ * The highest-versioned published release that carries a Windows installer, if it's newer than this build.
+ * Its URL is the installer itself, so Get downloads it in one click instead of opening the release page.
+ */
 export function pickUpdate(releases: GitHubRelease[], current: string): Release | null {
   let best: GitHubRelease | null = null;
   for (const r of releases) {
-    if (r.draft || r.prerelease || !r.assets.some((a) => a.name.endsWith('.exe'))) continue;
+    if (r.draft || r.prerelease || !installer(r)) continue;
     if (!best || isNewer(r.tag_name, best.tag_name)) best = r;
   }
-  return best && isNewer(best.tag_name, current) ? { version: bare(best.tag_name), url: best.html_url } : null;
+  const exe = best && installer(best);
+  return best && exe && isNewer(best.tag_name, current) ? { version: bare(best.tag_name), url: exe.browser_download_url } : null;
 }
 
 export async function checkForUpdate(current: string): Promise<Release | null> {

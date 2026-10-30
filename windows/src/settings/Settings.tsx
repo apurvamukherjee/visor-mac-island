@@ -186,7 +186,7 @@ function About() {
         </div>
         {update.data ? (
           <button className="button is-primary" onClick={() => update.data && open(update.data.url)}>
-            Get {update.data.version}
+            Download {update.data.version}
           </button>
         ) : (
           <button className="button" disabled={update.isFetching} onClick={() => void update.refetch()}>
