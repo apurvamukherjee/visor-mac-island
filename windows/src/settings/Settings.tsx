@@ -134,7 +134,7 @@ function Extras() {
     <Group>
       <Toggle flag="showTimer" label="Timer" />
       <Toggle flag="showMirror" label="Mirror" hint="A camera preview, for a quick check before a call." />
-      <Toggle flag="deviceAnimation" label="3D model when earbuds or a soundbar connect" hint="AirPods, OnePlus Buds and JBL bars." />
+      <Toggle flag="deviceAnimation" label="3D model when headphones or a soundbar connect" hint="AirPods, OnePlus Buds, boAt Rockerz and JBL bars." />
     </Group>
   );
 }
