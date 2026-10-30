@@ -41,11 +41,20 @@ pub fn watch(app: AppHandle) {
         .as_deref()
         .map(newest)
         .unwrap_or(SystemTime::UNIX_EPOCH);
+    let (mut downloads_stamp, mut shots_stamp) = (None, None);
+    let mut downloading = false;
     loop {
-        let downloading = downloads
+        // Downloads folders run to thousands of files, so each is listed again only when it changed.
+        if let Some(dir) = downloads
             .as_deref()
-            .is_some_and(|d| !files(d, &PARTIAL).is_empty());
-        if let Some(dir) = &screenshots {
+            .filter(|d| changed(d, &mut downloads_stamp))
+        {
+            downloading = !files(dir, &PARTIAL).is_empty();
+        }
+        if let Some(dir) = screenshots
+            .as_deref()
+            .filter(|d| changed(d, &mut shots_stamp))
+        {
             let mut shots = files(dir, &IMAGES);
             // Oldest first, so two shots in one second both land.
             shots.sort_by_key(|(_, t)| *t);
@@ -158,6 +167,15 @@ fn files(dir: &Path, extensions: &[&str]) -> Vec<(PathBuf, SystemTime)> {
         })
         .filter_map(|e| Some((e.path(), e.metadata().ok()?.modified().ok()?)))
         .collect()
+}
+
+/// Whether the folder changed since `stamp`. Adding, removing or renaming a file in it moves the
+/// folder's own modified time; a download growing doesn't, and needn't.
+fn changed(dir: &Path, stamp: &mut Option<SystemTime>) -> bool {
+    let now = fs::metadata(dir).and_then(|m| m.modified()).ok();
+    let changed = now.is_none() || now != *stamp;
+    *stamp = now;
+    changed
 }
 
 fn newest(dir: &Path) -> SystemTime {
