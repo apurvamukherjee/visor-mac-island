@@ -73,8 +73,10 @@ export function Shelf() {
             {only && <button onClick={() => reveal(only).catch(report)}>Show in Explorer</button>}
             {images.length === chosen.length && (
               <>
-                <button onClick={() => images.forEach((p) => run(convertImage(p, 'png')))}>To PNG</button>
-                <button onClick={() => images.forEach((p) => run(convertImage(p, 'jpeg')))}>To JPEG</button>
+                {!images.every((p) => ext(p) === 'png') && <button onClick={() => images.forEach((p) => run(convertImage(p, 'png')))}>To PNG</button>}
+                {!images.every((p) => ['jpg', 'jpeg'].includes(ext(p))) && (
+                  <button onClick={() => images.forEach((p) => run(convertImage(p, 'jpeg')))}>To JPEG</button>
+                )}
                 <button onClick={() => run(imagesToPdf(images))}>Make PDF</button>
               </>
             )}
