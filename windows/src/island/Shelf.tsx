@@ -10,7 +10,19 @@ const isPdf = (path: string) => ext(path) === 'pdf';
 // A press becomes a drag once the pointer moves this far.
 const DRAG_PX = 4;
 
-function Item({ path, selected, onSelect, onDrag }: { path: string; selected: boolean; onSelect: (e: React.MouseEvent) => void; onDrag: () => void }) {
+function Item({
+  path,
+  selected,
+  onSelect,
+  onDrag,
+  onRemove,
+}: {
+  path: string;
+  selected: boolean;
+  onSelect: (e: React.MouseEvent) => void;
+  onDrag: () => void;
+  onRemove: () => void;
+}) {
   const { data: thumb, isError } = useThumbnail(path);
   const press = useRef<{ x: number; y: number } | null>(null);
   return (
@@ -32,6 +44,17 @@ function Item({ path, selected, onSelect, onDrag }: { path: string; selected: bo
     >
       {thumb ? <img src={thumb} alt="" className={isImage(path) ? 'is-thumb' : ''} width={46} height={46} /> : <span className="shelf-icon" aria-hidden />}
       <span>{name(path)}</span>
+      <button
+        className="shelf-remove"
+        aria-label={`Remove ${name(path)} from the shelf`}
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove();
+        }}
+      >
+        ×
+      </button>
     </li>
   );
 }
@@ -62,11 +85,23 @@ export function Shelf() {
         {files.length ? (
           <ul className="shelf-files" aria-label="Shelf" aria-multiselectable>
             {files.map((p) => (
-              <Item key={p} path={p} selected={chosen.includes(p)} onSelect={(e) => select(p, e)} onDrag={() => startDrag(chosen.includes(p) ? chosen : [p]).catch(report)} />
+              <Item
+                key={p}
+                path={p}
+                selected={chosen.includes(p)}
+                onSelect={(e) => select(p, e)}
+                onDrag={() => startDrag(chosen.includes(p) ? chosen : [p]).catch(report)}
+                onRemove={() => remove([p])}
+              />
             ))}
           </ul>
         ) : (
           <p className="shelf-empty">Drop files here to keep them close</p>
+        )}
+        {chosen.length === 0 && files.length > 1 && (
+          <div className="shelf-actions">
+            <button onClick={() => remove(files)}>Clear shelf</button>
+          </div>
         )}
         {chosen.length > 0 && (
           <div className="shelf-actions">

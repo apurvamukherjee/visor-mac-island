@@ -225,12 +225,15 @@ button.calendar-empty { cursor: pointer; }
 .shelf-share:hover:enabled .shelf-share-circle { background: var(--accent); }
 .shelf-main { flex: 1; min-width: 0; position: relative; display: flex; flex-direction: column; }
 .shelf-files { flex: 1; min-height: 0; margin: 0; list-style: none; padding: 8px 12px; display: flex; align-items: center; gap: 10px; overflow-x: auto; scrollbar-width: none; }
-.shelf-item { flex: none; width: 70px; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 6px 4px; border-radius: 10px; cursor: grab; }
+.shelf-item { position: relative; flex: none; width: 70px; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 6px 4px; border-radius: 10px; cursor: grab; }
 .shelf-item:hover { background: rgb(255 255 255 / 0.08); }
 .shelf-item.is-selected { background: color-mix(in srgb, var(--accent) 40%, transparent); }
 .shelf-item.is-missing { opacity: 0.35; }
 .shelf-item img { object-fit: contain; }
 .shelf-item img.is-thumb { object-fit: cover; border-radius: 6px; border: 2px solid #fff; box-shadow: 0 2px 6px rgb(0 0 0 / 0.5); }
+.shelf-remove { position: absolute; top: 0; right: 4px; width: 18px; height: 18px; padding: 0; border: 0; border-radius: 50%; background: #3a3a3c; font-size: 13px; line-height: 1; cursor: pointer; opacity: 0; }
+.shelf-item:hover .shelf-remove { opacity: 1; }
+.shelf-remove:hover { background: #ff453a; }
 .shelf-icon { width: 46px; height: 46px; border-radius: 8px; background: rgb(255 255 255 / 0.1); }
 .shelf-item span { width: 100%; font-size: 11px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: rgb(255 255 255 / 0.8); }
 .shelf-empty { margin: auto; color: rgb(255 255 255 / 0.5); }
