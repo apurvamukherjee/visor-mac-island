@@ -19,13 +19,16 @@ mod tools;
 
 use std::{
     collections::{HashMap, HashSet},
-    sync::{atomic::Ordering, Mutex},
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Mutex,
+    },
     thread,
     time::Duration,
 };
 use tauri::{
-    menu::{Menu, MenuItem},
-    tray::TrayIconBuilder,
+    menu::{Menu, MenuItem, PredefinedMenuItem, Submenu},
+    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     AppHandle, Emitter, Manager, PhysicalPosition, PhysicalSize, WebviewUrl, WebviewWindowBuilder,
 };
 
@@ -35,6 +38,11 @@ const WINDOW_H: f64 = 230.0;
 const TICK: Duration = Duration::from_millis(16);
 const MONITOR_CHECK_TICKS: u32 = 120;
 const FULLSCREEN_CHECK_TICKS: u32 = 15;
+/// TimerManager.presetMinutes, as the island's timer offers them.
+const TIMER_PRESETS: [u32; 6] = [1, 5, 10, 15, 25, 60];
+
+/// "Hide island" from the tray, until it's shown again or Visor restarts.
+static USER_HIDDEN: AtomicBool = AtomicBool::new(false);
 
 /// The island's rect in CSS pixels, per window, as the frontend last reported it.
 #[derive(serde::Deserialize, Clone, Copy)]
@@ -188,8 +196,9 @@ fn track_cursor(app: AppHandle) {
 }
 
 /// Visor stays on top of everything, but steps aside for a full-screen game or video when
-/// the setting asks, and only on the monitor showing it.
+/// the setting asks, and only on the monitor showing it; and everywhere when the tray says so.
 fn hide_under_fullscreen(app: &AppHandle, hidden: &mut HashSet<String>) {
+    let user_hidden = USER_HIDDEN.load(Ordering::Relaxed);
     let full = prefs::HIDE_IN_FULLSCREEN
         .load(Ordering::Relaxed)
         .then(fullscreen::monitor)
@@ -199,7 +208,7 @@ fn hide_under_fullscreen(app: &AppHandle, hidden: &mut HashSet<String>) {
             continue;
         }
         let Ok(hwnd) = window.hwnd() else { continue };
-        let hide = full.is_some_and(|m| fullscreen::monitor_of(hwnd) == m);
+        let hide = user_hidden || full.is_some_and(|m| fullscreen::monitor_of(hwnd) == m);
         if !hide {
             if let Err(e) = fullscreen::raise(hwnd) {
                 eprintln!("visor: {label} raise failed: {e}");
@@ -289,23 +298,80 @@ fn main() {
             place_islands(&handle, 0)?;
 
             let settings = MenuItem::with_id(app, "settings", "Settings…", true, None::<&str>)?;
+            let hide = MenuItem::with_id(app, "hide", "Hide island", true, None::<&str>)?;
+            let timers = TIMER_PRESETS
+                .iter()
+                .map(|m| {
+                    let label = if *m < 60 {
+                        format!("{m} min")
+                    } else {
+                        "1 hour".into()
+                    };
+                    MenuItem::with_id(app, format!("timer-{m}"), label, true, None::<&str>)
+                })
+                .collect::<tauri::Result<Vec<_>>>()?;
+            let timer_refs: Vec<&dyn tauri::menu::IsMenuItem<_>> = timers
+                .iter()
+                .map(|t| t as &dyn tauri::menu::IsMenuItem<_>)
+                .collect();
+            let timer = Submenu::with_items(app, "Start a timer", true, &timer_refs)?;
             let quit = MenuItem::with_id(app, "quit", "Quit Visor", true, None::<&str>)?;
+            let line = PredefinedMenuItem::separator(app)?;
             let icon = app
                 .default_window_icon()
                 .cloned()
                 .ok_or("bundle has no icon")?;
+            let hide_item = hide.clone();
             TrayIconBuilder::new()
                 .icon(icon)
                 .tooltip("Visor")
-                .menu(&Menu::with_items(app, &[&settings, &quit])?)
-                .on_menu_event(|app, event| match event.id().as_ref() {
+                .menu(&Menu::with_items(
+                    app,
+                    &[&settings, &hide, &timer, &line, &quit],
+                )?)
+                // Left click is the quick way in, as most tray apps do; the menu is on the right.
+                .show_menu_on_left_click(false)
+                .on_tray_icon_event(|tray, event| {
+                    if let TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        button_state: MouseButtonState::Up,
+                        ..
+                    } = event
+                    {
+                        if let Err(e) = open_settings(tray.app_handle()) {
+                            eprintln!("visor: opening settings failed: {e}");
+                        }
+                    }
+                })
+                .on_menu_event(move |app, event| match event.id().as_ref() {
                     "settings" => {
                         if let Err(e) = open_settings(app) {
                             eprintln!("visor: opening settings failed: {e}");
                         }
                     }
+                    "hide" => {
+                        let hidden = !USER_HIDDEN.fetch_xor(true, Ordering::Relaxed);
+                        let text = if hidden { "Show island" } else { "Hide island" };
+                        if let Err(e) = hide_item.set_text(text) {
+                            eprintln!("visor: renaming the hide item failed: {e}");
+                        }
+                    }
                     "quit" => app.exit(0),
-                    _ => {}
+                    id => {
+                        // One island starts it; the rest pick it up from the timer they share.
+                        let minutes = id
+                            .strip_prefix("timer-")
+                            .and_then(|m| m.parse::<u32>().ok());
+                        let first = app
+                            .webview_windows()
+                            .into_keys()
+                            .find(|l| l.starts_with("island-"));
+                        if let (Some(minutes), Some(label)) = (minutes, first) {
+                            if let Err(e) = app.emit_to(label.as_str(), "start-timer", minutes) {
+                                eprintln!("visor: starting a timer failed: {e}");
+                            }
+                        }
+                    }
                 })
                 .build(app)?;
 

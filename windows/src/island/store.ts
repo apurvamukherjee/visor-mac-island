@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { useSystem } from '../native';
 import { connectedDevice, type DeviceKind } from './devices';
 import { useSettings } from '../settings/store';
@@ -150,6 +151,9 @@ export function startTransients() {
   window.addEventListener('visor-error', (e) => {
     if (e instanceof CustomEvent && typeof e.detail === 'string') flash({ kind: 'error', text: e.detail }, ERROR_MS);
   });
+
+  // The tray's Start a timer, sent to one island; the rest follow through the shared timer.
+  void getCurrentWebviewWindow().listen<number>('start-timer', (e) => useIsland.getState().startTimer(e.payload));
 
   // At 0 or 100% the level doesn't change, but the HUD still answers the key.
   void listen('volume-key', volume);
