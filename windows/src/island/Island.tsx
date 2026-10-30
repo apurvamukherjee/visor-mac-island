@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { getCurrentWebview } from '@tauri-apps/api/webview';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
@@ -87,13 +87,19 @@ export function Island() {
     setHover(true);
     if (!open && hoverOpen) timer.current = setTimeout(() => setOpen(true), hoverDelay * 1000);
   };
-  const leave = () => {
+  const leave = useCallback(() => {
     clearTimeout(timer.current);
     timer.current = setTimeout(() => {
       setHover(false);
       setOpen(false);
     }, CLOSE_DELAY_MS);
-  };
+  }, [setOpen]);
+
+  // Rust's hit test says when the pointer leaves, in case the webview missed it going.
+  useEffect(() => {
+    const off = getCurrentWebviewWindow().listen('pointer-left', leave);
+    return () => void off.then((stop) => stop());
+  }, [leave]);
 
   // Visor's gestures: scroll down to open, up to close, sideways on the closed island to change track.
   const gesture = (e: React.WheelEvent) => {

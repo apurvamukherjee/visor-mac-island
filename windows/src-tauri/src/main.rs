@@ -25,7 +25,7 @@ use std::{
 use tauri::{
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
-    AppHandle, Manager, PhysicalPosition, PhysicalSize, WebviewUrl, WebviewWindowBuilder,
+    AppHandle, Emitter, Manager, PhysicalPosition, PhysicalSize, WebviewUrl, WebviewWindowBuilder,
 };
 
 // The open island (640 x 190) plus room for its ears and shadow; see src/island/Island.tsx.
@@ -171,6 +171,13 @@ fn track_cursor(app: AppHandle) {
                 if let Err(e) = window.set_ignore_cursor_events(!inside) {
                     eprintln!("visor: {label} hit-test toggle failed: {e}");
                     continue;
+                }
+                // Once the window turns click-through the webview may never see the pointer go,
+                // so the island hears it from here too and closes as if it had.
+                if !inside && interactive.get(&label) == Some(&true) {
+                    if let Err(e) = app.emit_to(label.as_str(), "pointer-left", ()) {
+                        eprintln!("visor: {label} pointer-left failed: {e}");
+                    }
                 }
                 interactive.insert(label, inside);
             }
