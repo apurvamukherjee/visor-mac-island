@@ -19,6 +19,10 @@ pub struct Media {
     pub updated_at: f64,
     /// Bumps with each new cover so the frontend knows to fetch it.
     pub cover: u32,
+    /// None when the player has no shuffle or repeat to offer.
+    pub shuffle: Option<bool>,
+    /// "none", "track" or "list".
+    pub repeat: Option<&'static str>,
 }
 
 #[derive(Serialize, Clone, PartialEq)]

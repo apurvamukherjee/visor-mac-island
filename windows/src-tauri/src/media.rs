@@ -13,6 +13,7 @@ use windows::{
         GlobalSystemMediaTransportControlsSessionMediaProperties as Properties,
         GlobalSystemMediaTransportControlsSessionPlaybackStatus as Status,
     },
+    Media::MediaPlaybackAutoRepeatMode as Repeat,
     Storage::Streams::{DataReader, IRandomAccessStream},
 };
 
@@ -137,18 +138,34 @@ fn read(
     }
 
     let start = timeline.StartTime()?.Duration;
+    let controls = info.Controls()?;
+    let shuffle = controls.IsShuffleEnabled()?.then(|| {
+        info.IsShuffleActive()
+            .and_then(|r| r.Value())
+            .unwrap_or(false)
+    });
+    let repeat =
+        controls
+            .IsRepeatEnabled()?
+            .then(|| match info.AutoRepeatMode().and_then(|r| r.Value()) {
+                Ok(Repeat::Track) => "track",
+                Ok(Repeat::List) => "list",
+                _ => "none",
+            });
     Ok(state::Media {
         app,
         title,
         artist,
         album: props.AlbumTitle()?.to_string(),
         playing: info.PlaybackStatus()? == Status::Playing,
-        can_seek: info.Controls()?.IsPlaybackPositionEnabled()?,
+        can_seek: controls.IsPlaybackPositionEnabled()?,
         position: seconds(timeline.Position()?.Duration - start),
         duration: seconds(timeline.EndTime()?.Duration - start),
         updated_at: ((timeline.LastUpdatedTime()?.UniversalTime - UNIX_EPOCH_TICKS) / 10_000)
             as f64,
         cover: *cover,
+        shuffle,
+        repeat,
     })
 }
 
@@ -182,7 +199,12 @@ pub enum Action {
     Toggle,
     Next,
     Previous,
-    Seek { seconds: f64 },
+    Seek {
+        seconds: f64,
+    },
+    Shuffle,
+    /// Off, then the whole list, then the one track, as the Music app cycles.
+    Repeat,
 }
 
 #[tauri::command]
@@ -199,6 +221,27 @@ pub async fn media(action: Action) -> Result<()> {
         Action::Toggle => session.TryTogglePlayPauseAsync()?.join()?,
         Action::Next => session.TrySkipNextAsync()?.join()?,
         Action::Previous => session.TrySkipPreviousAsync()?.join()?,
+        Action::Shuffle => {
+            let on = session
+                .GetPlaybackInfo()?
+                .IsShuffleActive()
+                .and_then(|r| r.Value())
+                .unwrap_or(false);
+            session.TryChangeShuffleActiveAsync(!on)?.join()?
+        }
+        Action::Repeat => {
+            let now = session
+                .GetPlaybackInfo()?
+                .AutoRepeatMode()
+                .and_then(|r| r.Value())
+                .unwrap_or(Repeat::None);
+            let next = match now {
+                Repeat::None => Repeat::List,
+                Repeat::List => Repeat::Track,
+                _ => Repeat::None,
+            };
+            session.TryChangeAutoRepeatModeAsync(next)?.join()?
+        }
         Action::Seek { seconds } => {
             let start = session.GetTimelineProperties()?.StartTime()?.Duration;
             session

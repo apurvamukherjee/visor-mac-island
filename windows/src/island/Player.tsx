@@ -6,6 +6,19 @@ import { useSettings } from '../settings/store';
 import { Cover } from './Closed';
 import { useCover, useLyric } from './queries';
 
+const modeIcon = (d: string, badge?: string) => (
+  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <path d={d} />
+    {badge && (
+      <text x="12" y="15.5" fontSize="8" fontWeight="700" textAnchor="middle" fill="currentColor" stroke="none">
+        {badge}
+      </text>
+    )}
+  </svg>
+);
+const SHUFFLE = 'M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5';
+const REPEAT = 'M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3';
+
 const time = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
 /** Players report a position now and then; the clock runs on from it between reports. */
@@ -119,6 +132,23 @@ export function Player() {
             />
             <div className="player-times">
               <span>{time(shown)}</span>
+              {/* Between the times, where they fit beside a calendar; only for players that offer them. */}
+              <span className="player-modes">
+                {m.shuffle !== null && (
+                  <button className={`player-mode${m.shuffle ? ' is-on' : ''}`} aria-label="Shuffle" aria-pressed={m.shuffle} onClick={() => run({ kind: 'shuffle' })}>
+                    {modeIcon(SHUFFLE)}
+                  </button>
+                )}
+                {m.repeat !== null && (
+                  <button
+                    className={`player-mode${m.repeat !== 'none' ? ' is-on' : ''}`}
+                    aria-label={m.repeat === 'track' ? 'Repeat one' : m.repeat === 'list' ? 'Repeat all' : 'Repeat off'}
+                    onClick={() => run({ kind: 'repeat' })}
+                  >
+                    {modeIcon(REPEAT, m.repeat === 'track' ? '1' : undefined)}
+                  </button>
+                )}
+              </span>
               <span>{time(m.duration)}</span>
             </div>
           </>

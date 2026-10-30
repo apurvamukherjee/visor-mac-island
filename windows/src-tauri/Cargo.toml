@@ -24,6 +24,7 @@ features = [
   "ApplicationModel_DataTransfer",
   "Data_Pdf",
   "Foundation_Collections",
+  "Media",
   "Graphics_Imaging",
   "Media_Control",
   "Storage_FileProperties",

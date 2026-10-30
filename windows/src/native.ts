@@ -14,6 +14,9 @@ export interface Media {
   duration: number;
   updatedAt: number;
   cover: number;
+  /** Null when the player has no shuffle or repeat to offer. */
+  shuffle: boolean | null;
+  repeat: 'none' | 'track' | 'list' | null;
 }
 export interface Battery {
   level: number;
@@ -72,7 +75,13 @@ export function startSystem() {
   invoke<SystemState>('get_state').then((s) => useSystem.setState({ ...s, ready: true }), report);
 }
 
-export type MediaAction = { kind: 'toggle' } | { kind: 'next' } | { kind: 'previous' } | { kind: 'seek'; seconds: number };
+export type MediaAction =
+  | { kind: 'toggle' }
+  | { kind: 'next' }
+  | { kind: 'previous' }
+  | { kind: 'seek'; seconds: number }
+  | { kind: 'shuffle' }
+  | { kind: 'repeat' };
 export const media = (action: MediaAction) => invoke('media', { action });
 export const mediaCover = () => invoke<ArrayBuffer>('media_cover');
 export const setVolume = (level: number) => invoke('set_volume', { level });
