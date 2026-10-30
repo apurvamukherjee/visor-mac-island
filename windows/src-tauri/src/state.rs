@@ -54,6 +54,9 @@ pub struct State {
     pub accent: String,
     pub outputs: Vec<Output>,
     pub downloading: bool,
+    /// Windows' Region settings, which the webview's locale doesn't follow: it takes the display language.
+    pub fahrenheit: bool,
+    pub hour24: bool,
 }
 
 #[derive(Default)]

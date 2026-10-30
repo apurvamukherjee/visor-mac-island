@@ -17,12 +17,9 @@ export function symbol(code: number, isDay: boolean) {
   return '☁️';
 }
 
-// The countries that read Fahrenheit.
-const FAHRENHEIT = ['US', 'LR', 'MM', 'BS', 'BZ', 'KY', 'PW'];
-
-export function formatTemperature(celsius: number) {
-  const region = new Intl.Locale(navigator.language).maximize().region ?? '';
-  return FAHRENHEIT.includes(region) ? `${Math.round((celsius * 9) / 5 + 32)}°F` : `${Math.round(celsius)}°C`;
+/** `fahrenheit` comes from Windows' Region settings: the webview's language says US for most of the English-speaking world. */
+export function formatTemperature(celsius: number, fahrenheit: boolean) {
+  return fahrenheit ? `${Math.round((celsius * 9) / 5 + 32)}°F` : `${Math.round(celsius)}°C`;
 }
 
 function position() {

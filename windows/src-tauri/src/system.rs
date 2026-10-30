@@ -61,11 +61,14 @@ pub fn watch(app: AppHandle) {
         let accent = ui.as_ref().and_then(accent);
         let battery = battery();
         let (camera, mic) = (in_use("webcam"), in_use("microphone"));
+        let (fahrenheit, hour24) = region();
         state::update(&app, |s| {
             s.battery = battery;
             s.camera = camera;
             s.mic = mic;
             s.downloading = downloading;
+            s.fahrenheit = fahrenheit;
+            s.hour24 = hour24;
             if let Some(accent) = accent {
                 s.accent = accent;
             }
@@ -78,6 +81,17 @@ pub fn watch(app: AppHandle) {
 fn accent(ui: &UISettings) -> Option<String> {
     let c = ui.GetColorValue(UIColorType::Accent).ok()?;
     Some(format!("#{:02x}{:02x}{:02x}", c.R, c.G, c.B))
+}
+
+/// Settings > Time & language > Region: US measurement means Fahrenheit, and an `H` in the
+/// short time format means a 24-hour clock.
+fn region() -> (bool, bool) {
+    let Ok(intl) = CURRENT_USER.open(r"Control Panel\International") else {
+        return (false, false);
+    };
+    let fahrenheit = intl.get_string("iMeasure").is_ok_and(|m| m == "1");
+    let hour24 = intl.get_string("sShortTime").is_ok_and(|t| t.contains('H'));
+    (fahrenheit, hour24)
 }
 
 fn battery() -> Option<state::Battery> {

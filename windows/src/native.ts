@@ -38,6 +38,8 @@ export interface SystemState {
   accent: string;
   outputs: Output[];
   downloading: boolean;
+  fahrenheit: boolean;
+  hour24: boolean;
 }
 
 export const useSystem = create<SystemState & { ready: boolean }>()(() => ({
@@ -53,6 +55,8 @@ export const useSystem = create<SystemState & { ready: boolean }>()(() => ({
   accent: '#0078d4',
   outputs: [],
   downloading: false,
+  fahrenheit: false,
+  hour24: false,
 }));
 
 /** Commands fail with a message string; nothing here can recover, so it's logged for the dev console. */

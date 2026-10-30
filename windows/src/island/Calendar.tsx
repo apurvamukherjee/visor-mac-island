@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useNow } from '../../../website/src/os/useNow';
-import { openTarget, report, showSettings } from '../native';
+import { openTarget, report, showSettings, useSystem } from '../native';
 import { useSettings } from '../settings/store';
 import { useEvents, useWeather } from './queries';
 import { formatTemperature } from './weather';
 
 const DAY_MS = 86_400_000;
 const sameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
-const hm = (d: Date) => d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+const hm = (d: Date, hour24: boolean) => d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: !hour24 });
 
 export function Calendar() {
   const now = useNow(60_000);
@@ -15,6 +15,8 @@ export function Calendar() {
   const hasFeeds = useSettings((s) => s.calendars.trim() !== '');
   const { data: events, isError } = useEvents();
   const weather = useWeather();
+  const fahrenheit = useSystem((s) => s.fahrenheit);
+  const hour24 = useSystem((s) => s.hour24);
   const days = Array.from({ length: 6 }, (_, i) => new Date(now.getTime() + (i - 2) * DAY_MS));
   const day = days[picked + 2] ?? now;
   const today = (events ?? []).filter((e) => sameDay(e.start, day) || (e.allDay && e.start <= day && e.end > day));
@@ -24,7 +26,7 @@ export function Calendar() {
       <div className="calendar-top">
         <div className="calendar-month">
           <b>{now.toLocaleDateString(undefined, { month: 'short' })}</b>
-          <span>{weather ? `${weather.symbol} ${formatTemperature(weather.temperature)}` : now.getFullYear()}</span>
+          <span>{weather ? `${weather.symbol} ${formatTemperature(weather.temperature, fahrenheit)}` : now.getFullYear()}</span>
         </div>
         <div className="calendar-days" role="listbox" aria-label="Days">
           {days.map((d, i) => (
@@ -57,7 +59,7 @@ export function Calendar() {
                   Join {e.call.app}
                 </button>
               )}
-              <time>{e.allDay ? 'All day' : hm(e.start)}</time>
+              <time>{e.allDay ? 'All day' : hm(e.start, hour24)}</time>
             </li>
           ))}
         </ul>
