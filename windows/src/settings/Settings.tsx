@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getVersion } from '@tauri-apps/api/app';
 import { links } from '../../../website/src/links';
@@ -98,8 +98,16 @@ function Music() {
   );
 }
 
+// Each saved edit refetches every feed, so a link is saved once typing pauses, not per keystroke.
+const LINKS_SAVE_MS = 800;
+
 function Calendar() {
   const { calendars, showCalendar, set } = useSettings();
+  const save = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const saveNow = (value: string) => {
+    clearTimeout(save.current);
+    set({ calendars: value });
+  };
   return (
     <>
       <Group>
@@ -113,7 +121,18 @@ function Calendar() {
             ICS links, one per line
             <small>Outlook: Settings › Calendar › Shared calendars › Publish. Google: a calendar's settings › Secret address in iCal format.</small>
           </span>
-          <textarea rows={3} spellCheck={false} value={calendars} placeholder="https://…/calendar.ics" onChange={(e) => set({ calendars: e.target.value })} />
+          <textarea
+            rows={3}
+            spellCheck={false}
+            defaultValue={calendars}
+            placeholder="https://…/calendar.ics"
+            onChange={(e) => {
+              const value = e.target.value;
+              clearTimeout(save.current);
+              save.current = setTimeout(() => saveNow(value), LINKS_SAVE_MS);
+            }}
+            onBlur={(e) => saveNow(e.target.value)}
+          />
         </label>
       </Group>
     </>
