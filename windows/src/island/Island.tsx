@@ -61,14 +61,19 @@ export function Island() {
     return () => clearTimeout(t);
   }, [open]);
 
-  // Files dragged from Explorer arrive through Tauri, not the DOM: hovering opens the shelf to catch them.
+  // Files dragged from Explorer arrive through Tauri, not the DOM: hovering opens the shelf to catch them,
+  // and a drag that moves on without dropping closes it again, since no pointer events come during a drag.
   useEffect(() => {
     const off = getCurrentWebview().onDragDropEvent((e) => {
       if (e.payload.type === 'enter') setTab('shelf');
       if (e.payload.type === 'drop') useShelf.getState().add(e.payload.paths);
+      if (e.payload.type === 'leave') {
+        setHover(false);
+        setOpen(false);
+      }
     });
     return () => void off.then((stop) => stop());
-  }, [setTab]);
+  }, [setTab, setOpen]);
 
   const enter = () => {
     clearTimeout(timer.current);
