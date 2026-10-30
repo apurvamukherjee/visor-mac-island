@@ -93,7 +93,7 @@ function Music() {
     <Group>
       <Toggle flag="sneakPeek" label="Sneak peek on song change" hint="The title slides out of the closed island for a moment." />
       <Toggle flag="vinyl" label="Vinyl record instead of cover" />
-      <Toggle flag="lyrics" label="Synced lyrics" hint="From LRCLIB, when it has the song." />
+      <Toggle flag="lyrics" label="Show lyrics below artist name" hint="Synced to the song from LRCLIB, when it has it." />
     </Group>
   );
 }

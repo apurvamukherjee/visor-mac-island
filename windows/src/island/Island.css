@@ -137,6 +137,10 @@ html.is-island button { font: inherit; color: inherit; transition: background-co
 .player-title { font-size: 16px; font-weight: 650; letter-spacing: -0.015em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .player-artist { font-size: 13px; color: rgb(255 255 255 / 0.55); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .player.is-empty .player-artist { white-space: normal; }
+/* The Mac hides the line while paused but keeps its room, so the controls don't jump. */
+.player-artist:has(+ .player-lyric) { margin-bottom: 1px; }
+.player-lyric { font-size: 12px; color: rgb(255 255 255 / 0.4); margin-bottom: 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity 0.25s ease; }
+.player-lyric.is-paused { opacity: 0; }
 
 .player-scrub {
   --p: 0%; appearance: none; width: 100%; height: 5px; margin: 0; border-radius: 3px; cursor: pointer; transition: height 0.2s ease;

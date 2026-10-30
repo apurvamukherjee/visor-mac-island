@@ -86,7 +86,8 @@ export function Player() {
       {vinyl ? <Vinyl playing={m.playing} /> : <Cover size={118} />}
       <div className="player-main">
         <div className="player-title">{m.title}</div>
-        <div className="player-artist">{lyric ?? m.artist}</div>
+        <div className="player-artist">{m.artist}</div>
+        {lyric !== null && <div className={`player-lyric${m.playing ? '' : ' is-paused'}`}>{lyric}</div>}
         {m.duration > 0 && (
           <>
             <input

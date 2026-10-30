@@ -104,18 +104,21 @@ export function useWeather() {
   return useQuery({ queryKey: ['weather'], queryFn: fetchWeather, enabled: show, staleTime: 30 * MINUTE, refetchInterval: 30 * MINUTE }).data;
 }
 
-/** The current synced lyric, or null when there are none. */
+/** The line to show under the artist, worded as the Mac's; null when lyrics are off. */
 export function useLyric(position: number) {
   const enabled = useSettings((s) => s.lyrics);
   const title = useSystem((s) => s.media?.title ?? '');
   const artist = useSystem((s) => s.media?.artist ?? '');
-  const lines = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ['lyrics', title, artist],
     queryFn: () => fetchLyrics(title, artist),
     enabled: enabled && title !== '',
     staleTime: Infinity,
-  }).data;
-  return lines?.length ? lineAt(lines, position) : null;
+  });
+  if (!enabled || !title) return null;
+  if (isPending) return 'Loading lyrics…';
+  if (data?.synced.length) return lineAt(data.synced, position);
+  return data?.plain.replace(/\s*\n\s*/g, ' ') || 'No lyrics found';
 }
 
 export function useUpdate() {
