@@ -12,6 +12,7 @@ mod media;
 mod net;
 mod pdf;
 mod prefs;
+mod prompts;
 mod state;
 mod system;
 mod tools;
@@ -105,6 +106,7 @@ fn place_islands(app: &AppHandle, generation: u32) -> error::Result<()> {
         window.set_size(PhysicalSize::new(w, h))?;
         window.set_position(PhysicalPosition::new(x, monitor.position().y))?;
         window.set_ignore_cursor_events(true)?;
+        prompts::allow(&window)?;
         // Display affinity only takes from the window's own thread, and rebuilds run on the tracker's.
         let target = window.clone();
         app.run_on_main_thread(move || {
