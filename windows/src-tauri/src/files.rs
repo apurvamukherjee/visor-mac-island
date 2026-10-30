@@ -126,9 +126,15 @@ pub async fn share(window: WebviewWindow, paths: Vec<String>) -> Result<()> {
     // The files reach the window's thread through agile references, the COM way to share them.
     let mut files = Vec::new();
     for path in &paths {
-        let file = StorageFile::GetFileFromPathAsync(&HSTRING::from(existing(path)?.as_os_str()))?
-            .join()?;
-        files.push(AgileReference::new(&file.cast::<IStorageItem>()?)?);
+        let p = existing(path)?;
+        let at = HSTRING::from(p.as_os_str());
+        // The shelf holds folders too, and a folder has to be opened as one to be shared.
+        let item: IStorageItem = if p.is_dir() {
+            StorageFolder::GetFolderFromPathAsync(&at)?.join()?.cast()?
+        } else {
+            StorageFile::GetFileFromPathAsync(&at)?.join()?.cast()?
+        };
+        files.push(AgileReference::new(&item)?);
     }
     let target = window.clone();
     let (done, result) = std::sync::mpsc::channel();
