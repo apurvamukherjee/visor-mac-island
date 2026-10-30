@@ -36,7 +36,10 @@ pub fn raise(window: HWND) -> windows::core::Result<()> {
 /// window also covers the whole monitor, and that isn't full screen.
 pub fn monitor() -> Option<HMONITOR> {
     let state = unsafe { SHQueryUserNotificationState() }.ok()?;
-    if ![QUNS_BUSY, QUNS_RUNNING_D3D_FULL_SCREEN, QUNS_PRESENTATION_MODE].contains(&state) {
+    if !matches!(
+        state,
+        QUNS_BUSY | QUNS_RUNNING_D3D_FULL_SCREEN | QUNS_PRESENTATION_MODE
+    ) {
         return None;
     }
     unsafe {

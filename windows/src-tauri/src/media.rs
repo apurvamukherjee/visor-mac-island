@@ -94,7 +94,13 @@ fn pick(manager: &SessionManager, last: Option<&Session>) -> Option<Session> {
     current
         .clone()
         .filter(is_playing)
-        .or_else(|| sessions.iter().filter(shown).find(|s| is_playing(s)).cloned())
+        .or_else(|| {
+            sessions
+                .iter()
+                .filter(shown)
+                .find(|s| is_playing(s))
+                .cloned()
+        })
         .or_else(|| sessions.iter().find(|s| is_playing(s)).cloned())
         .or_else(|| sessions.iter().find(shown).cloned())
         .or(current)
