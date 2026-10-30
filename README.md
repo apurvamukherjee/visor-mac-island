@@ -21,7 +21,7 @@
 
 <br><br>
 
-<a href="https://github.com/apurvamukherjee/visor-mac-island/releases/latest/download/Visor.dmg"><img src="assets/readme/download.svg" height="64" alt="Download for macOS"></a>&nbsp;&nbsp;<a href="https://github.com/apurvamukherjee/visor-mac-island/releases/download/windows-v3.7.2/Visor-Setup-3.7.2.exe"><img src="assets/readme/download-windows.svg" height="64" alt="Download for Windows"></a>
+<a href="https://github.com/apurvamukherjee/visor-mac-island/releases/latest/download/Visor.dmg"><img src="assets/readme/download.svg" height="64" alt="Download for macOS"></a>&nbsp;&nbsp;<a href="https://github.com/apurvamukherjee/visor-mac-island/releases/latest/download/Visor-Setup.exe"><img src="assets/readme/download-windows.svg" height="64" alt="Download for Windows"></a>
 
 </div>
 
@@ -151,7 +151,7 @@ Connect AirPods, OnePlus Buds or a JBL soundbar and a 3D model of it turns slowl
 
 4. Open Visor. The welcome tour explains each permission before it asks for it.
 
-**On Windows 10 or 11:** download **[Visor-Setup-3.7.2.exe](https://github.com/apurvamukherjee/visor-mac-island/releases/download/windows-v3.7.2/Visor-Setup-3.7.2.exe)** and run it. It installs for your user only, no admin needed. The installer isn't signed yet, so SmartScreen asks once: **More info › Run anyway**. What works differently on Windows: [`windows/README.md`](windows/README.md).
+**On Windows 10 or 11:** download **[Visor-Setup.exe](https://github.com/apurvamukherjee/visor-mac-island/releases/latest/download/Visor-Setup.exe)** and run it. It installs for your user only, no admin needed. The installer isn't signed yet, so SmartScreen asks once: **More info › Run anyway**. What works differently on Windows: [`windows/README.md`](windows/README.md).
 
 **Updating from 3.6.1 or earlier?** Those builds were signed differently, so macOS forgets the Accessibility permission once and the HUD stays off. Open Settings → HUDs, click **Reset and Ask Again** and allow Visor. From 3.6.2 on, updates keep the permission.
 
