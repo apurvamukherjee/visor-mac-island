@@ -1,7 +1,11 @@
 use crate::{audio, error::Result, state};
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    OnceLock,
+use std::{
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        mpsc::{self, Sender},
+        OnceLock,
+    },
+    thread,
 };
 use tauri::{AppHandle, Emitter};
 use windows::{
@@ -27,13 +31,27 @@ use windows::{
 /// The Settings switch "Volume and brightness in the island", off until the frontend says, as on the Mac.
 pub static REPLACE_HUD: AtomicBool = AtomicBool::new(false);
 static APP: OnceLock<AppHandle> = OnceLock::new();
+/// Volume keys on their way to the thread that acts on them.
+static PRESSES: OnceLock<Sender<VIRTUAL_KEY>> = OnceLock::new();
 /// Windows' own step for the volume keys.
 const STEP: f32 = 0.02;
 
 /// Hook and session window both need a message loop on the thread that made them, so they share this one.
 pub fn run(app: AppHandle) {
     APP.get_or_init(|| app);
-    audio::com();
+    let (send, presses) = mpsc::channel();
+    PRESSES.get_or_init(|| send);
+    // Windows quietly unhooks a low-level hook that's slow to answer, and then the keys go back to
+    // its own flyout until a restart. Audio calls can stall while a Bluetooth device switches, so
+    // the hook only queues the key and this thread does the work.
+    thread::spawn(move || {
+        audio::com();
+        for vk in presses {
+            if let Err(e) = press(vk) {
+                eprintln!("visor: volume key failed: {e}");
+            }
+        }
+    });
     if let Err(e) = install() {
         return eprintln!("visor: media keys and lock watch unavailable: {e}");
     }
@@ -98,8 +116,8 @@ unsafe extern "system" fn on_key(code: i32, wparam: WPARAM, lparam: LPARAM) -> L
         let vk = VIRTUAL_KEY(key.vkCode as u16);
         if matches!(vk, VK_VOLUME_UP | VK_VOLUME_DOWN | VK_VOLUME_MUTE) {
             if matches!(wparam.0 as u32, WM_KEYDOWN | WM_SYSKEYDOWN) {
-                if let Err(e) = press(vk) {
-                    eprintln!("visor: volume key failed: {e}");
+                if let Some(Err(e)) = PRESSES.get().map(|p| p.send(vk)) {
+                    eprintln!("visor: volume key lost: {e}");
                 }
             }
             return LRESULT(1);
