@@ -32,7 +32,12 @@ pub fn apply_settings(app: AppHandle, settings: Native) -> Result<()> {
     }
     let run = CURRENT_USER.create(RUN)?;
     if settings.launch_at_login {
-        run.set_string("Visor", std::env::current_exe()?.to_string_lossy())?;
+        // Quoted: unquoted, a path with spaces (a user name like "Jo Smith") makes Windows
+        // guess where the program name ends, trying C:\Users\Jo.exe first.
+        run.set_string(
+            "Visor",
+            format!("\"{}\"", std::env::current_exe()?.display()),
+        )?;
     } else if run.get_string("Visor").is_ok() {
         run.remove_value("Visor")?;
     }
