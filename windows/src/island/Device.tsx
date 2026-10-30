@@ -11,8 +11,8 @@ const GROW_S = 0.7;
 const W = 150;
 const H = 84;
 
-const glow: Record<DeviceKind, string> = { airpods: '#e6e6e6', oneplusBuds: '#4080ff', jblBar: '#ff731a' };
-const scale: Record<DeviceKind, number> = { airpods: 1.35, oneplusBuds: 1.35, jblBar: 0.62 };
+const glow: Record<DeviceKind, string> = { airpods: '#e6e6e6', oneplusBuds: '#4080ff', jblBar: '#ff731a', rockerz: '#7a6cff' };
+const scale: Record<DeviceKind, number> = { airpods: 1.35, oneplusBuds: 1.35, jblBar: 0.62, rockerz: 1.1 };
 
 const material = (color: string, metalness = 0, roughness = 0.4, clearcoat = 0) =>
   new THREE.MeshPhysicalMaterial({ color, metalness, roughness, clearcoat });
@@ -59,8 +59,50 @@ function jblBar() {
   return root;
 }
 
-const model = (kind: DeviceKind) =>
-  kind === 'airpods' ? buds('#f7f7f7', '#f7f7f7', false, 0.34) : kind === 'oneplusBuds' ? buds('#5a7fb8', '#2e3440', true, 0.22) : jblBar();
+/** boAt Rockerz 512 ANC in Cosmic Black: over-ear, oval cups, padded band. */
+function rockerz() {
+  const root = new THREE.Group();
+  const matte = material('#151517', 0, 0.7);
+  const cushion = material('#232326', 0, 0.95);
+  const gloss = material('#0b0b0c', 0, 0.15, 1);
+  const gunmetal = material('#6b6b72', 1, 0.3);
+  const band = new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.045, 16, 64, Math.PI), matte);
+  // The pad under the top of the band, wider than the band itself.
+  const pad = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.05, 16, 48, Math.PI * 0.6), cushion);
+  pad.rotation.z = Math.PI * 0.2;
+  pad.scale.z = 1.6;
+  root.add(band, pad);
+  for (const side of [-1, 1]) {
+    const slider = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.16), gunmetal);
+    slider.position.set(0.6 * side, -0.02, 0);
+    // Cylinders and rings turned so their axis runs ear to ear; the scale makes them oval.
+    const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.24, 0.16, 48), matte);
+    cup.rotation.z = (Math.PI / 2) * side;
+    cup.scale.x = 1.25;
+    cup.position.set(0.62 * side, -0.33, 0);
+    const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.19, 0.19, 0.02, 48), gloss);
+    plate.rotation.z = Math.PI / 2;
+    plate.scale.x = 1.25;
+    plate.position.set(0.71 * side, -0.33, 0);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.19, 0.008, 8, 64), gunmetal);
+    ring.rotation.y = Math.PI / 2;
+    ring.scale.y = 1.25;
+    ring.position.set(0.715 * side, -0.33, 0);
+    const ear = new THREE.Mesh(new THREE.TorusGeometry(0.19, 0.06, 16, 48), cushion);
+    ear.rotation.y = Math.PI / 2;
+    ear.scale.y = 1.25;
+    ear.position.set(0.52 * side, -0.33, 0);
+    root.add(slider, cup, plate, ring, ear);
+  }
+  return root;
+}
+
+const models: Record<DeviceKind, () => THREE.Group> = {
+  airpods: () => buds('#f7f7f7', '#f7f7f7', false, 0.34),
+  oneplusBuds: () => buds('#5a7fb8', '#2e3440', true, 0.22),
+  jblBar,
+  rockerz,
+};
 
 /** Angle at `t` seconds: one fast turn that slows into the 14-second turntable, with no hitch between. */
 function angle(t: number) {
@@ -91,7 +133,7 @@ export function Device({ kind }: { kind: DeviceKind }) {
     const camera = new THREE.PerspectiveCamera(30, W / H, 0.1, 20);
     camera.position.set(0, 0.25, 4.2);
     camera.lookAt(0, -0.05, 0);
-    const object = model(kind);
+    const object = models[kind]();
     scene.add(object);
 
     const still = matchMedia('(prefers-reduced-motion: reduce)').matches;

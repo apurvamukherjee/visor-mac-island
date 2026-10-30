@@ -9,6 +9,7 @@ test('a known device that just became an output is announced', () => {
     name: 'Studio AirPods Pro',
   });
   expect(connectedDevice([], [out('JBL Bar 500')])?.device).toBe('jblBar');
+  expect(connectedDevice([], [out('Headphones (boAt Rockerz 512 ANC)')])?.device).toBe('rockerz');
 });
 
 test('devices already connected, or unknown, are not', () => {

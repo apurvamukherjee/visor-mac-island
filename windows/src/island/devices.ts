@@ -1,6 +1,6 @@
 import type { Output } from '../native';
 
-export type DeviceKind = 'airpods' | 'oneplusBuds' | 'jblBar';
+export type DeviceKind = 'airpods' | 'oneplusBuds' | 'jblBar' | 'rockerz';
 
 // DeviceKind.swift: matched by the name Windows gives the output.
 export function deviceKind(name: string): DeviceKind | null {
@@ -8,6 +8,7 @@ export function deviceKind(name: string): DeviceKind | null {
   if (n.includes('airpods')) return 'airpods';
   if (n.includes('oneplus buds')) return 'oneplusBuds';
   if (n.includes('jbl cinema') || n.includes('jbl bar')) return 'jblBar';
+  if (n.includes('rockerz')) return 'rockerz';
   return null;
 }
 
