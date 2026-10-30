@@ -3,6 +3,10 @@ use windows::Win32::{
     Graphics::Gdi::{
         GetMonitorInfoW, MonitorFromWindow, HMONITOR, MONITORINFO, MONITOR_DEFAULTTONULL,
     },
+    UI::Shell::{
+        SHQueryUserNotificationState, QUNS_BUSY, QUNS_PRESENTATION_MODE,
+        QUNS_RUNNING_D3D_FULL_SCREEN,
+    },
     UI::WindowsAndMessaging::{
         GetClassNameW, GetForegroundWindow, GetShellWindow, GetWindowRect, SetWindowPos,
         HWND_TOPMOST, SWP_ASYNCWINDOWPOS, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOOWNERZORDER,
@@ -28,8 +32,13 @@ pub fn raise(window: HWND) -> windows::core::Result<()> {
 }
 
 /// The monitor the foreground window fills edge to edge (a game, a video, a slideshow), if any.
-/// A maximized window stops at the taskbar, so it doesn't count.
+/// The shell's own full-screen check comes first: with an auto-hiding taskbar a maximized
+/// window also covers the whole monitor, and that isn't full screen.
 pub fn monitor() -> Option<HMONITOR> {
+    let state = unsafe { SHQueryUserNotificationState() }.ok()?;
+    if ![QUNS_BUSY, QUNS_RUNNING_D3D_FULL_SCREEN, QUNS_PRESENTATION_MODE].contains(&state) {
+        return None;
+    }
     unsafe {
         let window = GetForegroundWindow();
         if window.is_invalid() || window == GetShellWindow() || is_desktop(window) {
