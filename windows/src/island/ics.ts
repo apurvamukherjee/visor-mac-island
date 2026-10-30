@@ -104,14 +104,20 @@ function parseDuration(text: string) {
 }
 
 /** Starts of each occurrence between `from` and `to`. Covers the rules calendars send for meetings. */
-// ponytail: DAILY/WEEKLY(+BYDAY)/MONTHLY(by date)/YEARLY; BYSETPOS and "2nd Tuesday" rules show only their first date.
+// ponytail: DAILY/WEEKLY(+BYDAY)/MONTHLY(by date or weekday)/YEARLY(by date); yearly-by-weekday rules show only their first date.
 export function occurrences(start: Date, rule: string, exdates: Set<number>, from: Date, to: Date): Date[] {
   const r = Object.fromEntries(rule.split(';').map((p) => p.split('=') as [string, string]));
   const interval = Number(r.INTERVAL ?? 1);
   const count = r.COUNT ? Number(r.COUNT) : Infinity;
   const until = r.UNTIL ? parseDate({ value: r.UNTIL, params: {} }).date.getTime() : Infinity;
   const days = r.BYDAY?.split(',').filter((d) => /^[A-Z]{2}$/.test(d)).map((d) => WEEKDAYS.indexOf(d));
-  if (r.BYDAY && !days?.length) return start >= from && start <= to ? [start] : [];
+  // "2TU", "-1FR": the nth weekday of the month, counted from the end when negative.
+  const nth = r.BYDAY?.split(',').flatMap((d) => {
+    const m = d.match(/^([+-]?\d{1,2})?(SU|MO|TU|WE|TH|FR|SA)$/);
+    return m ? [{ n: m[1] ? Number(m[1]) : 0, day: WEEKDAYS.indexOf(m[2] ?? '') }] : [];
+  });
+  const monthlyByDay = r.FREQ === 'MONTHLY' && !!nth?.length;
+  if (r.BYDAY && !days?.length && !monthlyByDay) return start >= from && start <= to ? [start] : [];
 
   const out: Date[] = [];
   let seen = 0;
@@ -130,6 +136,23 @@ export function occurrences(start: Date, rule: string, exdates: Set<number>, fro
   const first = period && count === Infinity ? Math.max(0, Math.floor((from.getTime() - start.getTime()) / period) - 1) : 0;
   for (let i = first; seen < count && i < first + MAX_OCCURRENCES; i++) {
     let step: Date;
+    if (monthlyByDay) {
+      // Every day of the month the rule names, then BYSETPOS's pick of them: Outlook writes
+      // "2nd Tuesday" as BYDAY=TU;BYSETPOS=2, Google as BYDAY=2TU.
+      const month = new Date(start.getFullYear(), start.getMonth() + i * interval, 1, start.getHours(), start.getMinutes(), start.getSeconds());
+      if (month.getTime() > Math.min(until, to.getTime())) break;
+      const last = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+      let hits: Date[] = [];
+      for (let d = 1; d <= last; d++) {
+        const date = at(month, d - 1);
+        const fromEnd = Math.floor((last - d) / 7) + 1;
+        if (nth?.some((w) => w.day === date.getDay() && (w.n === 0 || w.n === Math.ceil(d / 7) || -w.n === fromEnd))) hits.push(date);
+      }
+      const pos = r.BYSETPOS ? Number(r.BYSETPOS) : 0;
+      if (pos) hits = [hits[pos > 0 ? pos - 1 : hits.length + pos]].filter((d): d is Date => d !== undefined);
+      for (const d of hits) take(d);
+      continue;
+    }
     if (r.FREQ === 'WEEKLY' && days?.length) {
       // Each week from the start's Sunday, every weekday the rule names.
       const week = at(start, i * 7 * interval - start.getDay());

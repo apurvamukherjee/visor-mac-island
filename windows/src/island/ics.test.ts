@@ -77,3 +77,13 @@ test('Meet and Teams links are found', () => {
   expect(findCall('', 'https://meet.google.com/abc-defg-hij')?.app).toBe('Meet');
   expect(findCall('https://teams.microsoft.com/l/meetup-join/19%3ameeting')?.app).toBe('Teams');
 });
+
+test('monthly by weekday: Google\'s 2TU, Outlook\'s BYSETPOS and the last weekday', () => {
+  const autumn = [new Date(2026, 9, 1), new Date(2026, 10, 30, 23)] as const;
+  const days = (rule: string) =>
+    parseIcs(feed(`UID:9\r\nSUMMARY:Review\r\nDTSTART:20260113T100000\r\nRRULE:${rule}`), ...autumn).map((e) => [e.start.getMonth() + 1, e.start.getDate()]);
+  expect(days('FREQ=MONTHLY;BYDAY=2TU')).toEqual([[10, 13], [11, 10]]);
+  expect(days('FREQ=MONTHLY;BYDAY=TU;BYSETPOS=2')).toEqual([[10, 13], [11, 10]]);
+  expect(days('FREQ=MONTHLY;BYDAY=-1FR')).toEqual([[10, 30], [11, 27]]);
+  expect(days('FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR;BYSETPOS=-1')).toEqual([[10, 30], [11, 30]]);
+});
