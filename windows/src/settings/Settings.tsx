@@ -222,7 +222,7 @@ function Welcome() {
           <b>Drop files on it</b> to keep them on the shelf.
         </li>
         <li>
-          <b>Scroll sideways</b> on it to skip a song.
+          <b>Scroll sideways</b>, or Shift and scroll, on it to skip a song.
         </li>
         <li>
           <b>Ctrl+Alt+Space</b> opens it from anywhere.

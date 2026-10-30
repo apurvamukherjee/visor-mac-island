@@ -98,11 +98,14 @@ export function Island() {
   // Visor's gestures: scroll down to open, up to close, sideways on the closed island to change track.
   const gesture = (e: React.WheelEvent) => {
     if (e.timeStamp - lastGesture.current < GESTURE_GAP_MS) return;
-    const sideways = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+    // Most PC mice have no sideways wheel; Shift turns theirs sideways, as it does in every Windows app.
+    const dx = e.shiftKey && e.deltaX === 0 ? e.deltaY : e.deltaX;
+    const dy = e.shiftKey ? 0 : e.deltaY;
+    const sideways = Math.abs(dx) > Math.abs(dy);
     let done = true;
-    if (sideways && !open && Math.abs(e.deltaX) > GESTURE_MIN) media({ kind: e.deltaX > 0 ? 'next' : 'previous' }).catch(report);
-    else if (!sideways && !open && e.deltaY > GESTURE_MIN) setOpen(true);
-    else if (!sideways && open && e.deltaY < -GESTURE_MIN) setOpen(false);
+    if (sideways && !open && Math.abs(dx) > GESTURE_MIN) media({ kind: dx > 0 ? 'next' : 'previous' }).catch(report);
+    else if (!sideways && !open && dy > GESTURE_MIN) setOpen(true);
+    else if (!sideways && open && dy < -GESTURE_MIN) setOpen(false);
     else done = false;
     if (done) lastGesture.current = e.timeStamp;
   };
