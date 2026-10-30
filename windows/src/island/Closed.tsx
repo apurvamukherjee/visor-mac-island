@@ -20,7 +20,7 @@ const SLIVER = { w: 150, h: 7 };
 export function closedSize(transient: Transient | null, hasActivity: boolean, timer: boolean, joining: boolean, hover: boolean) {
   const h = CLOSED_H;
   if (transient) {
-    const w = { hud: 380, battery: 360, peek: 420, unlock: CLOSED_W + 70, screenshot: 360, device: 400 }[transient.kind];
+    const w = { hud: 380, battery: 360, peek: 420, unlock: CLOSED_W + 70, screenshot: 360, device: 400, error: 420 }[transient.kind];
     return { w, h: transient.kind === 'device' ? 112 : h };
   }
   if (joining) return { w: 400, h };
@@ -106,6 +106,18 @@ function DownloadRing() {
   );
 }
 
+/** A failed action, said in the island, closed or open, since nothing else would show it. */
+export function ErrorNote({ text }: { text: string }) {
+  return (
+    <div className="closed closed-peek closed-error" role="alert">
+      <span className="closed-error-icon" aria-hidden>
+        !
+      </span>
+      <span className="closed-peek-text">{text.charAt(0).toUpperCase() + text.slice(1)}</span>
+    </div>
+  );
+}
+
 export function Closed() {
   const transient = useIsland((s) => s.transient);
   const timerEnd = useIsland((s) => s.timerEnd);
@@ -142,6 +154,7 @@ export function Closed() {
       </div>
     );
   }
+  if (transient?.kind === 'error') return <ErrorNote text={transient.text} />;
   if (transient?.kind === 'device') {
     return (
       <div className="closed closed-device" role="status" aria-label={`${transient.name} connected`}>

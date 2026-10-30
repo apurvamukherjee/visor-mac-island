@@ -59,8 +59,12 @@ export const useSystem = create<SystemState & { ready: boolean }>()(() => ({
   hour24: false,
 }));
 
-/** Commands fail with a message string; nothing here can recover, so it's logged for the dev console. */
-export const report = (e: unknown) => console.error('visor:', e);
+/** Commands fail with a message string. Nothing here can recover, so it's logged, and the islands say it out loud. */
+export function report(e: unknown) {
+  console.error('visor:', e);
+  const text = typeof e === 'string' ? e : e instanceof Error ? e.message : String(e);
+  window.dispatchEvent(new CustomEvent('visor-error', { detail: text }));
+}
 
 export function startSystem() {
   void listen<SystemState>('state', (e) => useSystem.setState({ ...e.payload, ready: true }));

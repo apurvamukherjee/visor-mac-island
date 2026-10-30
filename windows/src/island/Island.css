@@ -93,6 +93,9 @@ html.is-island button { font: inherit; color: inherit; transition: background-co
 .closed-peek { gap: 10px; }
 .closed-peek-text { flex: 1; min-width: 0; padding-left: 4px; font-size: 12px; color: rgb(255 255 255 / 0.75); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
 .closed-peek-text b { color: #fff; }
+.closed-error-icon { flex: none; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: #ff453a; font-size: 12px; font-weight: 800; }
+/* In the open island the note floats over the bottom edge instead of resizing anything. */
+.island-toast { position: absolute; left: 50%; bottom: 10px; width: 400px; height: 32px; translate: -50% 0; border-radius: 16px; background: #1c1c1e; box-shadow: 0 6px 20px rgb(0 0 0 / 0.6); animation: island-in 0.25s both; }
 
 .closed-lock { justify-content: flex-start; }
 .closed-lock-shackle { transform-origin: 16px 11px; transition: transform 0.35s cubic-bezier(0.3, 1.4, 0.5, 1); }

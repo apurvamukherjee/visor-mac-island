@@ -5,7 +5,7 @@ import { media, report, useSystem } from '../native';
 import { useSettings } from '../settings/store';
 import { CLOSE_SPRING, OPEN_SPRING } from '../spring';
 import { Calendar } from './Calendar';
-import { Closed, closedSize } from './Closed';
+import { Closed, closedSize, ErrorNote } from './Closed';
 import { Header } from './Header';
 import { Mirror } from './Mirror';
 import { Player } from './Player';
@@ -139,6 +139,11 @@ export function Island() {
               </div>
             ) : (
               <Shelf />
+            )}
+            {transient?.kind === 'error' && (
+              <div className="island-toast">
+                <ErrorNote text={transient.text} />
+              </div>
             )}
           </div>
         )}

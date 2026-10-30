@@ -16,7 +16,8 @@ export type Transient =
   | { kind: 'peek' }
   | { kind: 'unlock' }
   | { kind: 'screenshot' }
-  | { kind: 'device'; device: DeviceKind; name: string };
+  | { kind: 'device'; device: DeviceKind; name: string }
+  | { kind: 'error'; text: string };
 
 interface Island {
   open: boolean;
@@ -40,6 +41,7 @@ const RING_MS = 4000;
 const FLASH_MS = 1800;
 const PEEK_MS = 2500;
 const DEVICE_MS = 5000;
+const ERROR_MS = 4000;
 
 let clearTransient: ReturnType<typeof setTimeout> | undefined;
 let ring: ReturnType<typeof setTimeout> | undefined;
@@ -143,6 +145,10 @@ export function startTransients() {
     }
     const device = settings().deviceAnimation ? connectedDevice(prev.outputs, s.outputs) : null;
     if (device) flash({ kind: 'device', ...device }, DEVICE_MS);
+  });
+
+  window.addEventListener('visor-error', (e) => {
+    if (e instanceof CustomEvent && typeof e.detail === 'string') flash({ kind: 'error', text: e.detail }, ERROR_MS);
   });
 
   // At 0 or 100% the level doesn't change, but the HUD still answers the key.
