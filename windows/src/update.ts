@@ -1,4 +1,5 @@
-// Not /releases/latest: that's the Mac's release, and Windows builds ship under their own windows-v tags.
+// Not /releases/latest: older Windows builds shipped under their own windows-v tags, and a Mac-only
+// release can be latest, so the newest release carrying an installer is picked from the list.
 const RELEASES = 'https://api.github.com/repos/apurvamukherjee/visor-mac-island/releases?per_page=20';
 
 export interface Release {
