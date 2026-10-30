@@ -67,7 +67,9 @@ export function Header() {
   const tab = useIsland((s) => s.tab);
   const setTab = useIsland((s) => s.setTab);
   const toggleMirror = useIsland((s) => s.toggleMirror);
-  const { showTimer, showMirror, showBattery } = useSettings();
+  const showTimer = useSettings((s) => s.showTimer);
+  const showMirror = useSettings((s) => s.showMirror);
+  const showBattery = useSettings((s) => s.showBattery);
   const battery = useSystem((s) => s.battery);
   const meeting = useMeeting();
   const update = useUpdate().data;

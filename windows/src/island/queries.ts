@@ -24,13 +24,19 @@ function toDataUrl(bytes: ArrayBuffer) {
   });
 }
 
+let coverUrl: string | null = null;
+
 export function useCover() {
   const cover = useSystem((s) => s.media?.cover ?? 0);
   return useQuery({
     queryKey: ['cover', cover],
     queryFn: async () => {
       const bytes = await mediaCover();
-      return bytes.byteLength ? toDataUrl(bytes) : null;
+      // A blob link, not a data URL: the island sets it in a style on every render, and a data URL
+      // is the whole image as text. Each cover replaces the last, so the last one's link is freed.
+      if (coverUrl) URL.revokeObjectURL(coverUrl);
+      coverUrl = bytes.byteLength ? URL.createObjectURL(new Blob([bytes], { type: 'image/jpeg' })) : null;
+      return coverUrl;
     },
     enabled: cover > 0,
     staleTime: Infinity,
@@ -69,7 +75,9 @@ export function useThumbnail(path: string) {
 
 /** Today two days back to three days on, as the calendar strip shows. */
 export function useEvents() {
-  const { calendars, showCalendar, meetingAlerts } = useSettings();
+  const calendars = useSettings((s) => s.calendars);
+  const showCalendar = useSettings((s) => s.showCalendar);
+  const meetingAlerts = useSettings((s) => s.meetingAlerts);
   const urls = calendars.split('\n').map((u) => u.trim()).filter(Boolean);
   return useQuery({
     queryKey: ['events', urls],

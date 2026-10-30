@@ -37,7 +37,9 @@ export function Island() {
   const cover = useCover();
   const tint = useCoverColor();
   const downloading = useSystem((s) => s.downloading) && showDownloads;
-  const { accent, camera, mic } = useSystem();
+  const accent = useSystem((s) => s.accent);
+  const camera = useSystem((s) => s.camera);
+  const mic = useSystem((s) => s.mic);
   const joining = useMeeting() !== null;
   const [hover, setHover] = useState(false);
   // The open content outlives `open` by part of the close, so the shrinking shape clips and fades it
