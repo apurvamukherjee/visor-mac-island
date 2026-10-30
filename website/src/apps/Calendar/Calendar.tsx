@@ -6,7 +6,7 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 // Events on fixed days of the current month, so the grid always looks like a working calendar.
 const EVENTS: Record<number, { title: string; color: string }[]> = {
   2: [{ title: 'Visor 3.1 retro', color: '#a78bfa' }],
-  8: [{ title: 'Visor 3.4.0 release', color: '#fb923c' }, { title: 'Visor stand-up', color: '#34d399' }],
+  8: [{ title: `Visor ${__RELEASE__.version} release`, color: '#fb923c' }, { title: 'Visor stand-up', color: '#34d399' }],
   12: [{ title: 'Design review', color: '#a78bfa' }],
   17: [{ title: 'Website polish', color: '#60a5fa' }],
   23: [{ title: 'Visor stand-up', color: '#34d399' }],
