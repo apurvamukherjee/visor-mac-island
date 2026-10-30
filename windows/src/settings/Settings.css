@@ -94,3 +94,5 @@ html.is-settings body { margin: 0; user-select: none; }
   .pane, .welcome { animation: none; }
   .switch, .switch::after { transition: none; }
 }
+.settings select { font: inherit; font-size: 13px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--text); }
+.settings select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }

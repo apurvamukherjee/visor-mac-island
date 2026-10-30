@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { applySettings, report } from '../native';
 
+export type HudControls = 'volume' | 'brightness' | 'both';
+
 // Defaults follow the Mac app's Constants.swift wherever the setting exists there.
 const defaults = {
   onboarded: false,
@@ -13,6 +15,8 @@ const defaults = {
   hideFromCapture: false,
   /** Take the volume keys and show Visor's HUD instead of the Windows flyout. */
   replaceHud: false,
+  /** Which HUDs the island takes over, as the Mac's Settings › HUDs › Controls; volume only by default. */
+  hudControls: 'volume' as HudControls,
   sneakPeek: false,
   vinyl: false,
   lyrics: false,
@@ -56,8 +60,9 @@ window.addEventListener('storage', (e) => {
   if (e.key === KEY) void useSettings.persist.rehydrate();
 });
 
-function syncNative({ replaceHud, hideFromCapture, hideInFullscreen, launchAtLogin }: SettingsValues) {
-  applySettings({ replaceHud, hideFromCapture, hideInFullscreen, launchAtLogin }).catch(report);
+function syncNative({ replaceHud, hudControls, hideFromCapture, hideInFullscreen, launchAtLogin }: SettingsValues) {
+  // Rust only takes the volume keys; brightness keys are firmware's, so there's nothing to hand it for those.
+  applySettings({ replaceHud: replaceHud && hudControls !== 'brightness', hideFromCapture, hideInFullscreen, launchAtLogin }).catch(report);
 }
 
 /** Hands Rust the settings it acts on now and after every change. Idempotent, so every window may call it. */

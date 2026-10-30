@@ -5,7 +5,7 @@ import { links } from '../../../website/src/links';
 import { useUpdate } from '../island/queries';
 import { openTarget, report, showLog, useSystem } from '../native';
 import icon from '../../src-tauri/icons/128x128.png';
-import { useSettings, type SettingsValues } from './store';
+import { useSettings, type HudControls, type SettingsValues } from './store';
 import './Settings.css';
 
 type Flag = { [K in keyof SettingsValues]: SettingsValues[K] extends boolean ? K : never }[keyof SettingsValues];
@@ -52,7 +52,7 @@ function Group({ title, children }: { title?: string; children: ReactNode }) {
 }
 
 function General() {
-  const { hoverOpen, hoverDelay, set } = useSettings();
+  const { hoverOpen, hoverDelay, replaceHud, hudControls, set } = useSettings();
   return (
     <>
       <Group title="Island">
@@ -81,7 +81,18 @@ function General() {
       </Group>
       <Group title="System">
         <Toggle flag="launchAtLogin" label="Start at sign-in" />
-        <Toggle flag="replaceHud" label="Volume and brightness in the island" hint="Replaces the Windows volume flyout. Brightness still shows both." />
+        <Toggle flag="replaceHud" label="Volume and brightness in the island" hint="Shows them in the island instead of the Windows flyout." />
+        <label className={`row${replaceHud ? '' : ' is-disabled'}`}>
+          <span className="row-text">
+            Controls
+            <small>{hudControls === 'volume' ? 'Brightness keeps the Windows flyout.' : 'Windows still shows its own brightness flyout too: those keys are handled in firmware.'}</small>
+          </span>
+          <select value={hudControls} disabled={!replaceHud} onChange={(e) => set({ hudControls: e.target.value as HudControls })}>
+            <option value="volume">Volume</option>
+            <option value="brightness">Brightness</option>
+            <option value="both">Both</option>
+          </select>
+        </label>
         <Toggle flag="hideFromCapture" label="Hide from screenshots and screen sharing" />
       </Group>
     </>

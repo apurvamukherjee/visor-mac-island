@@ -125,7 +125,7 @@ export function startTransients() {
   const settings = useSettings.getState;
   const volume = () => {
     const s = useSystem.getState();
-    if (settings().replaceHud) flash({ kind: 'hud', hud: 'volume', value: s.volume, muted: s.muted });
+    if (settings().replaceHud && settings().hudControls !== 'brightness') flash({ kind: 'hud', hud: 'volume', value: s.volume, muted: s.muted });
   };
 
   useSystem.subscribe((s, prev) => {
@@ -133,7 +133,7 @@ export function startTransients() {
     if (!prev.ready) return;
     // A new output brings its own volume with it; that's a switch, not a change to show.
     if ((s.volume !== prev.volume || s.muted !== prev.muted) && defaultOutput(s) === defaultOutput(prev)) volume();
-    if (s.brightness !== null && prev.brightness !== null && s.brightness !== prev.brightness && settings().replaceHud) {
+    if (s.brightness !== null && prev.brightness !== null && s.brightness !== prev.brightness && settings().replaceHud && settings().hudControls !== 'volume') {
       flash({ kind: 'hud', hud: 'brightness', value: s.brightness, muted: false });
     }
     if (s.battery && prev.battery && s.battery.plugged !== prev.battery.plugged) {
