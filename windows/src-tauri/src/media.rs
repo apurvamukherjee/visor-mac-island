@@ -23,7 +23,13 @@ const COVER_SETTLE: u32 = 10;
 /// 1601-01-01 to 1970-01-01, in the 100 ns ticks WinRT dates use.
 const UNIX_EPOCH_TICKS: i64 = 116_444_736_000_000_000;
 
+/// Failed reads in a row before the island lets go of the song: a player that's busy for a
+/// moment shouldn't collapse the island and bring the sneak peek back.
+const MISSES: u32 = 4;
+
 static MANAGER: OnceLock<SessionManager> = OnceLock::new();
+/// The session the island shows, so the buttons control that one and not whichever Windows calls current.
+static SHOWN: Mutex<Option<Session>> = Mutex::new(None);
 static COVER: Mutex<Vec<u8>> = Mutex::new(Vec::new());
 
 /// Follows whatever Windows shows in its own media flyout: Spotify, a browser tab, Media Player.
@@ -35,16 +41,63 @@ pub fn watch(app: AppHandle) {
     let mut key = String::new();
     let mut cover = 0;
     let mut settle = 0;
+    let mut misses = 0;
     loop {
-        // No current session is an error from WinRT, and simply means nothing is playing.
-        let media = manager.GetCurrentSession().ok().and_then(|session| {
-            read(&session, &mut key, &mut cover, &mut settle)
-                .map_err(|e| eprintln!("visor: reading media failed: {e}"))
-                .ok()
-        });
-        state::update(&app, |s| s.media = media);
+        let last = SHOWN.lock().unwrap().clone();
+        let session = pick(manager, last.as_ref());
+        *SHOWN.lock().unwrap() = session.clone();
+        match session.map(|s| read(&s, &mut key, &mut cover, &mut settle)) {
+            Some(Ok(media)) => {
+                misses = 0;
+                state::update(&app, |s| s.media = Some(media));
+            }
+            Some(Err(e)) => {
+                if misses == 0 {
+                    eprintln!("visor: reading media failed: {e}");
+                }
+                misses += 1;
+                if misses >= MISSES {
+                    state::update(&app, |s| s.media = None);
+                }
+            }
+            None => {
+                misses = 0;
+                state::update(&app, |s| s.media = None);
+            }
+        }
         thread::sleep(POLL);
     }
+}
+
+fn is_playing(session: &Session) -> bool {
+    session
+        .GetPlaybackInfo()
+        .and_then(|i| i.PlaybackStatus())
+        .is_ok_and(|s| s == Status::Playing)
+}
+
+fn same_app(a: &Session, b: &Session) -> bool {
+    a.SourceAppUserModelId().ok() == b.SourceAppUserModelId().ok()
+}
+
+/// Windows' "current" session is the last one to change, often a paused Spotify while a video
+/// plays in the browser. In order: Windows' pick if it's playing, the one already shown if it's
+/// playing, any that's playing, the one already shown while it's still open, then Windows' pick.
+fn pick(manager: &SessionManager, last: Option<&Session>) -> Option<Session> {
+    // No current session is an error from WinRT, and simply means nothing is playing.
+    let current = manager.GetCurrentSession().ok();
+    let sessions: Vec<Session> = manager
+        .GetSessions()
+        .map(|list| list.into_iter().collect())
+        .unwrap_or_default();
+    let shown = |s: &&Session| last.is_some_and(|l| same_app(s, l));
+    current
+        .clone()
+        .filter(is_playing)
+        .or_else(|| sessions.iter().filter(shown).find(|s| is_playing(s)).cloned())
+        .or_else(|| sessions.iter().find(|s| is_playing(s)).cloned())
+        .or_else(|| sessions.iter().find(shown).cloned())
+        .or(current)
 }
 
 fn read(
@@ -128,10 +181,14 @@ pub enum Action {
 
 #[tauri::command]
 pub async fn media(action: Action) -> Result<()> {
-    let session = MANAGER
-        .get()
-        .ok_or("media sessions are unavailable")?
-        .GetCurrentSession()?;
+    let shown = SHOWN.lock().unwrap().clone();
+    let session = match shown {
+        Some(s) => s,
+        None => MANAGER
+            .get()
+            .ok_or("media sessions are unavailable")?
+            .GetCurrentSession()?,
+    };
     let done = match action {
         Action::Toggle => session.TryTogglePlayPauseAsync()?.join()?,
         Action::Next => session.TrySkipNextAsync()?.join()?,
