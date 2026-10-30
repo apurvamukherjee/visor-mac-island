@@ -44,6 +44,8 @@ const FLASH_MS = 1800;
 const PEEK_MS = 2500;
 const DEVICE_MS = 5000;
 const ERROR_MS = 4000;
+// The levels a laptop on battery gets a word about, as macOS warns at 20% and 10%.
+const LOW_BATTERY = [0.2, 0.1];
 
 let clearTransient: ReturnType<typeof setTimeout> | undefined;
 let ring: ReturnType<typeof setTimeout> | undefined;
@@ -141,6 +143,10 @@ export function startTransients() {
     }
     if (s.battery && prev.battery && s.battery.plugged !== prev.battery.plugged) {
       flash({ kind: 'battery', plugged: s.battery.plugged, level: s.battery.level }, 3000);
+    }
+    const [now, was] = [s.battery, prev.battery];
+    if (now && was && !now.plugged && LOW_BATTERY.some((at) => was.level > at && now.level <= at)) {
+      flash({ kind: 'battery', plugged: false, level: now.level }, ERROR_MS);
     }
     if (prev.locked && !s.locked) flash({ kind: 'unlock' }, 1200);
     if (s.media && trackKey(s.media) !== trackKey(prev.media) && settings().sneakPeek && !useIsland.getState().open) {
