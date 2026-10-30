@@ -32,6 +32,7 @@ interface Island {
   setTab: (tab: Tab) => void;
   flash: (t: Transient, ms?: number) => void;
   startTimer: (minutes: number) => void;
+  addMinute: () => void;
   stopTimer: () => void;
   toggleMirror: () => void;
 }
@@ -67,6 +68,7 @@ export const useIsland = create<Island>()(
       },
       startTimer: (minutes) => set({ timerEnd: Date.now() + minutes * 60_000, ringing: false }),
       stopTimer: () => set({ timerEnd: null, ringing: false }),
+      addMinute: () => set((s) => ({ timerEnd: s.timerEnd === null ? null : s.timerEnd + 60_000 })),
       toggleMirror: () => set({ mirror: !get().mirror }),
     }),
     { name: 'visor-timer', partialize: (s) => ({ timerEnd: s.timerEnd }) },

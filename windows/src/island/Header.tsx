@@ -24,16 +24,25 @@ const gearIcon = glyph(
 
 function Timer() {
   const timerEnd = useIsland((s) => s.timerEnd);
-  const { startTimer, stopTimer } = useIsland();
+  const { startTimer, stopTimer, addMinute } = useIsland();
+  const ringing = useIsland((s) => s.ringing);
   const now = useNow(timerEnd ? 500 : 60_000).getTime();
   const [choosing, setChoosing] = useState(false);
 
   if (timerEnd) {
     const s = Math.ceil(Math.max(0, timerEnd - now) / 1000);
+    // +1 min is how a timer gets any length: the island can't take typing, so there's no field for minutes.
     return (
-      <button className="header-pill is-timer" aria-label="Stop the timer" onClick={stopTimer}>
-        {Math.floor(s / 60)}:{String(s % 60).padStart(2, '0')} ✕
-      </button>
+      <span className="timer-presets">
+        {!ringing && (
+          <button aria-label="Add a minute" onClick={addMinute}>
+            +1m
+          </button>
+        )}
+        <button className="header-pill is-timer" aria-label="Stop the timer" onClick={stopTimer}>
+          {Math.floor(s / 60)}:{String(s % 60).padStart(2, '0')} ✕
+        </button>
+      </span>
     );
   }
   if (choosing) {
