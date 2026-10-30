@@ -26,8 +26,14 @@ Since 3.7.2 the Mac and Windows ship in one release under the plain `v<version>`
 | --- | --- |
 | Notch | Floats at the top center of each monitor, like Visor on Macs without a notch |
 | Music | Whatever Windows' media flyout shows (Spotify, browsers, Media Player) |
-| Volume HUD | Takes the volume keys from Windows when "Volume and brightness in the island" is on |
+| Volume HUD | Takes the volume keys from Windows when "Volume and brightness in the island" is on and Controls includes volume |
 | Brightness HUD | Laptop panels only, and Windows' own flyout still shows: the keys never reach apps |
+| Idle notch | With nothing to show, the island shrinks to a sliver at the screen edge so it doesn't cover tabs; hover to bring it back |
+| Shortcut | <kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>Space</kbd> opens the island on the pointer's monitor; not configurable |
+| Menu bar icon | A tray icon: click for Settings, or use its menu to hide the island or start a timer |
+| Lyrics | Synced lyrics only; unsynced ones don't show |
+| Timer | Presets plus +1 min, since the island can't take typing |
+| Logs | Release builds write `%LOCALAPPDATA%\Visor\visor.log`; Settings › About › Show log file |
 | Lock screen | Windows shows no app windows there; the padlock opens on unlock instead |
 | Liquid Glass | Not available |
 | Background removal | Not available: Windows has no built-in subject cutout |
