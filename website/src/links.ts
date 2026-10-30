@@ -3,7 +3,7 @@ const repo = 'https://github.com/apurvamukherjee/visor-mac-island';
 export const links = {
   repo,
   dmg: `${repo}/releases/latest/download/Visor.dmg`,
-  // Windows releases are never marked latest (the Mac's update check reads latest), so this names the tag. Bump it with each windows-v release.
+  // Releases since 3.9.0 carry the installer as Visor-Setup.exe too, so this always gets the newest, like the DMG.
   exe: `${repo}/releases/latest/download/Visor-Setup.exe`,
   releases: `${repo}/releases`,
   readme: `${repo}#readme`,
