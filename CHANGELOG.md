@@ -4,6 +4,12 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.9.0 (build 55) · 2026-10-30
+
+- **Join has its own labeled pill.** In the open notch the Join button now sits in the empty leading half with the meeting's title, instead of crowding the battery beside the other buttons.
+- **The calendar keeps up.** Events refresh as soon as a calendar changes, and opening the notch nudges your accounts to sync.
+- **Visor for Windows, a big round of fixes and extras.** Album art no longer sticks on the last song, lyrics show under the artist, boAt Rockerz headphones get their own 3D model, Outlook meetings land at the right time, the idle island shrinks out of the way of your tabs, and there's a new Ctrl+Alt+Space shortcut, shuffle and repeat, a smarter tray menu, low-battery warnings and much more. The full list is in the release notes.
+
 ## 3.8.0 (build 54) · 2026-10-27
 
 - **Pick which keys the HUD takes over.** Settings › HUDs › Controls offers Volume, Brightness or Both. It starts on Volume, so brightness keys go back to the smooth macOS HUD; choose Brightness or Both to bring Visor's back.
