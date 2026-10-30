@@ -108,14 +108,16 @@ export function useWeather() {
   return useQuery({ queryKey: ['weather'], queryFn: fetchWeather, enabled: show, staleTime: 30 * MINUTE, refetchInterval: 30 * MINUTE }).data;
 }
 
-/** The line to show under the artist, worded as the Mac's; null when lyrics are off. */
+/** The line to show under the artist; null when lyrics are off. */
 export function useLyric(position: number) {
   const enabled = useSettings((s) => s.lyrics);
   const title = useSystem((s) => s.media?.title ?? '');
   const artist = useSystem((s) => s.media?.artist ?? '');
+  // Not in the key: a browser often reports the length a moment after the title, and that's no reason to fetch again.
+  const duration = useSystem((s) => s.media?.duration ?? 0);
   const { data, isPending } = useQuery({
     queryKey: ['lyrics', title, artist],
-    queryFn: () => fetchLyrics(title, artist),
+    queryFn: () => fetchLyrics(title, artist, duration),
     enabled: enabled && title !== '',
     staleTime: Infinity,
     // Three retries keep "Loading lyrics…" up for about 7 s when LRCLIB is down; one is enough.
@@ -123,8 +125,8 @@ export function useLyric(position: number) {
   });
   if (!enabled || !title) return null;
   if (isPending) return 'Loading lyrics…';
-  if (data?.synced.length) return lineAt(data.synced, position);
-  return data?.plain.replace(/\s*\n\s*/g, ' ') || 'No lyrics found';
+  // Unsynced lyrics would be the whole song crammed into one cut-off line, so only synced ones show.
+  return data?.length ? lineAt(data, position) : 'No synced lyrics';
 }
 
 export function useUpdate() {
