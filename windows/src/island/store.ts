@@ -12,7 +12,7 @@ export type Tab = 'home' | 'shelf';
 /** What the closed island briefly grows to show, one at a time, newest wins. */
 export type Transient =
   | { kind: 'hud'; hud: 'volume' | 'brightness'; value: number; muted: boolean }
-  | { kind: 'battery'; charging: boolean; level: number }
+  | { kind: 'battery'; plugged: boolean; level: number }
   | { kind: 'peek' }
   | { kind: 'unlock' }
   | { kind: 'screenshot' }
@@ -137,7 +137,7 @@ export function startTransients() {
       flash({ kind: 'hud', hud: 'brightness', value: s.brightness, muted: false });
     }
     if (s.battery && prev.battery && s.battery.plugged !== prev.battery.plugged) {
-      flash({ kind: 'battery', charging: s.battery.plugged, level: s.battery.level }, 3000);
+      flash({ kind: 'battery', plugged: s.battery.plugged, level: s.battery.level }, 3000);
     }
     if (prev.locked && !s.locked) flash({ kind: 'unlock' }, 1200);
     if (s.media && trackKey(s.media) !== trackKey(prev.media) && settings().sneakPeek && !useIsland.getState().open) {

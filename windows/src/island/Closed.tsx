@@ -139,8 +139,11 @@ export function Closed() {
   if (transient?.kind === 'battery') {
     return (
       <div className="closed closed-battery" role="status">
-        <span className={transient.charging ? 'is-charging' : ''}>{transient.charging ? 'Charging' : battery?.saver ? 'Energy saver' : 'On battery'}</span>
-        <BatteryCell level={transient.level} charging={transient.charging} saver={battery?.saver} />
+        {/* Read live: a full battery, or one held back by Windows' charge limit, is plugged in but not charging. */}
+        <span className={transient.plugged ? 'is-charging' : ''}>
+          {transient.plugged ? (battery?.charging ? 'Charging' : 'Plugged in') : battery?.saver ? 'Energy saver' : 'On battery'}
+        </span>
+        <BatteryCell level={transient.level} charging={transient.plugged} saver={battery?.saver} />
       </div>
     );
   }
