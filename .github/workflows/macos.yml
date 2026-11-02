@@ -1,0 +1,25 @@
+name: macOS
+
+on:
+  push:
+    branches: [main]
+    paths: [Visor/**, project.yml, Visor.entitlements, .swiftlint.yml, .github/workflows/macos.yml]
+  pull_request:
+    branches: [main]
+    paths: [Visor/**, project.yml, Visor.entitlements, .swiftlint.yml, .github/workflows/macos.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # The Liquid Glass code paths need the macOS 26 SDK.
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install xcodegen swiftlint
+      - run: swiftlint lint --quiet
+      - run: xcodegen generate
+      # CI has no signing identity; this only checks that the app compiles.
+      - run: xcodebuild -scheme Visor -configuration Debug CODE_SIGNING_ALLOWED=NO build -quiet
