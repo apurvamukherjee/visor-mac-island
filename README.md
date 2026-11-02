@@ -12,16 +12,21 @@
 
 <br><br>
 
-**Visor** is a free, open-source Mac app by **Apurva Mukherjee** that turns the notch on your MacBook into something you can use.<br>Your music, your calendar, a shelf for files and the volume and brightness HUDs, right where the camera sits.<br>**Now on Windows too**: the same island floats at the top of every screen on Windows 10 and 11.
+**Visor** is a free notch app for MacBooks (and Windows PCs) that puts your music, calendar and files where the camera sits.
 
-<br>
+```bash
+brew install --cask apurvamukherjee/tap/visor
+```
 
+<!-- TODO: 5–10s recording of the island opening, music playing, then the calendar -->
 <a href="assets/readme/demo.mp4"><img src="assets/readme/demo.gif" width="100%" alt="Visor demo: the island opening, playing music and showing the calendar"></a><br>
 <sub>Tap the clip for the full-quality video.</sub>
 
 <br><br>
 
 <a href="https://github.com/apurvamukherjee/visor-mac-island/releases/latest/download/Visor.dmg"><img src="assets/readme/download.svg" height="64" alt="Download for macOS"></a>&nbsp;&nbsp;<a href="https://github.com/apurvamukherjee/visor-mac-island/releases/latest/download/Visor-Setup.exe"><img src="assets/readme/download-windows.svg" height="64" alt="Download for Windows"></a>
+
+**[Try Visor in your browser →](https://apurvamukherjee.github.io/visor-mac-island/)** No install needed.
 
 <a href="https://github.com/apurvamukherjee/visor-mac-island/releases/latest"><img src="https://img.shields.io/github/v/release/apurvamukherjee/visor-mac-island?style=flat-square&label=Latest&color=16a34a&labelColor=18181b" alt="Latest version"></a>&nbsp;<a href="CHANGELOG.md"><img src="https://img.shields.io/github/release-date/apurvamukherjee/visor-mac-island?style=flat-square&label=Released&color=0078d4&labelColor=18181b" alt="Release date"></a><br>
 <sub>Both buttons always fetch the newest release. What changed: <a href="CHANGELOG.md">CHANGELOG.md</a> · older builds: <a href="https://github.com/apurvamukherjee/visor-mac-island/releases">Releases</a></sub>
