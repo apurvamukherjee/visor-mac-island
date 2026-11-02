@@ -1,0 +1,50 @@
+name: Bug report
+description: Something in Visor doesn't work as it should
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the notch
+        2. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - macOS
+        - Windows
+        - Website demo
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Visor version
+      description: Settings › About shows it.
+      placeholder: "3.9.0"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS version and device
+      placeholder: macOS 26.1, MacBook Air M3
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots, clips or logs
+      description: On Windows, Settings › About › Show log file.
