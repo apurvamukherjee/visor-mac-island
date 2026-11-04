@@ -18,9 +18,8 @@
 brew install --cask apurvamukherjee/tap/visor
 ```
 
-<!-- TODO: 5–10s recording of the island opening, music playing, then the calendar -->
-<a href="assets/readme/demo.mp4"><img src="assets/readme/demo.gif" width="100%" alt="Visor demo: the island opening, playing music and showing the calendar"></a><br>
-<sub>Tap the clip for the full-quality video.</sub>
+<a href="assets/readme/visor-film.mp4"><img src="assets/readme/visor-film.jpg" width="100%" alt="Watch the Visor film: 52 seconds of the island on a Mac and on Windows, with sound and subtitles"></a><br>
+<sub><b>The Visor film</b>, 52 s with sound and subtitles. <a href="assets/readme/visor-film.mp4">Watch</a> · <a href="https://github.com/apurvamukherjee/visor-mac-island/raw/main/assets/readme/visor-film.mp4">Download MP4</a> · <a href="assets/readme/visor-film.srt">Subtitles (.srt)</a></sub>
 
 <br><br>
 
@@ -37,6 +36,13 @@ brew install --cask apurvamukherjee/tap/visor
 
 ## <img src="assets/readme/icons/photo.svg" width="34" align="center"> &nbsp;A look around
 
+### On the Mac
+
+<p align="center">
+  <a href="assets/readme/demo.mp4"><img src="assets/readme/demo.gif" width="100%" alt="Visor on a Mac: the notch opening, playing music and showing the calendar"></a><br>
+  <b>In motion.</b> Tap the clip for the full-quality video.
+</p>
+
 <p align="center">
   <img src="assets/readme/closed.png" width="100%" alt="Closed notch with the album cover and a visualizer"><br>
   <b>Closed.</b> The cover on the left, a visualizer on the right.
@@ -50,6 +56,28 @@ brew install --cask apurvamukherjee/tap/visor
 <p align="center">
   <img src="assets/readme/shelf.png" width="100%" alt="The shelf tab with AirDrop and a drop zone"><br>
   <b>Shelf.</b> Drop files here, AirDrop them from here.
+</p>
+
+### On Windows
+
+<p align="center">
+  <img src="assets/readme/windows-closed.png" width="100%" alt="The closed island on Windows with the album cover and a visualizer"><br>
+  <b>Closed.</b> The same live activity at the top center of every monitor. With nothing to show it shrinks to a sliver, clear of your tabs.
+</p>
+
+<p align="center">
+  <img src="assets/readme/windows-home.png" width="100%" alt="The open island on Windows with the player, volume and output buttons, and the calendar with a Join Zoom button"><br>
+  <b>Open.</b> Whatever the Windows media flyout plays, with a volume slider, output switching, shuffle and repeat, next to your day and a Join button for the next call.
+</p>
+
+<p align="center">
+  <img src="assets/readme/windows-shelf.png" width="100%" alt="The shelf on Windows with two images selected and To JPEG, Make PDF and Remove buttons"><br>
+  <b>Shelf.</b> Share through the Windows share sheet, drag files back out, or convert them where they sit.
+</p>
+
+<p align="center">
+  <img src="assets/readme/windows-settings.png" width="80%" alt="Visor's Settings window on Windows in dark mode, on the General pane"><br>
+  <b>Settings.</b> Windows 11's look, in light or dark, opened from the tray icon, the island or by launching Visor again.
 </p>
 
 ## <img src="assets/readme/icons/grid.svg" width="34" align="center"> &nbsp;Features
@@ -148,7 +176,7 @@ Connect AirPods, OnePlus Buds or a JBL soundbar and a 3D model of it turns slowl
 <tr>
 <td colspan="2" valign="top">
 <h3><img src="assets/readme/icons/displays.svg" width="40" align="center"> &nbsp;On Windows</h3>
-The same island floats at the top center of every screen on Windows 10 and 11. It plays whatever the Windows media flyout shows, from Spotify to a YouTube tab, with synced lyrics, shuffle and repeat, and the cover lighting the island from behind. The calendar reads ICS links from Outlook, Google or iCloud and puts a Join button up before calls, the shelf shares through the Windows share sheet and converts images and PDFs, and boAt Rockerz headphones get their own 3D model. <kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>Space</kbd> opens it from anywhere; with nothing to show it shrinks to a sliver, so it stays off your browser tabs. The tray icon opens Settings, hides the island or starts a timer, and the player has its own volume slider: click the speaker, or scroll on it. What works differently: <a href="windows/README.md"><code>windows/README.md</code></a>.
+The same island floats at the top center of every screen on Windows 10 and 11. It plays whatever the Windows media flyout shows, from Spotify to a YouTube tab, with synced lyrics, shuffle and repeat, and the cover lighting the island from behind. The calendar reads ICS links from Outlook, Google or iCloud and puts a Join button up before calls, the shelf shares through the Windows share sheet and converts images and PDFs, and boAt Rockerz headphones get their own 3D model. <kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>Space</kbd> opens it from anywhere; with nothing to show it shrinks to a sliver, so it stays off your browser tabs. The player has its own volume slider (click the speaker, or scroll on it), long titles scroll to their end, the timer pill fills as it counts down, the Join pill counts down to the call, and the battery notes say how long you have left. The tray icon opens Settings, hides the island or starts a timer, and launching Visor again brings Settings up. What works differently: <a href="windows/README.md"><code>windows/README.md</code></a>.
 </td>
 </tr>
 </table>
@@ -230,11 +258,25 @@ Package a styled `.dmg`:
 bash scripts/make-dmg.sh
 ```
 
-It writes `dist/Visor.dmg` and a dated copy in `new-releases/`. Attach both to the GitHub release; the README's download button points at `releases/latest/download/Visor.dmg`, so it always fetches the newest one. Publishing the release makes CI build the Windows app and attach `Visor-Setup-X.Y.Z.exe` and `Visor-Setup.exe`, the file the Windows button fetches. The Windows app's own build steps are in [`windows/README.md`](windows/README.md).
+It writes `dist/Visor.dmg` and a dated copy in `new-releases/`. Attach both to the GitHub release; the README's download button points at `releases/latest/download/Visor.dmg`, so it always fetches the newest one. Publishing the release makes CI build the Windows app and attach `Visor-Setup-X.Y.Z.exe` and `Visor-Setup.exe`, the file the Windows button fetches.
 
 ```bash
 gh release create vX.Y.Z new-releases/Visor-X.Y.Z-build….dmg dist/Visor.dmg --title "Visor X.Y.Z" --notes-file notes.md
 ```
+
+On Windows 10 or 11, with Node 22+ and Rust:
+
+```bash
+cd windows
+npm ci && npm ci --prefix ../website
+npm run tauri build
+```
+
+The installer lands in `windows/src-tauri/target/release/bundle/nsis`; `npm run tauri dev` runs it with live reload. More, including the checks and how releases are built: [`windows/README.md`](windows/README.md).
+
+## <img src="assets/readme/icons/live.svg" width="34" align="center"> &nbsp;About the film
+
+[`visor-film.mp4`](assets/readme/visor-film.mp4) is 52 seconds at 1080p. The Mac shots come from the recording above. The Windows shots are the Windows app's own interface, scripted through its features with sample songs and events. The music is an original piece synthesized for the film, with no samples or licensed tracks, and the subtitles are burned in and also in [`visor-film.srt`](assets/readme/visor-film.srt).
 
 ## <img src="assets/readme/icons/opensource.svg" width="34" align="center"> &nbsp;Open source
 

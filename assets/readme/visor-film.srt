@@ -1,0 +1,44 @@
+1
+00:00:01,200 --> 00:00:05,000
+Your notch has been waiting for something to do.
+
+2
+00:00:05,900 --> 00:00:10,900
+On a Mac, Visor turns it into an island.
+
+3
+00:00:11,100 --> 00:00:16,400
+Your music, your week and your files, right under the camera.
+
+4
+00:00:17,300 --> 00:00:19,600
+And now, on Windows too.
+
+5
+00:00:20,200 --> 00:00:22,600
+With nothing to show, it's a sliver, clear of your tabs.
+
+6
+00:00:22,900 --> 00:00:26,900
+Play a song and it peeks out to tell you what's on.
+
+7
+00:00:27,300 --> 00:00:33,000
+Rest the pointer on it: your player, your week, your next call.
+
+8
+00:00:33,200 --> 00:00:40,600
+Turn it up from the speaker, or start a timer with a click.
+
+9
+00:00:40,900 --> 00:00:43,900
+Park files on the shelf, then drag them wherever they go.
+
+10
+00:00:44,000 --> 00:00:45,500
+Then it steps out of your way.
+
+11
+00:00:46,600 --> 00:00:51,000
+Free, open source, and yours to try today.
+
