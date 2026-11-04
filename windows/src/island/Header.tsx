@@ -3,6 +3,7 @@ import { useNow } from '../../../website/src/os/useNow';
 import { openTarget, report, showSettings, useSystem } from '../native';
 import { useSettings } from '../settings/store';
 import { BatteryCell } from './Closed';
+import { clock, duration } from './format';
 import { useMeeting, useUpdate } from './queries';
 import { TIMER_PRESETS, useIsland, type Tab } from './store';
 
@@ -26,11 +27,13 @@ function Timer() {
   const timerEnd = useIsland((s) => s.timerEnd);
   const { startTimer, stopTimer, addMinute } = useIsland();
   const ringing = useIsland((s) => s.ringing);
+  const startedAt = useIsland((s) => s.timerStart);
   const now = useNow(timerEnd ? 500 : 60_000).getTime();
   const [choosing, setChoosing] = useState(false);
 
   if (timerEnd) {
     const s = Math.ceil(Math.max(0, timerEnd - now) / 1000);
+    const total = Math.max(1, Math.round((timerEnd - (startedAt ?? timerEnd)) / 1000));
     // +1 min is how a timer gets any length: the island can't take typing, so there's no field for minutes.
     return (
       <span className="timer-presets">
@@ -39,8 +42,13 @@ function Timer() {
             +1m
           </button>
         )}
-        <button className="header-pill is-timer" aria-label="Stop the timer" onClick={stopTimer}>
-          {Math.floor(s / 60)}:{String(s % 60).padStart(2, '0')} ✕
+        <button
+          className={`header-pill is-timer${ringing ? ' is-ringing' : ''}`}
+          aria-label={ringing ? 'Timer done, dismiss' : `Stop the timer, ${clock(s)} left`}
+          style={{ '--done': `${ringing ? 100 : Math.min(100, (1 - s / total) * 100)}%` } as React.CSSProperties}
+          onClick={stopTimer}
+        >
+          <span>{ringing ? 'Done' : clock(s)}</span> ✕
         </button>
       </span>
     );
@@ -76,6 +84,7 @@ export function Header() {
   const tab = useIsland((s) => s.tab);
   const setTab = useIsland((s) => s.setTab);
   const toggleMirror = useIsland((s) => s.toggleMirror);
+  const mirror = useIsland((s) => s.mirror);
   const showTimer = useSettings((s) => s.showTimer);
   const showMirror = useSettings((s) => s.showMirror);
   const showBattery = useSettings((s) => s.showBattery);
@@ -102,14 +111,18 @@ export function Header() {
         )}
         {showTimer && <Timer />}
         {showMirror && (
-          <button className="header-btn" aria-label="Mirror" onClick={toggleMirror}>
+          <button className={`header-btn${mirror ? ' is-on' : ''}`} aria-label="Mirror" aria-pressed={mirror} onClick={toggleMirror}>
             {cameraIcon}
           </button>
         )}
         <button className={`header-btn${update ? ' has-update' : ''}`} aria-label={update ? `Settings, Visor ${update.version} is out` : 'Settings'} onClick={() => showSettings().catch(report)}>
           {gearIcon}
         </button>
-        {showBattery && battery && <BatteryCell level={battery.level} charging={battery.charging} saver={battery.saver} />}
+        {showBattery && battery && (
+          <span className="header-battery" title={battery.remaining != null && !battery.plugged ? `${duration(battery.remaining)} left` : undefined}>
+            <BatteryCell level={battery.level} charging={battery.charging} saver={battery.saver} />
+          </span>
+        )}
       </div>
     </div>
   );

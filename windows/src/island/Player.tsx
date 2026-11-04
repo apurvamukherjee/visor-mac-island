@@ -1,10 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { icons } from '../../../website/src/os/ControlCenter/icons';
 import { useNow } from '../../../website/src/os/useNow';
-import { media as send, report, setOutput, useSystem, type Media } from '../native';
+import { media as send, report, setOutput, setVolume, useSystem, type Media } from '../native';
 import { useSettings } from '../settings/store';
 import { Cover } from './Closed';
+import { clock } from './format';
+import { Marquee } from './Marquee';
 import { useCover, useLyric } from './queries';
+import { useDismiss } from './useDismiss';
 
 const modeIcon = (d: string, badge?: string) => (
   <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -19,7 +22,11 @@ const modeIcon = (d: string, badge?: string) => (
 const SHUFFLE = 'M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5';
 const REPEAT = 'M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3';
 
-const time = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+// Windows' own step for the volume keys, doubled: a wheel notch should move it more than a key press.
+const WHEEL_STEP = 0.04;
+// How long a seek or a play/pause is shown before the player has to confirm it.
+const OPTIMISTIC_MS = 2000;
+const clamp = (v: number) => Math.min(1, Math.max(0, v));
 
 /** Players report a position now and then; the clock runs on from it between reports. */
 function usePosition(m: Media | null, tick: number) {
@@ -43,39 +50,82 @@ function Outputs() {
   const outputs = useSystem((s) => s.outputs);
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLSpanElement>(null);
-
-  // A press anywhere else in the island closes the list, as a menu does.
-  useEffect(() => {
-    if (!open) return;
-    const close = (e: PointerEvent) => {
-      if (e.target instanceof Node && !box.current?.contains(e.target)) setOpen(false);
-    };
-    document.addEventListener('pointerdown', close);
-    return () => document.removeEventListener('pointerdown', close);
-  }, [open]);
+  useDismiss(open, box, useCallback(() => setOpen(false), []));
 
   if (outputs.length < 2) return null;
   return (
-    <span className="outputs" ref={box}>
-      <button className="player-btn" aria-label="Sound output" aria-expanded={open} onClick={() => setOpen(!open)}>
+    <span className="popover-anchor is-end" ref={box}>
+      <button className={`player-btn is-small${open ? ' is-on' : ''}`} aria-label="Sound output" aria-expanded={open} onClick={() => setOpen(!open)}>
         {icons.airplay}
       </button>
       {open && (
-        <ul className="outputs-list" role="listbox" aria-label="Sound output">
+        <ul className="popover outputs-list" role="listbox" aria-label="Sound output">
           {outputs.map((o) => (
             <li key={o.id} role="option" aria-selected={o.default}>
               <button
+                className={o.default ? 'is-current' : ''}
                 onClick={() => {
                   setOutput(o.id).catch(report);
                   setOpen(false);
                 }}
               >
-                {o.default ? '✓ ' : ''}
-                {o.name}
+                <span className="outputs-check" aria-hidden>
+                  {o.default ? '✓' : ''}
+                </span>
+                <span className="outputs-name">{o.name}</span>
               </button>
             </li>
           ))}
         </ul>
+      )}
+    </span>
+  );
+}
+
+/** The output's volume, from the island: click for a slider, or scroll on the speaker. */
+function Volume() {
+  const volume = useSystem((s) => (s.muted ? 0 : s.volume));
+  const [open, setOpen] = useState(false);
+  // What the user last set, held until Windows reports it back, so a drag or a fast scroll doesn't stutter.
+  const [held, setHeld] = useState<{ level: number; id: number } | null>(null);
+  const box = useRef<HTMLSpanElement>(null);
+  useDismiss(open, box, useCallback(() => setOpen(false), []));
+  const level = held?.level ?? volume;
+
+  const set = (next: number) => {
+    const v = Math.round(clamp(next) * 100) / 100;
+    const id = performance.now();
+    setHeld({ level: v, id });
+    setTimeout(() => setHeld((h) => (h?.id === id ? null : h)), 600);
+    setVolume(v).catch(report);
+  };
+  // The island's own scroll gestures open and close it; over the speaker the wheel is the volume's.
+  const wheel = (e: React.WheelEvent) => {
+    e.stopPropagation();
+    const by = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? -e.deltaY : e.deltaX;
+    if (by) set(level + Math.sign(by) * WHEEL_STEP);
+  };
+
+  return (
+    <span className="popover-anchor" ref={box} onWheel={wheel}>
+      <button className={`player-btn is-small${open ? ' is-on' : ''}`} aria-label={`Volume ${Math.round(level * 100)}%`} aria-expanded={open} onClick={() => setOpen(!open)}>
+        {level === 0 ? icons.speaker : icons.speakerLoud}
+      </button>
+      {open && (
+        <span className="popover volume-pop">
+          <input
+            className="volume-slider"
+            type="range"
+            min={0}
+            max={1}
+            step={0.01}
+            value={level}
+            aria-label="Volume"
+            style={{ '--p': `${level * 100}%` } as React.CSSProperties}
+            onChange={(e) => set(e.target.valueAsNumber)}
+          />
+          <output>{Math.round(level * 100)}</output>
+        </span>
       )}
     </span>
   );
@@ -88,6 +138,10 @@ export function Player() {
   const position = usePosition(m, useSettings((s) => s.lyrics) ? 250 : 500);
   const lyric = useLyric(position);
   const [drag, setDrag] = useState<number | null>(null);
+  // Players take a moment to report a seek or a play/pause back. Until they do, the island shows what was
+  // asked for, instead of jumping back to the old position or the old button for half a second.
+  const [seeked, setSeeked] = useState<{ seconds: number; at: number; id: number } | null>(null);
+  const [toggled, setToggled] = useState<{ playing: boolean; was: boolean; id: number } | null>(null);
   const run = (action: Parameters<typeof send>[0]) => send(action).catch(report);
 
   if (!m) {
@@ -102,18 +156,29 @@ export function Player() {
     );
   }
 
-  const shown = drag ?? position;
+  const playing = toggled && toggled.was === m.playing ? toggled.playing : m.playing;
+  const shown = drag ?? (seeked && seeked.at === m.updatedAt ? seeked.seconds : position);
   const seek = () => {
-    if (drag !== null) run({ kind: 'seek', seconds: drag });
+    if (drag === null) return;
+    const id = performance.now();
+    setSeeked({ seconds: drag, at: m.updatedAt, id });
+    setTimeout(() => setSeeked((s) => (s?.id === id ? null : s)), OPTIMISTIC_MS);
+    run({ kind: 'seek', seconds: drag });
     setDrag(null);
+  };
+  const toggle = () => {
+    const id = performance.now();
+    setToggled({ playing: !playing, was: m.playing, id });
+    setTimeout(() => setToggled((t) => (t?.id === id ? null : t)), OPTIMISTIC_MS);
+    run({ kind: 'toggle' });
   };
   return (
     <div className="player">
-      {vinyl ? <Vinyl playing={m.playing} /> : <Cover size={118} />}
+      {vinyl ? <Vinyl playing={playing} /> : <Cover size={118} />}
       <div className="player-main">
-        <div className="player-title">{m.title}</div>
-        <div className="player-artist">{m.artist}</div>
-        {lyric !== null && <div className={`player-lyric${m.playing ? '' : ' is-paused'}`}>{lyric}</div>}
+        <Marquee className="player-title">{m.title || 'Unknown title'}</Marquee>
+        <div className="player-artist">{m.artist || m.album || '\u00a0'}</div>
+        {lyric !== null && <div className={`player-lyric${playing ? '' : ' is-paused'}`}>{lyric}</div>}
         {m.duration > 0 && (
           <>
             <input
@@ -122,16 +187,17 @@ export function Player() {
               min={0}
               max={m.duration}
               step={0.5}
-              value={shown}
+              value={Math.min(shown, m.duration)}
               disabled={!m.canSeek}
               aria-label="Track position"
-              style={{ '--p': `${(shown / m.duration) * 100}%` } as React.CSSProperties}
+              style={{ '--p': `${Math.min(100, (shown / m.duration) * 100)}%` } as React.CSSProperties}
               onChange={(e) => setDrag(e.target.valueAsNumber)}
               onPointerUp={seek}
+              onPointerCancel={seek}
               onKeyUp={seek}
             />
             <div className="player-times">
-              <span>{time(shown)}</span>
+              <span>{clock(shown)}</span>
               {/* Between the times, where they fit beside a calendar; only for players that offer them. */}
               <span className="player-modes">
                 {m.shuffle !== null && (
@@ -149,21 +215,29 @@ export function Player() {
                   </button>
                 )}
               </span>
-              <span>{time(m.duration)}</span>
+              <span>{clock(m.duration)}</span>
             </div>
           </>
         )}
+        {/* Three columns, so the volume and output buttons never sit on top of the transport, however narrow. */}
         <div className="player-controls">
-          <button className="player-btn" aria-label="Previous track" onClick={() => run({ kind: 'previous' })}>
-            {icons.prev}
-          </button>
-          <button className="player-btn is-big" aria-label={m.playing ? 'Pause' : 'Play'} onClick={() => run({ kind: 'toggle' })}>
-            {m.playing ? icons.pause : icons.play}
-          </button>
-          <button className="player-btn" aria-label="Next track" onClick={() => run({ kind: 'next' })}>
-            {icons.next}
-          </button>
-          <Outputs />
+          <span className="player-side">
+            <Volume />
+          </span>
+          <span className="player-transport">
+            <button className="player-btn" aria-label="Previous track" onClick={() => run({ kind: 'previous' })}>
+              {icons.prev}
+            </button>
+            <button className="player-btn is-big" aria-label={playing ? 'Pause' : 'Play'} onClick={toggle}>
+              {playing ? icons.pause : icons.play}
+            </button>
+            <button className="player-btn" aria-label="Next track" onClick={() => run({ kind: 'next' })}>
+              {icons.next}
+            </button>
+          </span>
+          <span className="player-side is-end">
+            <Outputs />
+          </span>
         </div>
       </div>
     </div>

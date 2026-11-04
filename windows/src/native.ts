@@ -23,6 +23,8 @@ export interface Battery {
   charging: boolean;
   plugged: boolean;
   saver: boolean;
+  /** Minutes left on battery, as Windows estimates them; null while plugged in or still estimating. */
+  remaining: number | null;
 }
 export interface Output {
   id: string;

@@ -26,6 +26,8 @@ interface Island {
   transient: Transient | null;
   /** Epoch ms when the running timer rings, or null. */
   timerEnd: number | null;
+  /** Epoch ms the running timer was started, for its progress. */
+  timerStart: number | null;
   ringing: boolean;
   mirror: boolean;
   setOpen: (open: boolean) => void;
@@ -59,6 +61,7 @@ export const useIsland = create<Island>()(
       tab: 'home',
       transient: null,
       timerEnd: null,
+      timerStart: null,
       ringing: false,
       mirror: false,
       setOpen: (open) => set({ open }),
@@ -68,12 +71,12 @@ export const useIsland = create<Island>()(
         set({ transient });
         clearTransient = setTimeout(() => set({ transient: null }), ms);
       },
-      startTimer: (minutes) => set({ timerEnd: Date.now() + minutes * 60_000, ringing: false }),
-      stopTimer: () => set({ timerEnd: null, ringing: false }),
+      startTimer: (minutes) => set({ timerStart: Date.now(), timerEnd: Date.now() + minutes * 60_000, ringing: false }),
+      stopTimer: () => set({ timerEnd: null, timerStart: null, ringing: false }),
       addMinute: () => set((s) => ({ timerEnd: s.timerEnd === null ? null : s.timerEnd + 60_000 })),
       toggleMirror: () => set({ mirror: !get().mirror }),
     }),
-    { name: 'visor-timer', partialize: (s) => ({ timerEnd: s.timerEnd }) },
+    { name: 'visor-timer', partialize: (s) => ({ timerEnd: s.timerEnd, timerStart: s.timerStart }) },
   ),
 );
 
@@ -90,13 +93,13 @@ function scheduleRing(end: number | null) {
   }
   const left = end - Date.now();
   // A timer that ran out while Visor was closed is stale, not something to ring for now.
-  if (left < -RING_MS) return useIsland.setState({ timerEnd: null });
+  if (left < -RING_MS) return useIsland.setState({ timerEnd: null, timerStart: null });
   ring = setTimeout(() => {
     // Every island shows the bell, but only the first monitor's plays it, or several screens ring in chorus.
     if (getCurrentWindow().label.endsWith('-0')) ringBell();
     useIsland.setState({ ringing: true });
   }, left);
-  quiet = setTimeout(() => useIsland.setState({ timerEnd: null, ringing: false }), left + RING_MS);
+  quiet = setTimeout(() => useIsland.setState({ timerEnd: null, timerStart: null, ringing: false }), left + RING_MS);
 }
 
 /** Files on the shelf, newest first, kept across restarts like the Mac's ShelfPersistenceService. */

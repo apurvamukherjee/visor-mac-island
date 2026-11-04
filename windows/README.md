@@ -30,9 +30,11 @@ Since 3.7.2 the Mac and Windows ship in one release under the plain `v<version>`
 | Brightness HUD | Laptop panels only, and Windows' own flyout still shows: the keys never reach apps |
 | Idle notch | With nothing to show, the island shrinks to a sliver at the screen edge so it doesn't cover tabs; hover to bring it back |
 | Shortcut | <kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>Space</kbd> opens the island on the pointer's monitor; not configurable |
-| Menu bar icon | A tray icon: click for Settings, or use its menu to hide the island or start a timer |
+| Menu bar icon | A tray icon: click for Settings, or use its menu to hide the island or start a timer. Launching Visor again while it runs opens Settings too |
+| Volume | The player's speaker button opens a slider for the current output; scrolling on the speaker changes it too |
 | Lyrics | Synced lyrics only; unsynced ones don't show |
-| Timer | Presets plus +1 min, since the island can't take typing |
+| Timer | Presets plus +1 min, since the island can't take typing; the header pill fills as it runs |
+| Battery | Low-battery and on-battery notes add Windows' estimate of the time left once it has one |
 | Logs | Release builds write `%LOCALAPPDATA%\Visor\visor.log`; Settings › About › Show log file |
 | Lock screen | Windows shows no app windows there; the padlock opens on unlock instead |
 | Liquid Glass | Not available |
