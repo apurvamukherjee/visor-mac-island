@@ -152,7 +152,8 @@ export function Island() {
             {tab === 'home' ? (
               <div className="home">
                 <Player />
-                {showCalendar && <Calendar />}
+                {/* The mirror takes the calendar's place: beside the player there's room for one, not both. */}
+                {showCalendar && !(mirror && open) && <Calendar />}
                 {mirror && open && <Mirror />}
               </div>
             ) : (

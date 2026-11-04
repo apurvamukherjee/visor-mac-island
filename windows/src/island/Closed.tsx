@@ -3,6 +3,7 @@ import { icons, Padlock } from '../../../website/src/os/ControlCenter/icons';
 import { useNow } from '../../../website/src/os/useNow';
 import { useSystem } from '../native';
 import { useSettings } from '../settings/store';
+import { clock, duration, startsIn } from './format';
 import { useCover, useMeeting } from './queries';
 import { useIsland, type Transient } from './store';
 
@@ -33,7 +34,14 @@ export function Cover({ size }: { size: number }) {
   const cover = useCover();
   return (
     <span className="cover" style={{ width: size, height: size }}>
-      {cover ? <img src={cover} alt="" width={size} height={size} /> : <i className="cover-empty" aria-hidden>♪</i>}
+      {cover ? (
+        <img src={cover} alt="" width={size} height={size} />
+      ) : (
+        // Sized from the cover, not inherited: a percentage font-size is of the parent's text, not the box.
+        <i className="cover-empty" style={{ fontSize: Math.round(size * 0.42) }} aria-hidden>
+          ♪
+        </i>
+      )}
     </span>
   );
 }
@@ -80,8 +88,13 @@ function Hud({ t }: { t: Extract<Transient, { kind: 'hud' }> }) {
       <span className="closed-hud-icon" aria-hidden>
         {icon}
       </span>
-      <span className="closed-hud-bar">
-        <i style={{ width: `${value * 100}%` }} />
+      <span className="closed-hud-right">
+        <span className="closed-hud-bar">
+          <i style={{ width: `${value * 100}%` }} />
+        </span>
+        <span className="closed-hud-value" aria-hidden>
+          {Math.round(value * 100)}
+        </span>
       </span>
     </div>
   );
@@ -89,10 +102,15 @@ function Hud({ t }: { t: Extract<Transient, { kind: 'hud' }> }) {
 
 function Countdown({ end }: { end: number }) {
   const left = Math.max(0, end - useNow(500).getTime());
-  const s = Math.ceil(left / 1000);
+  return <span className="closed-timer">{clock(Math.ceil(left / 1000))}</span>;
+}
+
+/** The closed Join pill counts down to the call, then says it's on. */
+function JoinPill({ start, app }: { start: Date; app: string }) {
+  const now = useNow(15_000).getTime();
   return (
-    <span className="closed-timer">
-      {Math.floor(s / 60)}:{String(s % 60).padStart(2, '0')}
+    <span className="closed-join-pill">
+      Join {app} <small>{startsIn(start.getTime(), now)}</small>
     </span>
   );
 }
@@ -140,7 +158,7 @@ export function Closed() {
     return (
       <div className="closed closed-battery" role="status">
         {/* Read live: a full battery, or one held back by Windows' charge limit, is plugged in but not charging. */}
-        <span className={transient.plugged ? 'is-charging' : ''}>
+        <span className={`closed-battery-text${transient.plugged ? ' is-charging' : transient.level <= 0.2 ? ' is-low' : ''}`}>
           {transient.plugged
             ? battery?.charging
               ? 'Charging'
@@ -150,6 +168,8 @@ export function Closed() {
               : battery?.saver
                 ? 'Energy saver'
                 : 'On battery'}
+          {/* Windows' estimate, which only settles a minute or so after unplugging; until then there's none. */}
+          {!transient.plugged && battery?.remaining != null && <small> · {duration(battery.remaining)} left</small>}
         </span>
         <BatteryCell level={transient.level} charging={transient.plugged} saver={battery?.saver} />
       </div>
@@ -194,7 +214,7 @@ export function Closed() {
     return (
       <div className="closed closed-join" role="status">
         <span className="closed-join-title">{meeting.title}</span>
-        <span className="closed-join-pill">Join {meeting.call.app}</span>
+        <JoinPill start={meeting.start} app={meeting.call.app} />
       </div>
     );
   }

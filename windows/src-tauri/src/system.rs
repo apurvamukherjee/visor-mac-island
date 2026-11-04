@@ -25,6 +25,8 @@ const POLL: Duration = Duration::from_secs(1);
 const NO_BATTERY: u8 = 128;
 const UNKNOWN: u8 = 255;
 const CHARGING: u8 = 8;
+/// GetSystemPowerStatus's "no estimate yet", which it reports for a minute or so after unplugging.
+const NO_ESTIMATE: u32 = u32::MAX;
 /// What Edge/Chrome, Firefox and Opera name a file while it is still downloading.
 const PARTIAL: [&str; 4] = ["crdownload", "part", "partial", "opdownload"];
 const IMAGES: [&str; 3] = ["png", "jpg", "jpeg"];
@@ -112,11 +114,15 @@ fn battery() -> Option<state::Battery> {
     {
         return None;
     }
+    let plugged = p.ACLineStatus == 1;
     Some(state::Battery {
         level: p.BatteryLifePercent as f32 / 100.0,
         charging: p.BatteryFlag & CHARGING != 0,
-        plugged: p.ACLineStatus == 1,
+        plugged,
         saver: p.SystemStatusFlag == 1,
+        // Rounded to five minutes: the estimate wobbles by the second, and each wobble would go to every window.
+        remaining: (!plugged && p.BatteryLifeTime != NO_ESTIMATE)
+            .then(|| (p.BatteryLifeTime / 60).div_ceil(5) * 5),
     })
 }
 

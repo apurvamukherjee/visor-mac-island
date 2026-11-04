@@ -62,7 +62,7 @@ html.is-settings body { margin: 0; user-select: none; }
 .range input { --p: 30%; appearance: none; width: 140px; height: 4px; margin: 0; border-radius: 2px; background: linear-gradient(to right, var(--accent) var(--p), var(--track) var(--p)); cursor: pointer; }
 .range input::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--knob); box-shadow: 0 0 0 1px var(--line), 0 1px 4px rgb(0 0 0 / 0.3); transition: scale 0.15s ease; }
 .range input:active::-webkit-slider-thumb { scale: 1.12; }
-.range output { width: 3ch; color: var(--dim); font-variant-numeric: tabular-nums; }
+.range output { width: 4ch; text-align: right; color: var(--dim); font-variant-numeric: tabular-nums; }
 
 .settings textarea { font: 12px/1.5 'Cascadia Mono', Consolas, monospace; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--text); resize: vertical; user-select: text; }
 .settings textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }

@@ -62,12 +62,33 @@ function Item({
 export function Shelf() {
   const { files, add, remove } = useShelf();
   const [selected, setSelected] = useState<string[]>([]);
+  // Conversions take a moment (a long PDF, a folder of photos), so the buttons say so and don't stack up.
+  const [busy, setBusy] = useState(0);
   const chosen = selected.filter((p) => files.includes(p));
   const targets = chosen.length ? chosen : files;
-  const run = (job: Promise<string | string[]>) => job.then((made) => add([made].flat()), report);
+  const run = (job: Promise<string | string[]>) => {
+    setBusy((n) => n + 1);
+    job
+      .then((made) => {
+        const out = [made].flat();
+        add(out);
+        // The new files are what you'll drag out next, so they're the selection now.
+        setSelected(out);
+      }, report)
+      .finally(() => setBusy((n) => n - 1));
+  };
 
   const select = (path: string, e: React.MouseEvent) =>
     setSelected(e.ctrlKey || e.shiftKey ? (chosen.includes(path) ? chosen.filter((p) => p !== path) : [...chosen, path]) : [path]);
+
+  // Each image converts on its own, so one that Windows can't read doesn't lose the rest.
+  const each = (paths: string[], job: (path: string) => Promise<string>) =>
+    run(
+      Promise.allSettled(paths.map(job)).then((done) => {
+        for (const d of done) if (d.status === 'rejected') report(d.reason);
+        return done.flatMap((d) => (d.status === 'fulfilled' ? [d.value] : []));
+      }),
+    );
 
   const images = chosen.filter(isImage);
   const only = chosen.length === 1 ? chosen[0] : undefined;
@@ -81,9 +102,10 @@ export function Shelf() {
         </span>
         Share
       </button>
-      <div className="shelf-zone shelf-main">
+      {/* A click on the empty part of the shelf clears the selection, as in Explorer. */}
+      <div className="shelf-zone shelf-main" onClick={(e) => e.target === e.currentTarget && setSelected([])}>
         {files.length ? (
-          <ul className="shelf-files" aria-label="Shelf" aria-multiselectable>
+          <ul className="shelf-files" aria-label="Shelf" aria-multiselectable onClick={(e) => e.target === e.currentTarget && setSelected([])}>
             {files.map((p) => (
               <Item
                 key={p}
@@ -103,14 +125,21 @@ export function Shelf() {
             <button onClick={() => remove(files)}>Clear shelf</button>
           </div>
         )}
-        {chosen.length > 0 && (
+        {busy > 0 && (
+          <div className="shelf-actions">
+            <span className="shelf-busy" role="status">
+              Converting…
+            </span>
+          </div>
+        )}
+        {chosen.length > 0 && busy === 0 && (
           <div className="shelf-actions">
             {only && <button onClick={() => reveal(only).catch(report)}>Show in Explorer</button>}
             {images.length === chosen.length && (
               <>
-                {!images.every((p) => ext(p) === 'png') && <button onClick={() => images.forEach((p) => run(convertImage(p, 'png')))}>To PNG</button>}
+                {!images.every((p) => ext(p) === 'png') && <button onClick={() => each(images, (p) => convertImage(p, 'png'))}>To PNG</button>}
                 {!images.every((p) => ['jpg', 'jpeg'].includes(ext(p))) && (
-                  <button onClick={() => images.forEach((p) => run(convertImage(p, 'jpeg')))}>To JPEG</button>
+                  <button onClick={() => each(images, (p) => convertImage(p, 'jpeg'))}>To JPEG</button>
                 )}
                 <button onClick={() => run(imagesToPdf(images))}>Make PDF</button>
               </>

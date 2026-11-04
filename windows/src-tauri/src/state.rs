@@ -33,6 +33,8 @@ pub struct Battery {
     pub plugged: bool,
     /// Windows energy saver, the Mac's Low Power Mode.
     pub saver: bool,
+    /// Minutes left on battery as Windows estimates them; None while plugged in or still estimating.
+    pub remaining: Option<u32>,
 }
 
 #[derive(Serialize, Clone, PartialEq)]

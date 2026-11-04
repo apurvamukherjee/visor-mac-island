@@ -22,10 +22,11 @@ use windows::{
                 VK_VOLUME_DOWN, VK_VOLUME_MUTE, VK_VOLUME_UP,
             },
             WindowsAndMessaging::{
-                CallNextHookEx, CreateWindowExW, DefWindowProcW, GetMessageW, RegisterClassW,
-                SetWindowsHookExW, HWND_MESSAGE, KBDLLHOOKSTRUCT, MSG, WH_KEYBOARD_LL,
-                WINDOW_EX_STYLE, WINDOW_STYLE, WM_HOTKEY, WM_KEYDOWN, WM_SYSKEYDOWN,
-                WM_WTSSESSION_CHANGE, WNDCLASSW, WTS_SESSION_LOCK, WTS_SESSION_UNLOCK,
+                CallNextHookEx, CreateWindowExW, DefWindowProcW, DispatchMessageW, GetMessageW,
+                RegisterClassW, SetWindowsHookExW, HWND_MESSAGE, KBDLLHOOKSTRUCT, MSG,
+                WH_KEYBOARD_LL, WINDOW_EX_STYLE, WINDOW_STYLE, WM_APP, WM_HOTKEY, WM_KEYDOWN,
+                WM_SYSKEYDOWN, WM_WTSSESSION_CHANGE, WNDCLASSW, WTS_SESSION_LOCK,
+                WTS_SESSION_UNLOCK,
             },
         },
     },
@@ -39,6 +40,11 @@ static PRESSES: OnceLock<Sender<VIRTUAL_KEY>> = OnceLock::new();
 /// Windows' own step for the volume keys.
 const STEP: f32 = 0.02;
 const OPEN_HOTKEY: i32 = 1;
+/// The message-only window's class, which a second launch looks up to reach this one.
+pub const SESSION_CLASS: windows::core::PCWSTR = w!("VisorSession");
+/// Sent by a second launch: open Settings here, since a tray app that's already running
+/// otherwise looks like it ignored the click on its Start menu tile.
+pub const WM_SHOW_SETTINGS: u32 = WM_APP + 1;
 
 /// Hook and session window both need a message loop on the thread that made them, so they share this one.
 pub fn run(app: AppHandle) {
@@ -79,6 +85,9 @@ pub fn run(app: AppHandle) {
                 eprintln!("visor: opening the island failed: {e}");
             }
         }
+        // Posted messages (a second launch's) only reach the window procedure through here;
+        // the session changes are sent, and arrive either way.
+        unsafe { DispatchMessageW(&msg) };
     }
 }
 
@@ -110,13 +119,13 @@ fn install() -> Result<()> {
         let class = WNDCLASSW {
             lpfnWndProc: Some(on_message),
             hInstance: module.into(),
-            lpszClassName: w!("VisorSession"),
+            lpszClassName: SESSION_CLASS,
             ..Default::default()
         };
         RegisterClassW(&class);
         let window = CreateWindowExW(
             WINDOW_EX_STYLE(0),
-            w!("VisorSession"),
+            SESSION_CLASS,
             None,
             WINDOW_STYLE(0),
             0,
@@ -139,6 +148,18 @@ unsafe extern "system" fn on_message(
     wparam: WPARAM,
     lparam: LPARAM,
 ) -> LRESULT {
+    if msg == WM_SHOW_SETTINGS {
+        // Off this thread: building a window waits on the main thread, and this one has to keep
+        // answering the keyboard hook meanwhile or Windows unhooks it.
+        if let Some(app) = APP.get().cloned() {
+            thread::spawn(move || {
+                if let Err(e) = crate::open_settings(&app) {
+                    eprintln!("visor: opening settings for a second launch failed: {e}");
+                }
+            });
+        }
+        return LRESULT(0);
+    }
     if msg == WM_WTSSESSION_CHANGE {
         if let Some(app) = APP.get() {
             match wparam.0 as u32 {

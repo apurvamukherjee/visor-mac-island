@@ -111,8 +111,10 @@ fn place_islands(app: &AppHandle, generation: u32) -> error::Result<()> {
         .focusable(false)
         .visible(false)
         .build()?;
-        window.set_size(PhysicalSize::new(w, h))?;
+        // Moved first, sized after: moving onto a monitor with another scale makes Windows rescale the
+        // window for it, which would undo a size set for that monitor beforehand.
         window.set_position(PhysicalPosition::new(x, monitor.position().y))?;
+        window.set_size(PhysicalSize::new(w, h))?;
         window.set_ignore_cursor_events(true)?;
         prompts::allow(&window)?;
         // Display affinity only takes from the window's own thread, and rebuilds run on the tracker's.
@@ -232,8 +234,11 @@ async fn show_settings(app: AppHandle) -> error::Result<()> {
     Ok(open_settings(&app)?)
 }
 
-fn open_settings(app: &AppHandle) -> tauri::Result<()> {
+pub(crate) fn open_settings(app: &AppHandle) -> tauri::Result<()> {
     if let Some(window) = app.get_webview_window("settings") {
+        // A minimized window ignores focus, so the tray click would seem to do nothing.
+        window.unminimize()?;
+        window.show()?;
         return window.set_focus();
     }
     WebviewWindowBuilder::new(app, "settings", WebviewUrl::default())
@@ -260,9 +265,33 @@ fn already_running() -> bool {
         && unsafe { GetLastError() } == ERROR_ALREADY_EXISTS
 }
 
+/// Hands a second launch over to the running Visor, which opens Settings.
+fn wake_running() {
+    use windows::Win32::{
+        Foundation::{LPARAM, WPARAM},
+        UI::WindowsAndMessaging::{
+            AllowSetForegroundWindow, FindWindowExW, PostMessageW, ASFW_ANY, HWND_MESSAGE,
+        },
+    };
+    unsafe {
+        // Only the process the user just clicked may bring a window forward; this lends that to the running one.
+        let _ = AllowSetForegroundWindow(ASFW_ANY);
+        match FindWindowExW(Some(HWND_MESSAGE), None, keys::SESSION_CLASS, None) {
+            Ok(window) => {
+                if let Err(e) =
+                    PostMessageW(Some(window), keys::WM_SHOW_SETTINGS, WPARAM(0), LPARAM(0))
+                {
+                    eprintln!("visor: couldn't reach the running Visor: {e}");
+                }
+            }
+            Err(e) => eprintln!("visor: the running Visor has no session window: {e}"),
+        }
+    }
+}
+
 fn main() {
     if already_running() {
-        return;
+        return wake_running();
     }
     // A release build has no console, so without this every eprintln! goes nowhere.
     #[cfg(not(debug_assertions))]
