@@ -4,6 +4,10 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## Unreleased
+
+- **Visor for Windows, polished.** The player's buttons no longer pile on top of each other beside the calendar, and there's a volume slider behind the new speaker button (or scroll on it). Long titles drift to their end instead of being cut off, songs and timers past an hour read 1:01:40 instead of 61:40, and seeking or pausing shows straight away instead of jumping back for a moment. The closed Join pill counts down to the call, the timer pill fills as it runs and says Done, the battery notes say how long is left, and the mirror takes the calendar's place instead of squeezing the player. Opening Visor again while it runs brings up Settings, and Settings comes back from minimized when you click the tray icon.
+
 ## 3.9.0 (build 55) · 2026-10-30
 
 - **Join has its own labeled pill.** In the open notch the Join button now sits in the empty leading half with the meeting's title, instead of crowding the battery beside the other buttons.
