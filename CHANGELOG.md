@@ -4,6 +4,12 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.11.0 (build 57) · 2026-11-08
+
+- **Tasks in the notch, on Mac and Windows.** Turn on Settings › Calendar › Show tasks and your top task sits beside the player, in the calendar's place and at the same size, so the open notch is no wider. With the calendar on too, a button in the notch header switches between them. Only one task shows at a time, highest priority first, then the nearest deadline. Tick it off and the next one takes its place, or step through the rest with the arrow.
+- **A Tasks window.** Open it from the menu bar (Mac) or tray (Windows) with **Tasks…** to add tasks with a priority (high, medium or low) and an optional deadline, edit or delete them, and clear the completed ones.
+- **Deadline alerts.** From 15 minutes before a deadline (or 5, 30 or 60, your choice), the closed notch counts down to it and chimes once. It turns red as the deadline passes.
+
 ## 3.10.0 (build 56) · 2026-11-04
 
 - **The Mac app is unchanged.** This release is for Windows; the Mac build only carries the new version number.
