@@ -4,7 +4,7 @@ import { useNow } from '../../../website/src/os/useNow';
 import { useSystem } from '../native';
 import { useSettings } from '../settings/store';
 import { clock, duration, startsIn } from './format';
-import { useCover, useMeeting } from './queries';
+import { useCover, useDueTask, useMeeting } from './queries';
 import { useIsland, type Transient } from './store';
 
 // three.js loads only when a device first connects.
@@ -18,13 +18,13 @@ const WING = 50;
 const SLIVER = { w: 150, h: 7 };
 
 /** The closed island's size: a sliver, the bare pill, or wider for whatever it's showing. */
-export function closedSize(transient: Transient | null, hasActivity: boolean, timer: boolean, joining: boolean, hover: boolean) {
+export function closedSize(transient: Transient | null, hasActivity: boolean, timer: boolean, joining: boolean, due: boolean, hover: boolean) {
   const h = CLOSED_H;
   if (transient) {
     const w = { hud: 380, battery: 360, peek: 420, unlock: CLOSED_W + 70, screenshot: 360, device: 400, error: 420 }[transient.kind];
     return { w, h: transient.kind === 'device' ? 112 : h };
   }
-  if (joining) return { w: 400, h };
+  if (joining || due) return { w: 400, h };
   if (timer) return { w: CLOSED_W + 130, h };
   if (hasActivity) return { w: CLOSED_W + 2 * WING, h };
   return hover ? { w: CLOSED_W, h } : SLIVER;
@@ -115,6 +115,12 @@ function JoinPill({ start, app }: { start: Date; app: string }) {
   );
 }
 
+/** The closed task alert counts down to the deadline, then says it's passed. */
+function DuePill({ deadline }: { deadline: number }) {
+  const now = useNow(15_000).getTime();
+  return <span className={`closed-join-pill closed-due-pill${now > deadline ? ' is-overdue' : ''}`}>{now > deadline ? 'Overdue' : `Due ${startsIn(deadline, now)}`}</span>;
+}
+
 function DownloadRing() {
   return (
     <svg className="closed-download" viewBox="0 0 20 20" width="18" height="18" role="img" aria-label="Downloading">
@@ -145,6 +151,7 @@ export function Closed() {
   const showDownloads = useSettings((s) => s.showDownloads);
   const downloading = useSystem((s) => s.downloading) && showDownloads;
   const meeting = useMeeting();
+  const due = useDueTask();
 
   if (transient?.kind === 'unlock') {
     return (
@@ -215,6 +222,14 @@ export function Closed() {
       <div className="closed closed-join" role="status">
         <span className="closed-join-title">{meeting.title}</span>
         <JoinPill start={meeting.start} app={meeting.call.app} />
+      </div>
+    );
+  }
+  if (due) {
+    return (
+      <div className="closed closed-join" role="status">
+        <span className="closed-join-title">{due.title}</span>
+        <DuePill deadline={due.deadline} />
       </div>
     );
   }

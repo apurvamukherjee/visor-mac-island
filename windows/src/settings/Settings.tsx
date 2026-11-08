@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getVersion } from '@tauri-apps/api/app';
 import { links } from '../../../website/src/links';
 import { useUpdate } from '../island/queries';
-import { openTarget, report, showLog, useSystem } from '../native';
+import { openTarget, report, showLog, showTasks, useSystem } from '../native';
 import icon from '../../src-tauri/icons/128x128.png';
 import { useSettings, type HudControls, type PaneId, type SettingsValues } from './store';
 import './Settings.css';
@@ -41,7 +41,7 @@ function Toggle({ flag, label, hint, disabled }: { flag: Flag; label: string; hi
   );
 }
 
-function Group({ title, children }: { title?: string; children: ReactNode }) {
+export function Group({ title, children }: { title?: string; children: ReactNode }) {
   return (
     <section className="group">
       {title && <h3>{title}</h3>}
@@ -108,11 +108,13 @@ function Music() {
   );
 }
 
+const TASK_LEADS = [5, 15, 30, 60];
+
 // Each saved edit refetches every feed, so a link is saved once typing pauses, not per keystroke.
 const LINKS_SAVE_MS = 800;
 
 function Calendar() {
-  const { calendars, showCalendar, set } = useSettings();
+  const { calendars, showCalendar, taskAlerts, taskAlertLead, set } = useSettings();
   const save = useRef<ReturnType<typeof setTimeout>>(undefined);
   const saveNow = (value: string) => {
     clearTimeout(save.current);
@@ -144,6 +146,23 @@ function Calendar() {
             onBlur={(e) => saveNow(e.target.value)}
           />
         </label>
+      </Group>
+      <Group title="Tasks">
+        <Toggle flag="showTasks" label="Tasks in the island" hint="The top task, beside the player. With the calendar on too, a header button switches between them." />
+        <Toggle flag="taskAlerts" label="Deadline alerts" hint="The closed island says when a task is due, with a chime." />
+        <label className={`row${taskAlerts ? '' : ' is-disabled'}`}>
+          <span className="row-text">Alert before the deadline</span>
+          <select value={taskAlertLead} disabled={!taskAlerts} onChange={(e) => set({ taskAlertLead: Number(e.target.value) })}>
+            {TASK_LEADS.map((m) => (
+              <option key={m} value={m}>
+                {m < 60 ? `${m} min` : '1 hour'}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button className="row row-link" onClick={() => showTasks().catch(report)}>
+          Open Tasks… <span aria-hidden>›</span>
+        </button>
       </Group>
     </>
   );

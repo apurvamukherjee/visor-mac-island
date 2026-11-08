@@ -7,6 +7,8 @@ import { useSystem } from '../native';
 import { connectedDevice, type DeviceKind } from './devices';
 import { useSettings } from '../settings/store';
 import { ringBell } from '../../../website/src/notch/bell';
+import { isDue } from '../tasks/queue';
+import { useTasks } from '../tasks/store';
 
 export type Tab = 'home' | 'shelf';
 
@@ -30,6 +32,8 @@ interface Island {
   timerStart: number | null;
   ringing: boolean;
   mirror: boolean;
+  /** How many times Next was pressed on the tasks panel since the island opened. */
+  taskIndex: number;
   setOpen: (open: boolean) => void;
   setTab: (tab: Tab) => void;
   flash: (t: Transient, ms?: number) => void;
@@ -37,6 +41,7 @@ interface Island {
   addMinute: () => void;
   stopTimer: () => void;
   toggleMirror: () => void;
+  nextTask: () => void;
 }
 
 // TimerManager.presetMinutes and its four-second ring.
@@ -64,7 +69,9 @@ export const useIsland = create<Island>()(
       timerStart: null,
       ringing: false,
       mirror: false,
-      setOpen: (open) => set({ open }),
+      taskIndex: 0,
+      // Reset on the way in, not out, so the task card doesn't change under the closing fade.
+      setOpen: (open) => set(open ? { open, taskIndex: 0 } : { open }),
       setTab: (tab) => set({ tab, open: true }),
       flash: (transient, ms = FLASH_MS) => {
         clearTimeout(clearTransient);
@@ -75,6 +82,7 @@ export const useIsland = create<Island>()(
       stopTimer: () => set({ timerEnd: null, timerStart: null, ringing: false }),
       addMinute: () => set((s) => ({ timerEnd: s.timerEnd === null ? null : s.timerEnd + 60_000 })),
       toggleMirror: () => set({ mirror: !get().mirror }),
+      nextTask: () => set((s) => ({ taskIndex: s.taskIndex + 1 })),
     }),
     { name: 'visor-timer', partialize: (s) => ({ timerEnd: s.timerEnd, timerStart: s.timerStart }) },
   ),
@@ -100,6 +108,26 @@ function scheduleRing(end: number | null) {
     useIsland.setState({ ringing: true });
   }, left);
   quiet = setTimeout(() => useIsland.setState({ timerEnd: null, timerStart: null, ringing: false }), left + RING_MS);
+}
+
+const MAX_WAIT = 24 * 60 * 60_000;
+const chimed = new Set<string>();
+let chime: ReturnType<typeof setTimeout> | undefined;
+
+/** Rings once for each task whose alert window has opened, then sleeps until the next window opens. */
+function scheduleChime() {
+  clearTimeout(chime);
+  const { taskAlerts, taskAlertLead } = useSettings.getState();
+  if (!taskAlerts) return;
+  const lead = taskAlertLead * 60_000;
+  const now = Date.now();
+  const { tasks } = useTasks.getState();
+  const due = tasks.filter((t) => isDue(t, now, lead) && !chimed.has(t.id));
+  for (const t of due) chimed.add(t.id);
+  if (due.length) ringBell();
+  const opens = tasks.flatMap((t) => (t.completedAt === null && t.deadline !== null && t.deadline - lead > now ? [t.deadline - lead] : []));
+  // Capped because setTimeout fires at once past about 24.8 days, which would spin this.
+  if (opens.length) chime = setTimeout(scheduleChime, Math.min(Math.min(...opens) - now, MAX_WAIT));
 }
 
 /** Files on the shelf, newest first, kept across restarts like the Mac's ShelfPersistenceService. */
@@ -130,6 +158,12 @@ export function startTransients() {
   useIsland.subscribe((s, prev) => {
     if (s.timerEnd !== prev.timerEnd) scheduleRing(s.timerEnd);
   });
+  // Every island shows a due task, but only the first monitor's chimes for it, as with the timer.
+  if (getCurrentWindow().label.endsWith('-0')) {
+    scheduleChime();
+    useTasks.subscribe(scheduleChime);
+    useSettings.subscribe(scheduleChime);
+  }
   const settings = useSettings.getState;
   const volume = () => {
     const s = useSystem.getState();

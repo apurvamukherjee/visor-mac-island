@@ -102,6 +102,7 @@ export const pdfToImages = (path: string) => invoke<string[]>('pdf_to_images', {
 
 export const fetchText = (url: string) => invoke<string>('fetch_text', { url });
 export const showSettings = () => invoke('show_settings');
+export const showTasks = () => invoke('show_tasks');
 export const showLog = () => invoke('show_log');
 
 /** The settings Rust acts on; see src-tauri/src/prefs.rs. */

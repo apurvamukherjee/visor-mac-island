@@ -2,6 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { getVersion } from '@tauri-apps/api/app';
 import { fetchText, mediaCover, thumbnail, useSystem } from '../native';
 import { useSettings } from '../settings/store';
+import { dueTask } from '../tasks/queue';
+import { useTasks } from '../tasks/store';
 import { checkForUpdate } from '../update';
 import { useNow } from '../../../website/src/os/useNow';
 import { parseIcs, type CalEvent } from './ics';
@@ -108,6 +110,16 @@ export function useMeeting() {
   return (
     events?.find((e) => e.call && !e.allDay && now >= e.start.getTime() - MEETING_LEAD && now <= e.start.getTime() + MEETING_GRACE) ?? null
   );
+}
+
+/** The task whose deadline is near or just passed, for the closed island's alert. */
+export function useDueTask() {
+  const taskAlerts = useSettings((s) => s.taskAlerts);
+  const lead = useSettings((s) => s.taskAlertLead);
+  const tasks = useTasks((s) => s.tasks);
+  const now = useNow(30_000).getTime();
+  if (!taskAlerts) return null;
+  return dueTask(tasks, now, lead * MINUTE);
 }
 
 export function useWeather() {

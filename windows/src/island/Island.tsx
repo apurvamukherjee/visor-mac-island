@@ -10,9 +10,10 @@ import { Closed, closedSize, ErrorNote } from './Closed';
 import { Header } from './Header';
 import { Mirror } from './Mirror';
 import { Player } from './Player';
-import { useCover, useCoverColor, useMeeting } from './queries';
+import { useCover, useCoverColor, useDueTask, useMeeting } from './queries';
 import { Shelf } from './Shelf';
 import { useIsland, useShelf } from './store';
+import { TasksPanel } from './TasksPanel';
 import './Island.css';
 
 // Visor's openNotchSize and corner radii from sizing/matters.swift.
@@ -31,6 +32,9 @@ export function Island() {
   const hoverOpen = useSettings((s) => s.hoverOpen);
   const hoverDelay = useSettings((s) => s.hoverDelay);
   const showCalendar = useSettings((s) => s.showCalendar);
+  const showTasks = useSettings((s) => s.showTasks);
+  const homePanel = useSettings((s) => s.homePanel);
+  const panel = showCalendar && showTasks ? homePanel : showTasks ? 'tasks' : 'calendar';
   const showDownloads = useSettings((s) => s.showDownloads);
   const playing = useSystem((s) => s.media !== null);
   const audible = useSystem((s) => s.media?.playing ?? false);
@@ -41,6 +45,7 @@ export function Island() {
   const camera = useSystem((s) => s.camera);
   const mic = useSystem((s) => s.mic);
   const joining = useMeeting() !== null;
+  const due = useDueTask() !== null;
   const [hover, setHover] = useState(false);
   // The open content outlives `open` by part of the close, so the shrinking shape clips and fades it
   // instead of it vanishing on the first frame.
@@ -49,7 +54,7 @@ export function Island() {
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const lastGesture = useRef(0);
 
-  const size = open ? OPEN : closedSize(transient, playing || downloading || ringing, timerEnd !== null && !ringing, joining, hover);
+  const size = open ? OPEN : closedSize(transient, playing || downloading || ringing, timerEnd !== null && !ringing, joining, due, hover);
   const radii = open || size.h > OPEN.h / 2 ? RADII.open : RADII.closed;
   const motion = open ? OPEN_SPRING : CLOSE_SPRING;
 
@@ -152,8 +157,8 @@ export function Island() {
             {tab === 'home' ? (
               <div className="home">
                 <Player />
-                {/* The mirror takes the calendar's place: beside the player there's room for one, not both. */}
-                {showCalendar && !(mirror && open) && <Calendar />}
+                {/* The mirror takes the panel's place: beside the player there's room for one, not two. */}
+                {(showCalendar || showTasks) && !(mirror && open) && (panel === 'calendar' ? <Calendar /> : <TasksPanel />)}
                 {mirror && open && <Mirror />}
               </div>
             ) : (

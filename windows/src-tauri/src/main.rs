@@ -234,17 +234,43 @@ async fn show_settings(app: AppHandle) -> error::Result<()> {
     Ok(open_settings(&app)?)
 }
 
+#[tauri::command]
+// Async for the same reason as show_settings.
+async fn show_tasks(app: AppHandle) -> error::Result<()> {
+    Ok(open_tasks(&app)?)
+}
+
 pub(crate) fn open_settings(app: &AppHandle) -> tauri::Result<()> {
-    if let Some(window) = app.get_webview_window("settings") {
+    open_window(
+        app,
+        "settings",
+        "Visor Settings",
+        (780.0, 560.0),
+        (700.0, 480.0),
+    )
+}
+
+fn open_tasks(app: &AppHandle) -> tauri::Result<()> {
+    open_window(app, "tasks", "Visor Tasks", (520.0, 560.0), (420.0, 400.0))
+}
+
+fn open_window(
+    app: &AppHandle,
+    label: &str,
+    title: &str,
+    (w, h): (f64, f64),
+    (min_w, min_h): (f64, f64),
+) -> tauri::Result<()> {
+    if let Some(window) = app.get_webview_window(label) {
         // A minimized window ignores focus, so the tray click would seem to do nothing.
         window.unminimize()?;
         window.show()?;
         return window.set_focus();
     }
-    WebviewWindowBuilder::new(app, "settings", WebviewUrl::default())
-        .title("Visor Settings")
-        .inner_size(780.0, 560.0)
-        .min_inner_size(700.0, 480.0)
+    WebviewWindowBuilder::new(app, label, WebviewUrl::default())
+        .title(title)
+        .inner_size(w, h)
+        .min_inner_size(min_w, min_h)
         .center()
         .build()?;
     Ok(())
@@ -310,6 +336,7 @@ fn main() {
             audio::set_output,
             prefs::apply_settings,
             show_settings,
+            show_tasks,
             files::thumbnail,
             files::open,
             files::reveal,
@@ -327,6 +354,7 @@ fn main() {
             place_islands(&handle, 0)?;
 
             let settings = MenuItem::with_id(app, "settings", "Settings…", true, None::<&str>)?;
+            let tasks = MenuItem::with_id(app, "tasks", "Tasks…", true, None::<&str>)?;
             let hide = MenuItem::with_id(app, "hide", "Hide island", true, None::<&str>)?;
             let timers = TIMER_PRESETS
                 .iter()
@@ -356,7 +384,7 @@ fn main() {
                 .tooltip("Visor")
                 .menu(&Menu::with_items(
                     app,
-                    &[&settings, &hide, &timer, &line, &quit],
+                    &[&settings, &tasks, &hide, &timer, &line, &quit],
                 )?)
                 // Left click is the quick way in, as most tray apps do; the menu is on the right.
                 .show_menu_on_left_click(false)
@@ -376,6 +404,11 @@ fn main() {
                     "settings" => {
                         if let Err(e) = open_settings(app) {
                             eprintln!("visor: opening settings failed: {e}");
+                        }
+                    }
+                    "tasks" => {
+                        if let Err(e) = open_tasks(app) {
+                            eprintln!("visor: opening tasks failed: {e}");
                         }
                     }
                     "hide" => {

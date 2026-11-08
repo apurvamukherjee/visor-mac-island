@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { applySettings, report } from '../native';
 
 export type HudControls = 'volume' | 'brightness' | 'both';
+export type HomePanel = 'calendar' | 'tasks';
 export type PaneId = 'general' | 'music' | 'calendar' | 'shelf' | 'extras' | 'about';
 
 // Defaults follow the Mac app's Constants.swift wherever the setting exists there.
@@ -25,10 +26,16 @@ const defaults = {
   lyrics: false,
   showBattery: true,
   showCalendar: false,
+  showTasks: false,
+  /** Which of the two shares the place beside the player when both are on. */
+  homePanel: 'calendar' as HomePanel,
   /** ICS feeds, one per line: Outlook, Google and iCloud all publish one. */
   calendars: '',
   showWeather: false,
   meetingAlerts: true,
+  taskAlerts: true,
+  /** Minutes before a deadline that the closed island starts saying so. */
+  taskAlertLead: 15,
   showTimer: true,
   showMirror: false,
   showDownloads: true,

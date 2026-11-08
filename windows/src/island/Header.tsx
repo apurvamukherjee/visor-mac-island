@@ -18,6 +18,8 @@ const glyph = (d: string) => (
   </svg>
 );
 const timerIcon = glyph('M12 8v5l3 2M9 2h6M12 22a9 9 0 1 0 0-18 9 9 0 0 0 0 18z');
+const calendarIcon = glyph('M4 6h16v14H4zM4 10h16M8 3v4M16 3v4');
+const checklistIcon = glyph('M11 6h9M11 12h9M11 18h9M4 6l1.5 1.5L8 5M4 12l1.5 1.5L8 11M4 18l1.5 1.5L8 17');
 const cameraIcon = glyph('M15 10l5-3v10l-5-3zM3 7h12v10H3z');
 const gearIcon = glyph(
   'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 15H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 9 3.1V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.1a2 2 0 1 1 0 4z',
@@ -87,6 +89,9 @@ export function Header() {
   const mirror = useIsland((s) => s.mirror);
   const showTimer = useSettings((s) => s.showTimer);
   const showMirror = useSettings((s) => s.showMirror);
+  const bothPanels = useSettings((s) => s.showCalendar && s.showTasks);
+  const homePanel = useSettings((s) => s.homePanel);
+  const setSettings = useSettings((s) => s.set);
   const showBattery = useSettings((s) => s.showBattery);
   const battery = useSystem((s) => s.battery);
   const meeting = useMeeting();
@@ -110,6 +115,17 @@ export function Header() {
           </button>
         )}
         {showTimer && <Timer />}
+        {/* The icon is where a press goes: the checklist from the calendar, the calendar from tasks. */}
+        {bothPanels && (
+          <button
+            className={`header-btn${homePanel === 'tasks' ? ' is-on' : ''}`}
+            aria-label="Tasks"
+            aria-pressed={homePanel === 'tasks'}
+            onClick={() => setSettings({ homePanel: homePanel === 'tasks' ? 'calendar' : 'tasks' })}
+          >
+            {homePanel === 'tasks' ? calendarIcon : checklistIcon}
+          </button>
+        )}
         {showMirror && (
           <button className={`header-btn${mirror ? ' is-on' : ''}`} aria-label="Mirror" aria-pressed={mirror} onClick={toggleMirror}>
             {cameraIcon}
