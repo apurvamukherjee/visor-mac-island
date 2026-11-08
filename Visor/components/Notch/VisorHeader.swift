@@ -10,11 +10,22 @@ struct VisorHeader: View {
     @ObservedObject var meetings = MeetingMonitor.shared
     @State private var isChoosingTimer = false
     @Default(.liquidGlass) private var liquidGlass
+    @Default(.showCalendar) private var showCalendar
+    @Default(.showTasks) private var showTasks
+    @Default(.homePanel) private var homePanel
     var body: some View {
         HStack(spacing: 0) {
             HStack {
                 if (!tvm.isEmpty || coordinator.alwaysShowTabs) && Defaults[.visorShelf] {
                     TabSelectionView()
+                }
+                if vm.notchState == .open && showCalendar && showTasks {
+                    headerButton(systemImage: homePanel == .calendar ? "checklist" : "calendar") {
+                        withAnimation(.smooth) {
+                            homePanel = homePanel == .calendar ? .tasks : .calendar
+                        }
+                    }
+                    .help(homePanel == .calendar ? "Show tasks" : "Show calendar")
                 }
                 // Visor: Join gets the empty leading half with the meeting's
                 // name; beside the trailing controls it crowded the battery.

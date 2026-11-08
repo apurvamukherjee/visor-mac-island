@@ -13,6 +13,7 @@ struct ContentView: View {
     @ObservedObject var downloads = DownloadMonitor.shared
     @ObservedObject var devices = DeviceMonitor.shared
     @ObservedObject var meetings = MeetingMonitor.shared
+    @ObservedObject var tasks = TaskMonitor.shared
     @ObservedObject var privacy = PrivacyMonitor.shared
     // Visor: held, not observed, so their init reads the current level before the
     // first key press (showHUD reads rawBrightness directly). Observing them
@@ -59,12 +60,14 @@ struct ContentView: View {
     // Visor: the one line a hover peek shows, most time-sensitive first.
     private enum PeekLine {
         case timer(ClosedRange<Date>)
+        case task(TodoItem)
         case event(EventModel)
         case music
     }
 
     private var peekLine: PeekLine? {
         if let start = timer.startDate, let end = timer.endDate { return .timer(start...end) }
+        if let item = tasks.active { return .task(item) }
         let now = Date()
         if let next = CalendarManager.shared.events
             .filter({ !$0.isAllDay && !$0.type.isReminder && $0.start > now && Calendar.current.isDateInToday($0.start) })
@@ -82,6 +85,12 @@ struct ContentView: View {
             case .timer(let range):
                 Image(systemName: "timer")
                 Text(timerInterval: range, countsDown: true).monospacedDigit()
+            case .task(let item):
+                Image(systemName: "checklist")
+                Text(item.title)
+                if let deadline = item.deadline {
+                    Text(deadline, style: .relative)
+                }
             case .event(let event):
                 Image(systemName: "calendar")
                 Text("\(event.start.formatted(date: .omitted, time: .shortened))  \(event.title)")
@@ -162,6 +171,7 @@ struct ContentView: View {
 
     private var wingAccessory: WingAccessory? {
         if meetings.active != nil { return .meeting }
+        if let deadline = tasks.active?.deadline { return .task(deadline) }
         if let fraction = downloads.fraction { return .download(fraction) }
         if let start = timer.startDate, let end = timer.endDate { return .timer(start...end) }
         if timer.isRinging { return .bell }

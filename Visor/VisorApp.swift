@@ -23,6 +23,11 @@ struct VisorApp: App {
                     SettingsWindowController.shared.showWindow()
                 }
             }
+            Button("Tasks…") {
+                DispatchQueue.main.async {
+                    TasksWindowController.shared.showWindow()
+                }
+            }
             // Visor: a menu Text is a disabled item, so this is a credit line,
             // not something to click.
             Text("By Apurva")
@@ -285,6 +290,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         UpdateChecker.shared.startAutomaticChecks()
         MeetingMonitor.shared.reschedule()
+        TaskMonitor.shared.reschedule()
         ScreenshotMonitor.shared.onCapture = { [weak self] in
             guard let self else { return }
             let target = Defaults[.showOnAllDisplays] ? Array(self.viewModels.values) : [self.vm]

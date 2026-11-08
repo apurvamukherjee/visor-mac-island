@@ -86,12 +86,21 @@ class SettingsWindowController: NSWindowController {
     }
 }
 
+extension NSApplication {
+    /// Settings and Tasks each put Visor in the Dock while open; closing one
+    /// must not take the other's Dock icon and Cmd-Tab entry with it.
+    func dropToAccessory(closing: NSWindow?) {
+        let otherOpen = windows.contains { $0 !== closing && $0.isVisible && $0.styleMask.contains(.titled) }
+        if !otherOpen { setActivationPolicy(.accessory) }
+    }
+}
+
 extension SettingsWindowController: NSWindowDelegate {
     func windowWillClose(_ notification: Notification) {
         resumeAccessibilityMonitoring = AccessibilityPermission.shared.isMonitoring
         AccessibilityPermission.shared.stopMonitoring()
         window?.orderOut(nil)
-        NSApp.setActivationPolicy(.accessory)
+        NSApp.dropToAccessory(closing: window)
     }
 
     func windowDidBecomeKey(_ notification: Notification) {

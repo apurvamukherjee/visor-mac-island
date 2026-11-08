@@ -238,8 +238,8 @@ struct MusicControlsView: View {
         // Visor: nothing ever wrote musicControlSlotLimit, so the limit was always its default of 5.
         let limit = MusicControlButton.maxSlotCount
         let result = Array((slotConfig + Array(repeating: .none, count: limit)).prefix(limit))
-        // If calendar and camera are both visible alongside music, hide the edge slots
-        let shouldHideEdges = Defaults[.showCalendar] && Defaults[.showMirror] && webcamManager.cameraAvailable && vm.isCameraExpanded
+        // If a side panel and camera are both visible alongside music, hide the edge slots
+        let shouldHideEdges = HomePanel.current != nil && Defaults[.showMirror] && webcamManager.cameraAvailable && vm.isCameraExpanded
         if shouldHideEdges {
             return Array(result.dropFirst().dropLast())
         }
@@ -454,6 +454,9 @@ struct NotchHomeView: View {
     @EnvironmentObject var vm: VisorViewModel
     @ObservedObject var webcamManager = WebcamManager.shared
     @ObservedObject var coordinator = VisorViewCoordinator.shared
+    @Default(.showCalendar) private var showCalendar
+    @Default(.showTasks) private var showTasks
+    @Default(.homePanel) private var homePanel
     let albumArtNamespace: Namespace.ID
 
     var body: some View {
@@ -471,16 +474,24 @@ struct NotchHomeView: View {
     }
 
     private var mainContent: some View {
-        HStack(alignment: .top, spacing: (shouldShowCamera && Defaults[.showCalendar]) ? 10 : 15) {
+        let panel = HomePanel.resolve(calendar: showCalendar, tasks: showTasks, chosen: homePanel)
+        return HStack(alignment: .top, spacing: (shouldShowCamera && panel != nil) ? 10 : 15) {
             MusicPlayerView(albumArtNamespace: albumArtNamespace)
 
-            if Defaults[.showCalendar] {
-                CalendarView()
-                    .frame(width: shouldShowCamera ? 170 : 215)
-                    .onHover { isHovering in
-                        vm.isHoveringCalendar = isHovering
+            // Visor: calendar and tasks take turns in one fixed-width slot, so
+            // switching never widens the open notch.
+            if let panel {
+                Group {
+                    switch panel {
+                    case .calendar: CalendarView()
+                    case .tasks: TasksPanelView()
                     }
-                    .transition(.opacity)
+                }
+                .frame(width: shouldShowCamera ? 170 : 215)
+                .onHover { isHovering in
+                    vm.isHoveringCalendar = isHovering
+                }
+                .transition(.opacity)
             }
 
             if shouldShowCamera {

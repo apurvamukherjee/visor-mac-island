@@ -46,7 +46,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
         case .appearance: "tabs mirror camera microphone privacy indicator face timer download progress settings icon "
             + "vinyl slider color tint blur spectrogram glass"
         case .media: "music source spotify apple lyrics sneak peek full screen controls buttons inactivity"
-        case .calendar: "events reminders all-day weather meeting zoom meet teams join"
+        case .calendar: "events reminders all-day weather meeting zoom meet teams join tasks to-do deadline priority"
         case .huds: "volume brightness keyboard backlight accessibility percentage glow gradient option key"
         case .battery: "charge charging power percentage notifications"
         case .shelf: "files drag drop airdrop share quick share copy"
@@ -568,6 +568,8 @@ struct Media: View {
 struct CalendarSettings: View {
     @ObservedObject private var calendarManager = CalendarManager.shared
     @Default(.showCalendar) var showCalendar: Bool
+    @Default(.taskAlerts) private var taskAlerts
+    @Default(.taskAlertLead) private var taskAlertLead
 
     var body: some View {
         Form {
@@ -596,6 +598,23 @@ struct CalendarSettings: View {
             }
             .onChange { enabled in
                 if enabled { WeatherManager.shared.refreshIfStale() }
+            }
+            Section(header: Text("Tasks")) {
+                Defaults.Toggle(key: .showTasks) {
+                    Text("Show tasks")
+                    Text("Your top task sits beside the player. With the calendar on too, a button in the notch switches between them.")
+                }
+                Defaults.Toggle(key: .taskAlerts) {
+                    Text("Deadline alerts")
+                    Text("The closed notch counts down to a task's deadline and chimes once.")
+                }
+                Picker("Alert before the deadline", selection: $taskAlertLead) {
+                    ForEach([5, 15, 30, 60], id: \.self) { Text("\($0) min").tag($0) }
+                }
+                .disabled(!taskAlerts)
+                Button("Open Tasks…") {
+                    TasksWindowController.shared.showWindow()
+                }
             }
             calendarSection(
                 "Calendars",

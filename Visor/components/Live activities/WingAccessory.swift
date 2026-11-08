@@ -4,6 +4,8 @@ import SwiftUI
 /// a running timer, the bell when it ends, or a download in progress.
 enum WingAccessory: Equatable {
     case meeting
+    /// A task's deadline is near or just passed.
+    case task(Date)
     case download(Double)
     case timer(ClosedRange<Date>)
     case bell
@@ -14,7 +16,7 @@ enum WingAccessory: Equatable {
 
     var needsTextWidth: Bool {
         switch self {
-        case .timer, .meeting: true
+        case .timer, .meeting, .task: true
         case .download, .bell: false
         }
     }
@@ -23,6 +25,7 @@ enum WingAccessory: Equatable {
     var leadingSymbol: String {
         switch self {
         case .meeting: "video.fill"
+        case .task: "checklist"
         case .download: "arrow.down"
         case .timer, .bell: "timer"
         }
@@ -48,6 +51,18 @@ struct WingAccessoryView: View {
                     .background(Capsule().fill(Color.effectiveAccent))
             }
             .buttonStyle(PlainButtonStyle())
+        case .task(let deadline):
+            Group {
+                if deadline > Date() {
+                    Text(timerInterval: Date()...deadline, countsDown: true)
+                } else {
+                    Text("Due")
+                }
+            }
+            .font(.system(size: 12, weight: .semibold).monospacedDigit())
+            .foregroundStyle(deadline > Date() ? Color.orange : Color.red)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
         case .timer(let range):
             Text(timerInterval: range, countsDown: true)
                 .font(.system(size: 12, weight: .semibold).monospacedDigit())

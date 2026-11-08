@@ -96,6 +96,8 @@ extension Defaults.Keys {
 
     static let showNotHumanFace = Key<Bool>("showNotHumanFace", default: false)
     static let showCalendar = Key<Bool>("showCalendar", default: false)
+    static let showTasks = Key<Bool>("showTasks", default: false)
+    static let homePanel = Key<HomePanel>("homePanel", default: .calendar)
     static let showWeather = Key<Bool>("showWeather", default: false)
     static let meetingAlerts = Key<Bool>("meetingAlerts", default: true)
     static let hideCompletedReminders = Key<Bool>("hideCompletedReminders", default: true)
@@ -155,6 +157,11 @@ extension Defaults.Keys {
     static let hideAllDayEvents = Key<Bool>("hideAllDayEvents", default: false)
     static let showFullEventTitles = Key<Bool>("showFullEventTitles", default: false)
     static let autoScrollToNextEvent = Key<Bool>("autoScrollToNextEvent", default: true)
+
+    // MARK: Tasks
+    static let todos = Key<[TodoItem]>("todos", default: [])
+    static let taskAlerts = Key<Bool>("taskAlerts", default: true)
+    static let taskAlertLead = Key<Int>("taskAlertLead", default: 15)
 
     // MARK: Fullscreen Media Detection
     static let hideNotchOption = Key<HideNotchOption>("hideNotchOption", default: .nowPlayingOnly)
