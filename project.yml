@@ -59,6 +59,7 @@ targets:
         NSCalendarsFullAccessUsageDescription: "Visor uses the calendar to display your calendar events."
         NSRemindersFullAccessUsageDescription: "Visor uses Reminders to display your scheduled reminders in the calendar."
         NSCameraUsageDescription: "Visor uses the camera to display a live camera view."
+        NSAudioCaptureUsageDescription: "Visor listens to how loud the music is so the edge glow can move with it. Nothing is recorded or saved."
         NSLocationUsageDescription: "Visor uses your approximate location to show the weather beside the calendar."
         NSLocationWhenInUseUsageDescription: "Visor uses your approximate location to show the weather beside the calendar."
         NSDesktopFolderUsageDescription: "Visor catches new screenshots saved here and puts them on the shelf."
