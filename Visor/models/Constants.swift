@@ -75,6 +75,8 @@ extension Defaults.Keys {
     // Visor: a padlock in the notch for a few seconds on lock and unlock.
     static let lockScreenAnimation = Key<Bool>("lockScreenAnimation", default: true)
     static let lockScreenWidgets = Key<Bool>("lockScreenWidgets", default: true)
+    // Off by default: following the music needs the System Audio Recording permission.
+    static let edgeGlow = Key<Bool>("edgeGlow", default: false)
     static let edgeGlowIntensity = Key<Double>("edgeGlowIntensity", default: 1)
     static let hideFromScreenRecording = Key<Bool>("hideFromScreenRecording", default: false)
 

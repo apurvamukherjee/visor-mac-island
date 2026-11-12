@@ -289,6 +289,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         UpdateChecker.shared.startAutomaticChecks()
+        EdgeGlow.shared.start()
         MeetingMonitor.shared.reschedule()
         TaskMonitor.shared.reschedule()
         ScreenshotMonitor.shared.onCapture = { [weak self] in

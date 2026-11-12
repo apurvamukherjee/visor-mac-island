@@ -1,5 +1,106 @@
 import AppKit
+import Combine
 import Defaults
+
+/// A line of light that runs round the edge of every screen while music
+/// plays, in the cover's colours, thickening on the bass.
+///
+/// The windows exist only while the glow is on and something is playing, and
+/// the audio tap behind it runs for exactly as long.
+@MainActor
+final class EdgeGlow {
+    static let shared = EdgeGlow()
+
+    private static let fadeDuration = 0.6
+
+    private var windows: [SkyLightWindow] = []
+    private var cancellables: Set<AnyCancellable> = []
+
+    private init() {}
+
+    func start() {
+        let music = MusicManager.shared
+        Publishers.MergeMany(
+            music.$isPlaying.removeDuplicates().map { _ in () }.eraseToAnyPublisher(),
+            Defaults.publisher(.edgeGlow).map { _ in () }.eraseToAnyPublisher(),
+            NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
+                .map { _ in () }.eraseToAnyPublisher()
+        )
+        // @Published fires before the value is stored; a hop reads the new one.
+        .receive(on: DispatchQueue.main)
+        .sink { MainActor.assumeIsolated { EdgeGlow.shared.refresh() } }
+        .store(in: &cancellables)
+
+        music.$palette
+            .receive(on: DispatchQueue.main)
+            .sink { palette in MainActor.assumeIsolated { EdgeGlow.shared.views.forEach { $0.setColors(palette) } } }
+            .store(in: &cancellables)
+    }
+
+    private var views: [EdgeGlowView] { windows.compactMap { $0.contentView as? EdgeGlowView } }
+
+    private var isWanted: Bool {
+        Defaults[.edgeGlow] && MusicManager.shared.isPlaying
+    }
+
+    private func refresh() {
+        guard isWanted else {
+            hide()
+            return
+        }
+        AudioLevelMonitor.shared.start()
+        let screens = NSScreen.screens
+        if windows.map(\.frame) != screens.map(\.frame) {
+            closeWindows()
+            windows = screens.map(makeWindow)
+        }
+        windows.forEach { $0.animator().alphaValue = 1 }
+    }
+
+    private func hide() {
+        guard !windows.isEmpty else { return }
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = Self.fadeDuration
+            windows.forEach { $0.animator().alphaValue = 0 }
+        } completionHandler: {
+            MainActor.assumeIsolated {
+                // Playback may have resumed during the fade.
+                guard !self.isWanted else { return }
+                self.closeWindows()
+                AudioLevelMonitor.shared.stop()
+            }
+        }
+    }
+
+    private func closeWindows() {
+        for window in windows {
+            // Taking the view out is what stops its display link, which
+            // otherwise holds the view for good.
+            window.contentView = nil
+            window.close()
+        }
+        windows = []
+    }
+
+    private func makeWindow(for screen: NSScreen) -> SkyLightWindow {
+        let window = SkyLightWindow(
+            contentRect: screen.frame, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false
+        )
+        window.ignoresMouseEvents = true
+        // A notched display is rounded at its corners; the line follows them.
+        let view = EdgeGlowView(cornerRadius: screen.safeAreaInsets.top > 0 ? 10 : 0)
+        view.setColors(MusicManager.shared.palette)
+        window.contentView = view
+        window.setFrame(screen.frame, display: false)
+        window.alphaValue = 0
+        window.orderFrontRegardless()
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = Self.fadeDuration
+            window.animator().alphaValue = 1
+        }
+        return window
+    }
+}
 
 /// The light itself: a conic gradient lit along half its sweep, turning behind
 /// two masks. One mask is a thin line on the screen's edge, the other a soft
