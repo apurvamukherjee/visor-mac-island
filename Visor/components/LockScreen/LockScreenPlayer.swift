@@ -24,14 +24,19 @@ final class LockScreenPlayer {
     private var stage: SkyLightWindow?
     private var player: SkyLightWindow?
     private var isLocked = false
+    private var awake: NSObjectProtocol?
     private var cancellables: Set<AnyCancellable> = []
 
     private init() {
-        Defaults.publisher(.lockScreenLook)
-            // The first value arrives during init, before `shared` exists; the hop waits for it.
-            .receive(on: DispatchQueue.main)
-            .sink { _ in MainActor.assumeIsolated { LockScreenPlayer.shared.sync() } }
-            .store(in: &cancellables)
+        Publishers.MergeMany(
+            MusicManager.shared.$isPlaying.removeDuplicates().map { _ in () }.eraseToAnyPublisher(),
+            Defaults.publisher(.lockScreenLook).map { _ in () }.eraseToAnyPublisher(),
+            Defaults.publisher(.lockScreenKeepAwake).map { _ in () }.eraseToAnyPublisher()
+        )
+        // @Published fires before the value is stored; a hop reads the new one.
+        .receive(on: DispatchQueue.main)
+        .sink { MainActor.assumeIsolated { LockScreenPlayer.shared.sync() } }
+        .store(in: &cancellables)
     }
 
     func show() {
@@ -80,9 +85,21 @@ final class LockScreenPlayer {
         SkyLightWindow(contentRect: frame, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
     }
 
-    /// Lyrics are looked up only while they are actually on screen.
+    /// Lyrics are looked up, and the display kept awake, only while the lyrics
+    /// are actually on screen.
     private func sync() {
-        MusicManager.shared.lyricsWanted = isLocked && Defaults[.lockScreenLook] == .lyrics
+        let showingLyrics = isLocked && Defaults[.lockScreenLook] == .lyrics
+        MusicManager.shared.lyricsWanted = showingLyrics
+
+        let keepAwake = showingLyrics && MusicManager.shared.isPlaying && Defaults[.lockScreenKeepAwake]
+        if keepAwake, awake == nil {
+            awake = ProcessInfo.processInfo.beginActivity(
+                options: .idleDisplaySleepDisabled, reason: "Lyrics are playing on the lock screen"
+            )
+        } else if !keepAwake, let token = awake {
+            ProcessInfo.processInfo.endActivity(token)
+            awake = nil
+        }
     }
 }
 
