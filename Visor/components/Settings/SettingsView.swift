@@ -13,6 +13,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
     case general = "General"
     case appearance = "Appearance"
     case media = "Media"
+    case lockScreen = "Lock Screen"
     case calendar = "Calendar"
     case huds = "HUDs"
     case battery = "Battery"
@@ -28,6 +29,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
         case .general: "gear"
         case .appearance: "eye"
         case .media: "play.laptopcomputer"
+        case .lockScreen: "lock.fill"
         case .calendar: "calendar"
         case .huds: "dial.medium.fill"
         case .battery: "battery.100.bolt"
@@ -46,6 +48,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
         case .appearance: "tabs mirror camera microphone privacy indicator face timer download progress settings icon "
             + "vinyl slider color tint blur spectrogram glass"
         case .media: "music source spotify apple lyrics sneak peek full screen controls buttons inactivity"
+        case .lockScreen: "lock screen now playing record vinyl cover lyrics words style background timer preview awake"
         case .calendar: "events reminders all-day weather meeting zoom meet teams join tasks to-do deadline priority"
         case .huds: "volume brightness keyboard backlight accessibility percentage glow gradient option key"
         case .battery: "charge charging power percentage notifications"
@@ -61,6 +64,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
         case .general: GeneralSettings()
         case .appearance: Appearance()
         case .media: Media()
+        case .lockScreen: LockScreenSettings()
         case .calendar: CalendarSettings()
         case .huds: HUD()
         case .battery: Charge()
@@ -1132,9 +1136,6 @@ struct Advanced: View {
                 }
                 Defaults.Toggle(key: .lockScreenAnimation) {
                     Text("Lock and unlock animation")
-                }
-                Defaults.Toggle(key: .lockScreenWidgets) {
-                    Text("Now Playing and timer on the lock screen")
                 }
                 Defaults.Toggle(key: .hideFromScreenRecording) {
                     Text("Hide from screen recording")
