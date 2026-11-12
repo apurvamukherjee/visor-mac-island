@@ -1,11 +1,16 @@
 import AppKit
+import Defaults
 
 /// The light itself: a conic gradient lit along half its sweep, turning behind
 /// two masks. One mask is a thin line on the screen's edge, the other a soft
-/// band inside it. The render server does the turning.
+/// band inside it. The render server does the turning; the app only sets the
+/// line's width and the band's strength once a frame, from the music.
 final class EdgeGlowView: NSView {
     private static let secondsPerLap = 5.0
     private static let rotationKey = "lap"
+    /// Rises fast enough to land on a kick, falls slowly enough not to flicker.
+    private static let attack = 18.0
+    private static let release = 6.0
 
     private let cornerRadius: CGFloat
     private let rim = CALayer()
@@ -16,6 +21,8 @@ final class EdgeGlowView: NSView {
     private let haloMask = CALayer()
     private let haloEdges = (0 ..< 4).map { _ in CAGradientLayer() }
 
+    private var link: CADisplayLink?
+    private var lastTick: CFTimeInterval = 0
     private var glow = 0.0
 
     private var reduceMotion: Bool { NSWorkspace.shared.accessibilityDisplayShouldReduceMotion }
@@ -101,6 +108,8 @@ final class EdgeGlowView: NSView {
 
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
+        link?.invalidate()
+        link = nil
         for light in [rimLight, haloLight] { light.removeAnimation(forKey: Self.rotationKey) }
         guard window != nil else { return }
 
@@ -114,10 +123,32 @@ final class EdgeGlowView: NSView {
             // One object on both, so the line and its band stay in step.
             for light in [rimLight, haloLight] { light.add(lap, forKey: Self.rotationKey) }
         }
+        let link = displayLink(target: self, selector: #selector(tick))
+        link.preferredFrameRateRange = CAFrameRateRange(minimum: 30, maximum: 60, preferred: 60)
+        link.add(to: .main, forMode: .common)
+        self.link = link
     }
 
     /// The sizes below were drawn for a 1470-point-wide screen.
     private var unit: CGFloat { max(bounds.width, 1) / 1470 }
+
+    @objc private func tick(_ link: CADisplayLink) {
+        let elapsed = min(0.05, link.targetTimestamp - lastTick)
+        lastTick = link.targetTimestamp
+
+        let monitor = AudioLevelMonitor.shared
+        // With no audio to follow (no permission, or macOS before 14.2) the
+        // glow breathes slowly instead of sitting still.
+        let target = monitor.isLive
+            ? pow(Double(monitor.level), 1.5)
+            : 0.3 + 0.15 * sin(link.targetTimestamp * 2 * Double.pi / 3.2)
+        glow += (target - glow) * (1 - exp(-elapsed * (target > glow ? Self.attack : Self.release)))
+
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        apply(strength: min(1, glow * Defaults[.edgeGlowIntensity]))
+        CATransaction.commit()
+    }
 
     private func apply(strength: Double) {
         // Doubled: the stroke is centred on the screen's edge, so half of it is off-screen.
