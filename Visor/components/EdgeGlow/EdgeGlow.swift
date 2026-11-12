@@ -24,7 +24,7 @@ final class EdgeGlow {
         Publishers.MergeMany(
             music.$isPlaying.removeDuplicates().map { _ in () }.eraseToAnyPublisher(),
             Defaults.publisher(.edgeGlow).map { _ in () }.eraseToAnyPublisher(),
-            Defaults.publisher(.edgeGlowOnLockScreen).map { _ in () }.eraseToAnyPublisher(),
+            Defaults.publisher(.edgeGlowPlacement).map { _ in () }.eraseToAnyPublisher(),
             NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
                 .map { _ in () }.eraseToAnyPublisher()
         )
@@ -56,7 +56,7 @@ final class EdgeGlow {
     private var views: [EdgeGlowView] { windows.compactMap { $0.contentView as? EdgeGlowView } }
 
     private var isWanted: Bool {
-        Defaults[.edgeGlow] && MusicManager.shared.isPlaying && (!isLocked || Defaults[.edgeGlowOnLockScreen])
+        Defaults[.edgeGlow] && MusicManager.shared.isPlaying && Defaults[.edgeGlowPlacement].shows(locked: isLocked)
     }
 
     private func refresh() {

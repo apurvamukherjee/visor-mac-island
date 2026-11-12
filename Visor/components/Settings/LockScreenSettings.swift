@@ -65,6 +65,7 @@ struct LockScreenSettings: View {
 struct EdgeGlowSettings: View {
     @Default(.edgeGlow) private var isOn
     @Default(.edgeGlowIntensity) private var intensity
+    @Default(.edgeGlowPlacement) private var placement
 
     private static let privacyPane = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")
 
@@ -73,8 +74,8 @@ struct EdgeGlowSettings: View {
             Defaults.Toggle(key: .edgeGlow) {
                 Text("Glow around the screen edge while music plays")
             }
-            Defaults.Toggle(key: .edgeGlowOnLockScreen) {
-                Text("Show on the lock screen")
+            Picker("Show", selection: $placement) {
+                ForEach(EdgeGlowPlacement.allCases) { Text($0.rawValue).tag($0) }
             }
             .disabled(!isOn)
             Slider(value: $intensity, in: 0.4 ... 2) {

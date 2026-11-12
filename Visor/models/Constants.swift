@@ -76,6 +76,23 @@ enum LyricStyle: String, CaseIterable, Identifiable, Defaults.Serializable {
     var id: String { rawValue }
 }
 
+// Where the edge glow shows while music plays.
+enum EdgeGlowPlacement: String, CaseIterable, Identifiable, Defaults.Serializable {
+    case everywhere = "Everywhere"
+    case lockScreenOnly = "Lock screen only"
+    case desktopOnly = "Desktop only"
+
+    var id: String { rawValue }
+
+    func shows(locked: Bool) -> Bool {
+        switch self {
+        case .everywhere: true
+        case .lockScreenOnly: locked
+        case .desktopOnly: !locked
+        }
+    }
+}
+
 // What sits behind the cover and the lyrics on the lock screen.
 enum LockScreenBackdrop: String, CaseIterable, Identifiable, Defaults.Serializable {
     case wallpaper = "Wallpaper"
@@ -119,7 +136,7 @@ extension Defaults.Keys {
     static let lockScreenKeepAwake = Key<Bool>("lockScreenKeepAwake", default: true)
     // Off by default: following the music needs the System Audio Recording permission.
     static let edgeGlow = Key<Bool>("edgeGlow", default: false)
-    static let edgeGlowOnLockScreen = Key<Bool>("edgeGlowOnLockScreen", default: true)
+    static let edgeGlowPlacement = Key<EdgeGlowPlacement>("edgeGlowPlacement", default: .everywhere)
     static let edgeGlowIntensity = Key<Double>("edgeGlowIntensity", default: 1)
     static let hideFromScreenRecording = Key<Bool>("hideFromScreenRecording", default: false)
 
