@@ -54,6 +54,14 @@ class MusicManager: ObservableObject {
     private var lastArtworkBundleIdentifier: String?
     // Visor: the track whose lyrics were last requested. See fetchLyricsIfAvailable.
     private var lastLyricsKey: String?
+    /// True while the lock screen is showing lyrics, so they are fetched even
+    /// with the notch's lyric line off. Nothing is looked up until then.
+    var lyricsWanted = false {
+        didSet {
+            guard lyricsWanted, !oldValue else { return }
+            fetchLyricsIfAvailable(bundleIdentifier: bundleIdentifier, title: songTitle, artist: artistName, duration: songDuration)
+        }
+    }
 
     // MARK: - Initialization
     init() {
@@ -227,7 +235,7 @@ class MusicManager: ObservableObject {
 
     // MARK: - Lyrics
     private func fetchLyricsIfAvailable(bundleIdentifier: String?, title: String, artist: String, duration: TimeInterval) {
-        guard Defaults[.enableLyrics], !title.isEmpty else {
+        guard Defaults[.enableLyrics] || lyricsWanted, !title.isEmpty else {
             lastLyricsKey = nil
             DispatchQueue.main.async {
                 self.isFetchingLyrics = false
