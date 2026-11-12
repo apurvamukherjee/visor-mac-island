@@ -1,14 +1,16 @@
 import Defaults
 import SwiftUI
 
-/// The lock screen's clickable half: the record, the cover and the Now Playing
-/// card. Clicking the record or the cover steps to the next look.
+/// The lock screen's clickable half: the record, the cover, the Now Playing
+/// card and the timer. Clicking the record or the cover steps to the next look.
 struct LockScreenPlayerView: View {
     let screenSize: CGSize
 
     @ObservedObject private var music = MusicManager.shared
+    @ObservedObject private var timer = TimerManager.shared
     @Default(.lockScreenLook) private var look
     @Default(.lockScreenLyricStyle) private var style
+    @Default(.enableLyrics) private var enableLyrics
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var layout: LockScreenLayout { LockScreenLayout(size: screenSize, look: look, style: style) }
@@ -26,6 +28,7 @@ struct LockScreenPlayerView: View {
                 vinyl
                 cover
             }
+            belowCard
         }
         .frame(
             width: screenSize.width, height: screenSize.height * LockScreenPlayer.playerHeightShare, alignment: .top
@@ -33,6 +36,7 @@ struct LockScreenPlayerView: View {
         .animation(move, value: look)
         .animation(move, value: style)
         .animation(.smooth, value: hasMedia)
+        .animation(.smooth, value: timer.endDate)
         .preferredColorScheme(.dark)
     }
 
@@ -163,6 +167,61 @@ struct LockScreenPlayerView: View {
                 .opacity(0.8)
             }
         }
+    }
+
+    // MARK: Under the card
+
+    private var belowCard: some View {
+        let height = scaled(120)
+        return VStack(spacing: scaled(10)) {
+            // With a timer running there is only room for one of the two.
+            if hasMedia, enableLyrics, look != .lyrics, timer.endDate == nil {
+                lyricLine
+            }
+            if let start = timer.startDate, let end = timer.endDate {
+                timerCard(start ... end)
+            }
+        }
+        .frame(width: scaled(LockScreenLayout.cardSize.width), height: height, alignment: .top)
+        .position(
+            x: layout.cardCenter.x,
+            y: layout.cardCenter.y + scaled(LockScreenLayout.cardSize.height / 2 + 12) + height / 2
+        )
+    }
+
+    // The one line the card always carried when the notch's lyric line is on.
+    private var lyricLine: some View {
+        TimelineView(.animation(minimumInterval: 0.25, paused: !music.isPlaying)) { timeline in
+            let line = music.lyricLine(at: music.estimatedPlaybackPosition(at: timeline.date))
+            Text(line)
+                .id(line)
+                .font(.system(size: scaled(13), weight: .medium))
+                .foregroundStyle(.white.opacity(0.85))
+                .shadow(color: .black.opacity(0.5), radius: 3)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity)
+                .transition(.asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity), removal: .opacity))
+                .animation(.smooth(duration: 0.35), value: line)
+        }
+        .frame(height: scaled(18))
+        .clipped()
+    }
+
+    private func timerCard(_ range: ClosedRange<Date>) -> some View {
+        HStack(spacing: scaled(10)) {
+            Image(systemName: "timer")
+                .font(.system(size: scaled(18), weight: .semibold))
+                .foregroundStyle(Color.effectiveAccent)
+            Text(timerInterval: range, countsDown: true)
+                .font(.system(size: scaled(26), weight: .semibold, design: .rounded).monospacedDigit())
+                .foregroundStyle(.white)
+            Spacer()
+            controlButton("xmark", label: "Cancel timer") { timer.cancel() }
+        }
+        .padding(.horizontal, scaled(16))
+        .padding(.vertical, scaled(10))
+        .background(cardBackground(radius: scaled(20)))
+        .transition(.opacity.combined(with: .scale(scale: 0.95)))
     }
 
     // A translucent black card rather than a material: a material samples the
