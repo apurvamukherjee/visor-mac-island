@@ -309,14 +309,19 @@ class MusicManager: ObservableObject {
     // Visor: every exit publishes through the defer, so a failed lookup also
     // clears the previous song's synced lyrics, which lyricLine prefers.
     // URLComponents encodes "&" in a name, which .urlQueryAllowed did not.
+    // A reply that lands after the track changed is dropped: it would put the
+    // last song's words under this one.
     @MainActor
     private func fetchLyricsFromWeb(title: String, artist: String) async {
+        let requestedKey = lastLyricsKey
         var plain = ""
         var synced = ""
         defer {
-            currentLyrics = plain.isEmpty ? synced : plain
-            isFetchingLyrics = false
-            syncedLyrics = synced.isEmpty ? [] : parseLRC(synced)
+            if requestedKey == lastLyricsKey {
+                currentLyrics = plain.isEmpty ? synced : plain
+                isFetchingLyrics = false
+                syncedLyrics = synced.isEmpty ? [] : parseLRC(synced)
+            }
         }
 
         // LRCLIB simple search (no auth)
