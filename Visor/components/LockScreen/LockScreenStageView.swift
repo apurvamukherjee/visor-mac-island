@@ -1,8 +1,8 @@
 import Defaults
 import SwiftUI
 
-/// The lock screen's display-only half: the backdrop behind the cover. Its
-/// window ignores the mouse while the screen is locked.
+/// The lock screen's display-only half: the backdrop behind the cover and the
+/// lyrics themselves. Its window ignores the mouse while the screen is locked.
 struct LockScreenStageView: View {
     let screenSize: CGSize
 
@@ -10,11 +10,13 @@ struct LockScreenStageView: View {
     @Default(.lockScreenLook) private var look
     @Default(.lockScreenLyricStyle) private var style
     @Default(.lockScreenBackdrop) private var backdrop
+    @Default(.lockScreenLyricsAlbumColor) private var albumColor
 
     private var layout: LockScreenLayout { LockScreenLayout(size: screenSize, look: look, style: style) }
     private func scaled(_ value: CGFloat) -> CGFloat { layout.scaled(value) }
 
     private var hasMedia: Bool { music.isPlaying || !music.isPlayerIdle }
+    private var tint: Color { albumColor ? Color(nsColor: music.palette.first ?? .white) : .white }
 
     var body: some View {
         ZStack {
@@ -25,6 +27,12 @@ struct LockScreenStageView: View {
                     .mask(backdropMask)
                     // Under the record the wallpaper is left alone.
                     .opacity(look == .record ? 0 : 1)
+                if look == .lyrics {
+                    lyrics
+                        .frame(width: layout.lyrics.width, height: layout.lyrics.height)
+                        .position(x: layout.lyrics.midX, y: layout.lyrics.midY)
+                        .transition(.opacity)
+                }
             }
         }
         .frame(width: screenSize.width, height: screenSize.height)
@@ -79,4 +87,43 @@ struct LockScreenStageView: View {
         .frame(width: screenSize.width * 1.5, height: screenSize.height * 0.64)
         .position(x: screenSize.width / 2, y: screenSize.height * 0.53)
     }
+
+    // MARK: Lyrics
+
+    @ViewBuilder private var lyrics: some View {
+        let lines = music.syncedLyrics
+        if lines.isEmpty {
+            Text(music.isFetchingLyrics ? "Finding lyrics…" : "No synced lyrics for this song")
+                .font(.system(size: scaled(20), weight: .semibold))
+                .foregroundStyle(.white.opacity(0.5))
+                .shadow(color: .black.opacity(0.4), radius: 6)
+        } else {
+            let texts = lines.map(\.text)
+            TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !music.isPlaying)) { timeline in
+                let elapsed = music.estimatedPlaybackPosition(at: timeline.date)
+                if let cursor = LyricTiming.cursor(lines: lines, at: elapsed) {
+                    LyricStyleView(
+                        style: style, texts: texts, cursor: style.followsWithinWord ? cursor.steppedProgress : cursor.wholeWords,
+                        blink: Int(timeline.date.timeIntervalSinceReferenceDate * 2).isMultiple(of: 2),
+                        tint: tint, unit: layout.unit
+                    )
+                    .equatable()
+                }
+            }
+        }
+    }
+}
+
+private extension LyricStyle {
+    /// Whether the style moves inside a word, not just from word to word.
+    var followsWithinWord: Bool { self == .lens || self == .terminal }
+}
+
+private extension LyricCursor {
+    /// Progress in 24 steps, so a style that draws it is not rebuilt on every frame.
+    var steppedProgress: LyricCursor {
+        LyricCursor(line: line, word: word, wordProgress: (wordProgress * 24).rounded() / 24)
+    }
+
+    var wholeWords: LyricCursor { LyricCursor(line: line, word: word, wordProgress: 0) }
 }

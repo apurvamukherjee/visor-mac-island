@@ -115,6 +115,7 @@ extension Defaults.Keys {
     static let lockScreenLook = Key<LockScreenLook>("lockScreenLook", default: .record)
     static let lockScreenLyricStyle = Key<LyricStyle>("lockScreenLyricStyle", default: .lines)
     static let lockScreenBackdrop = Key<LockScreenBackdrop>("lockScreenBackdrop", default: .cover)
+    static let lockScreenLyricsAlbumColor = Key<Bool>("lockScreenLyricsAlbumColor", default: true)
     // Off by default: following the music needs the System Audio Recording permission.
     static let edgeGlow = Key<Bool>("edgeGlow", default: false)
     static let edgeGlowOnLockScreen = Key<Bool>("edgeGlowOnLockScreen", default: true)
