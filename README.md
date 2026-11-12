@@ -58,6 +58,11 @@ brew install --cask apurvamukherjee/tap/visor
   <b>Shelf.</b> Drop files here, AirDrop them from here.
 </p>
 
+<p align="center">
+  <img src="assets/readme/lock-screen.png" width="100%" alt="The Mac lock screen with the song's cover and Now Playing card on the left and its lyrics on the right, the line being sung lit in the cover's blue"><br>
+  <b>Lock screen.</b> The cover, the controls and the lyrics, lit word by word.
+</p>
+
 ### On Windows
 
 <p align="center">
@@ -100,7 +105,17 @@ Trade the cover for a spinning record with the art on its label. The tonearm dro
 </td>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/lock.svg" width="40" align="center"> &nbsp;Lock &amp; unlock</h3>
-Lock your Mac and a padlock snaps shut in the notch and stays until you unlock. Below the clock, a record turns for whatever is playing, over a card with the progress, previous, play/pause and next, and any running timer. Click the record for the full cover, and again for the lyrics, shown word by word in one of five styles: Lines, Big Words, Lens, Stars or Terminal, in the cover's colours. Settings › Lock Screen has a Preview button, so you can try them without locking. Turn on Settings › Media › Edge glow and a line of light in the album's colours runs around the screen and thickens on the bass, on the lock screen too.
+Lock your Mac and a padlock snaps shut in the notch and stays until you unlock. Below the clock, a record turns for whatever is playing, over a card with the progress, previous, play/pause, next and a favorite button, and any running timer. Click the record for the full cover, and again for the lyrics. Behind them: your wallpaper, a dim, the blurred cover or an aura in its colours. Settings › Lock Screen has a Preview button, so you can try it without locking.
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<h3><img src="assets/readme/icons/music.svg" width="40" align="center"> &nbsp;Lyrics on the lock screen</h3>
+The song's words beside the cover, lit word by word as they're sung, in the cover's colours or white. Five styles: Lines scrolls the whole song, while Big Words, Lens, Stars and Terminal put one line at a time in the middle of the screen. Synced lyrics come from LRCLIB, looked up only while they're on screen, and the display stays awake while they play.
+</td>
+<td width="50%" valign="top">
+<h3><img src="assets/readme/icons/live.svg" width="40" align="center"> &nbsp;Edge glow</h3>
+A line of light in the album's colours runs around every screen while music plays and thickens on the bass. Show it everywhere, on the lock screen only, or on the desktop only. It listens to how loud the music is through System Audio Recording (macOS 14.2+), measures loudness only and saves nothing. Settings › Media › Edge glow, off by default.
 </td>
 </tr>
 <tr>
