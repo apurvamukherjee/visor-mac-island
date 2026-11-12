@@ -4,6 +4,10 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.12.1 (build 59) · 2026-11-12
+
+- **Edge glow on the lock screen only.** Settings › Media › Edge glow › Show now offers Everywhere, Lock screen only or Desktop only, in place of the lock screen switch. If you had turned that switch off, pick Desktop only.
+
 ## 3.12.0 (build 58) · 2026-11-12
 
 - **A full player on the lock screen.** Below the clock a record now turns for whatever is playing, over a card with the progress, the controls and a favorite button. Click the record for the full cover, and again for the lyrics. The look you leave it on is the one it opens with next time. Settings › Lock Screen picks the look and the background (your wallpaper, a dim, the blurred cover, or an aura in its colours), and its Preview button shows all of it without locking your Mac. The timer stays below the card.
