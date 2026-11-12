@@ -26,6 +26,8 @@ class MusicManager: ObservableObject {
     @Published var album: String = "Self Love"
     @Published var isPlayerIdle: Bool = true
     @Published var avgColor: NSColor = .white
+    /// The cover's two most vivid colours, for the edge glow and the lock screen.
+    @Published var palette: [NSColor] = NSImage.neutralPalette
     @Published var bundleIdentifier: String?
     @Published var songDuration: TimeInterval = 0
     @Published var elapsedTime: TimeInterval = 0
@@ -391,6 +393,14 @@ class MusicManager: ObservableObject {
             self.albumArt = newAlbumArt
             if Defaults[.coloredSpectrogram] {
                 self.calculateAverageColor()
+            }
+        }
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            let palette = newAlbumArt.vividPalette()
+            DispatchQueue.main.async {
+                // A slower pass for an earlier cover must not overwrite this one's.
+                guard let self, self.albumArt === newAlbumArt else { return }
+                withAnimation(.smooth(duration: 1)) { self.palette = palette }
             }
         }
     }
