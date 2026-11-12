@@ -1,12 +1,19 @@
 import AppKit
+import Combine
 import Defaults
 import SwiftUI
 
-/// Now Playing and the running timer, on the lock screen below the clock.
+/// Now Playing on the lock screen: a record under the clock, the cover, or the
+/// song's lyrics, with the running timer below.
 ///
-/// The window lives in the same above-the-shield SkyLight space the notch
-/// uses while locked. It is created on lock and its SwiftUI tree is dropped
-/// on unlock, so nothing renders for it the rest of the time.
+/// Two windows share the screen, both in the above-the-shield SkyLight space
+/// the notch uses while locked. The stage is the full screen and never takes a
+/// click: the backdrop and the lyrics. The player, with the record, the cover
+/// and the buttons, stops short of the bottom of the screen, so no part of it
+/// can ever sit over the password field.
+///
+/// Both are created on lock and their SwiftUI trees dropped on unlock, so
+/// nothing renders for them the rest of the time.
 @MainActor
 final class LockScreenPlayer {
     static let shared = LockScreenPlayer()
@@ -14,160 +21,68 @@ final class LockScreenPlayer {
     /// The share of the screen's height, from the top, the player window covers.
     static let playerHeightShare: CGFloat = 0.86
 
-    private static let size = CGSize(width: 380, height: 220)
-    /// From the screen's vertical centre to the panel's top edge: clear of
-    /// the clock above and the password field below.
-    private static let dropBelowCenter: CGFloat = 60
+    private var stage: SkyLightWindow?
+    private var player: SkyLightWindow?
+    private var isLocked = false
+    private var cancellables: Set<AnyCancellable> = []
 
-    private var window: SkyLightWindow?
-
-    private init() {}
+    private init() {
+        Defaults.publisher(.lockScreenLook)
+            // The first value arrives during init, before `shared` exists; the hop waits for it.
+            .receive(on: DispatchQueue.main)
+            .sink { _ in MainActor.assumeIsolated { LockScreenPlayer.shared.sync() } }
+            .store(in: &cancellables)
+    }
 
     func show() {
-        guard Defaults[.lockScreenWidgets], let screen = NSScreen.screens.first else { return }
-        let frame = NSRect(
-            x: screen.frame.midX - Self.size.width / 2,
-            y: screen.frame.midY - Self.dropBelowCenter - Self.size.height,
-            width: Self.size.width,
-            height: Self.size.height
-        )
-        let window = window ?? SkyLightWindow(
-            contentRect: frame,
-            styleMask: [.borderless, .nonactivatingPanel],
-            backing: .buffered,
-            defer: false
-        )
-        self.window = window
-        window.setFrame(frame, display: false)
-        window.contentView = NSHostingView(rootView: LockScreenWidgetsView())
-        window.enableSkyLight()
-        window.orderFrontRegardless()
+        guard Defaults[.lockScreenWidgets] else { return }
+        isLocked = true
+        present()
+        [stage, player].forEach { $0?.enableSkyLight() }
+        sync()
     }
 
     func hide() {
-        guard let window else { return }
-        window.orderOut(nil)
-        window.disableSkyLight()
-        window.contentView = nil
+        isLocked = false
+        dismiss()
     }
-}
 
-private struct LockScreenWidgetsView: View {
-    @ObservedObject private var music = MusicManager.shared
-    @ObservedObject private var timer = TimerManager.shared
+    private func present() {
+        guard let screen = NSScreen.screens.first else { return }
+        let frame = screen.frame
+        let playerHeight = frame.height * Self.playerHeightShare
+        let playerFrame = NSRect(x: frame.minX, y: frame.maxY - playerHeight, width: frame.width, height: playerHeight)
 
-    var body: some View {
-        VStack(spacing: 10) {
-            if music.isPlaying || !music.isPlayerIdle {
-                mediaCard
-            }
-            if let start = timer.startDate, let end = timer.endDate {
-                timerCard(start...end)
-            }
+        let stage = stage ?? makeWindow(frame)
+        let player = player ?? makeWindow(playerFrame)
+        self.stage = stage
+        self.player = player
+        stage.ignoresMouseEvents = true
+        stage.setFrame(frame, display: false)
+        player.setFrame(playerFrame, display: false)
+        stage.contentView = NSHostingView(rootView: LockScreenStageView(screenSize: frame.size))
+        player.contentView = NSHostingView(rootView: LockScreenPlayerView(screenSize: frame.size))
+        stage.orderFrontRegardless()
+        player.orderFrontRegardless()
+    }
+
+    private func dismiss() {
+        for window in [stage, player] {
+            guard let window else { continue }
+            window.orderOut(nil)
+            window.disableSkyLight()
+            window.contentView = nil
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .animation(.smooth, value: music.isPlayerIdle)
-        .animation(.smooth, value: timer.endDate)
-        .preferredColorScheme(.dark)
+        sync()
     }
 
-    private var mediaCard: some View {
-        VStack(spacing: 10) {
-            mediaRow
-            if Defaults[.enableLyrics] { lyricLine }
-        }
-        .padding(12)
-        .background(card)
-        .background(glow)
-        .transition(.move(edge: .bottom).combined(with: .opacity).combined(with: .scale(scale: 0.95)))
+    private func makeWindow(_ frame: NSRect) -> SkyLightWindow {
+        SkyLightWindow(contentRect: frame, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
     }
 
-    // Lyrics matter only while locked and playing; a paused track's line is static.
-    private var lyricLine: some View {
-        TimelineView(.animation(minimumInterval: 0.25, paused: !music.isPlaying)) { timeline in
-            let line = music.lyricLine(at: music.estimatedPlaybackPosition(at: timeline.date))
-            Text(line)
-                .id(line)
-                .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(.white.opacity(0.85))
-                .lineLimit(1)
-                .frame(maxWidth: .infinity)
-                .transition(.asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity), removal: .opacity))
-                .animation(.smooth(duration: 0.35), value: line)
-        }
-        .frame(height: 18)
-        .clipped()
-    }
-
-    private var glow: some View {
-        RoundedRectangle(cornerRadius: 22, style: .continuous)
-            .fill(Color(nsColor: music.avgColor))
-            .blur(radius: 28)
-            .opacity(music.isPlaying ? 0.45 : 0.15)
-            .animation(.easeInOut(duration: 1.2), value: music.isPlaying)
-    }
-
-    private var mediaRow: some View {
-        HStack(spacing: 12) {
-            Image(nsImage: music.albumArt)
-                .resizable()
-                .aspectRatio(1, contentMode: .fill)
-                .frame(width: 56, height: 56)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .scaleEffect(music.isPlaying ? 1 : 0.92)
-                .animation(.spring(duration: 0.5, bounce: 0.3), value: music.isPlaying)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(music.songTitle)
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                Text(music.artistName)
-                    .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.6))
-            }
-            .lineLimit(1)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            HStack(spacing: 14) {
-                controlButton("backward.fill") { music.previousTrack() }
-                controlButton(music.isPlaying ? "pause.fill" : "play.fill") { music.togglePlay() }
-                controlButton("forward.fill") { music.nextTrack() }
-            }
-        }
-    }
-
-    private func timerCard(_ range: ClosedRange<Date>) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: "timer")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(Color.effectiveAccent)
-            Text(timerInterval: range, countsDown: true)
-                .font(.system(size: 26, weight: .semibold, design: .rounded).monospacedDigit())
-                .foregroundStyle(.white)
-            Spacer()
-            controlButton("xmark") { timer.cancel() }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .background(card)
-        .transition(.opacity.combined(with: .scale(scale: 0.95)))
-    }
-
-    // A translucent black card rather than a material: a material samples the
-    // window behind it, and above the lock shield there is nothing to sample.
-    private var card: some View {
-        RoundedRectangle(cornerRadius: 22, style: .continuous)
-            .fill(.black.opacity(0.45))
-    }
-
-    private func controlButton(_ systemImage: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: systemImage)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(.white)
-                .contentTransition(.symbolEffect(.replace))
-                .frame(width: 24, height: 24)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(PlainButtonStyle())
+    /// Lyrics are looked up only while they are actually on screen.
+    private func sync() {
+        MusicManager.shared.lyricsWanted = isLocked && Defaults[.lockScreenLook] == .lyrics
     }
 }
 
