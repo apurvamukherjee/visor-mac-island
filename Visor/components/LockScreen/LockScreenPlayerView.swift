@@ -1,7 +1,8 @@
 import Defaults
 import SwiftUI
 
-/// The lock screen's clickable half: the Now Playing card.
+/// The lock screen's clickable half: the record, the cover and the Now Playing
+/// card. Clicking the record or the cover steps to the next look.
 struct LockScreenPlayerView: View {
     let screenSize: CGSize
 
@@ -22,6 +23,8 @@ struct LockScreenPlayerView: View {
                 card
                     .position(layout.cardCenter)
                     .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                vinyl
+                cover
             }
         }
         .frame(
@@ -31,6 +34,62 @@ struct LockScreenPlayerView: View {
         .animation(move, value: style)
         .animation(.smooth, value: hasMedia)
         .preferredColorScheme(.dark)
+    }
+
+    // MARK: The record and the cover
+
+    // Each is laid out once at its largest size and scaled, so moving between
+    // the middle of the screen and the card's slot is a transform, not a redraw.
+    private var vinyl: some View {
+        let placement = layout.vinyl
+        let base = scaled(LockScreenLayout.vinylBase)
+        return VinylDisc(
+            isSpinning: music.isPlaying,
+            tint: music.palette.first ?? .white,
+            artwork: music.albumArt.cgImage(forProposedRect: nil, context: nil, hints: nil)
+        )
+        .frame(width: base, height: base)
+        .overlay { stepButton("Record") }
+        .shadow(color: .black.opacity(0.4), radius: base * 0.12, y: base * 0.06)
+        .scaleEffect(placement.side / base)
+        .position(placement.center)
+        .opacity(layout.showsVinyl ? 1 : 0)
+        .transition(.opacity)
+    }
+
+    private var cover: some View {
+        let placement = layout.cover
+        let base = scaled(LockScreenLayout.coverBase)
+        let scale = placement.side / base
+        // Divided by the scale, so the corner is the same roundness on screen at every size.
+        let shape = RoundedRectangle(cornerRadius: placement.side * 0.085 / scale, style: .continuous)
+        return Image(nsImage: music.albumArt)
+            .resizable()
+            .scaledToFill()
+            .frame(width: base, height: base)
+            .clipShape(shape)
+            .overlay {
+                // A soft light from the top left and a hairline edge: printed card, not a flat tile.
+                shape.fill(LinearGradient(
+                    colors: [.white.opacity(0.16), .clear, .clear], startPoint: .topLeading, endPoint: .bottomTrailing
+                ))
+                shape.strokeBorder(.white.opacity(0.14), lineWidth: 1 / scale)
+            }
+            .overlay { stepButton("Cover") }
+            .shadow(color: .black.opacity(0.35), radius: base * 0.07, y: base * 0.035)
+            .scaleEffect(scale)
+            .position(placement.center)
+            .transition(.opacity)
+    }
+
+    private func stepButton(_ name: LocalizedStringKey) -> some View {
+        Color.clear
+            .contentShape(Rectangle())
+            .onTapGesture { look = look.next }
+            .accessibilityElement()
+            .accessibilityLabel(name)
+            .accessibilityHint("Shows the next lock screen look")
+            .accessibilityAddTraits(.isButton)
     }
 
     // MARK: Now Playing card
