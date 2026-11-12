@@ -1,5 +1,41 @@
 import SwiftUI
 
+/// One of the five ways the lock screen shows the song's words.
+///
+/// Equatable so the 30-a-second clock above it only rebuilds a style when the
+/// word (or, for the styles that draw it, the step within the word) changes.
+struct LyricStyleView: View, Equatable {
+    let style: LyricStyle
+    let texts: [String]
+    let cursor: LyricCursor
+    /// Flips twice a second, for the terminal's cursor.
+    let blink: Bool
+    let tint: Color
+    let unit: CGFloat
+
+    var body: some View {
+        switch style {
+        case .lines: LinesLyrics(texts: texts, cursor: cursor, tint: tint, unit: unit)
+        case .bigWords: BigWordsLyrics(words: nearby, wordKey: wordKey, tint: tint, unit: unit)
+        case .lens: LensLyrics(words: nearby, focus: cursor.wordProgress, tint: tint, unit: unit)
+        case .stars: StarsLyrics(words: LyricTiming.words(in: texts[cursor.line]), cursor: cursor, tint: tint, unit: unit)
+        case .terminal: TerminalLyrics(texts: texts, cursor: cursor, blink: blink, tint: tint, unit: unit)
+        }
+    }
+
+    private var wordKey: String { "\(cursor.line).\(cursor.word)" }
+
+    /// The word being sung with the one before and after it, across line breaks.
+    private var nearby: NearbyWords {
+        let before = cursor.line > 0 ? LyricTiming.words(in: texts[cursor.line - 1]) : []
+        let after = cursor.line + 1 < texts.count ? LyricTiming.words(in: texts[cursor.line + 1]) : []
+        let all = before + LyricTiming.words(in: texts[cursor.line]) + after
+        let index = before.count + cursor.word
+        func word(_ position: Int) -> String? { all.indices.contains(position) ? all[position] : nil }
+        return NearbyWords(previous: word(index - 1), current: cursor.word >= 0 ? word(index) : nil, next: word(index + 1))
+    }
+}
+
 struct NearbyWords {
     var previous: String?
     var current: String?

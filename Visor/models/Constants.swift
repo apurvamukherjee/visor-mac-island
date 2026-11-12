@@ -49,6 +49,16 @@ enum HUDControls: String, CaseIterable, Identifiable, Defaults.Serializable {
     var id: String { self.rawValue }
 }
 
+enum LyricStyle: String, CaseIterable, Identifiable, Defaults.Serializable {
+    case lines = "Lines"
+    case bigWords = "Big Words"
+    case lens = "Lens"
+    case stars = "Stars"
+    case terminal = "Terminal"
+
+    var id: String { rawValue }
+}
+
 extension Defaults.Keys {
     // MARK: General
     static let menubarIcon = Key<Bool>("menubarIcon", default: true)
@@ -75,6 +85,7 @@ extension Defaults.Keys {
     // Visor: a padlock in the notch for a few seconds on lock and unlock.
     static let lockScreenAnimation = Key<Bool>("lockScreenAnimation", default: true)
     static let lockScreenWidgets = Key<Bool>("lockScreenWidgets", default: true)
+    static let lockScreenLyricStyle = Key<LyricStyle>("lockScreenLyricStyle", default: .lines)
     // Off by default: following the music needs the System Audio Recording permission.
     static let edgeGlow = Key<Bool>("edgeGlow", default: false)
     static let edgeGlowOnLockScreen = Key<Bool>("edgeGlowOnLockScreen", default: true)
