@@ -68,6 +68,59 @@ extension NSImage {
     }
 }
 
+extension NSImage {
+    /// What `vividPalette` gives for a cover with no colour to speak of.
+    static let neutralPalette = [NSColor(white: 0.95, alpha: 1), NSColor(white: 0.7, alpha: 1)]
+
+    /// The cover's two most vivid colours, brightened enough to read as light
+    /// on a dark screen. An average would not do: most covers average to mud.
+    func vividPalette() -> [NSColor] {
+        let side = 16
+        guard let cgImage = cgImage(forProposedRect: nil, context: nil, hints: nil),
+              let context = CGContext(
+                  data: nil, width: side, height: side, bitsPerComponent: 8, bytesPerRow: side * 4,
+                  space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+              )
+        else { return Self.neutralPalette }
+        context.interpolationQuality = .medium
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: side, height: side))
+        guard let data = context.data else { return Self.neutralPalette }
+        let pixels = UnsafeBufferPointer(start: data.assumingMemoryBound(to: UInt8.self), count: side * side * 4)
+
+        struct Swatch {
+            var hue: CGFloat = 0
+            var saturation: CGFloat = 0
+            var brightness: CGFloat = 0
+            var vividness: CGFloat { saturation * brightness }
+        }
+        let swatches = stride(from: 0, to: pixels.count, by: 4).map { offset -> Swatch in
+            var swatch = Swatch()
+            NSColor(
+                srgbRed: CGFloat(pixels[offset]) / 255, green: CGFloat(pixels[offset + 1]) / 255,
+                blue: CGFloat(pixels[offset + 2]) / 255, alpha: 1
+            ).getHue(&swatch.hue, saturation: &swatch.saturation, brightness: &swatch.brightness, alpha: nil)
+            return swatch
+        }
+        guard let first = swatches.max(by: { $0.vividness < $1.vividness }), first.vividness > 0.12 else {
+            return Self.neutralPalette
+        }
+        // Hue is a circle, so 0.95 and 0.05 are neighbours.
+        func hueGap(_ swatch: Swatch) -> CGFloat {
+            let gap = abs(swatch.hue - first.hue)
+            return min(gap, 1 - gap)
+        }
+        let second = swatches
+            .filter { hueGap($0) > 0.08 && $0.vividness > first.vividness * 0.35 }
+            .max { $0.vividness < $1.vividness }
+            // A one-colour cover still gets a second stop, a short step round the wheel.
+            ?? Swatch(hue: (first.hue + 0.08).truncatingRemainder(dividingBy: 1), saturation: first.saturation, brightness: first.brightness)
+
+        return [first, second].map {
+            NSColor(hue: $0.hue, saturation: max($0.saturation, 0.55), brightness: max($0.brightness, 0.9), alpha: 1)
+        }
+    }
+}
+
 extension Color {
     func ensureMinimumBrightness(factor: CGFloat) -> Color {
         guard factor >= 0 && factor <= 1 else {
