@@ -264,3 +264,65 @@ private struct SplitMix64: RandomNumberGenerator {
         return mixed ^ (mixed >> 31)
     }
 }
+
+// MARK: - Terminal
+
+/// The line typed out at a prompt, a letter at a time, over the two before it.
+private struct TerminalLyrics: View {
+    let texts: [String]
+    let cursor: LyricCursor
+    let blink: Bool
+    let tint: Color
+    let unit: CGFloat
+
+    private static let caret = Color(red: 1, green: 0.32, blue: 0.3)
+
+    var body: some View {
+        let words = LyricTiming.words(in: texts[cursor.line])
+        let isDone = cursor.word == words.count - 1 && cursor.wordProgress >= 1
+        VStack(alignment: .leading, spacing: 8 * unit) {
+            if cursor.line >= 2 {
+                Text(Self.dotted(texts[cursor.line - 2]))
+                    .font(.system(size: 26 * unit, weight: .bold, design: .monospaced))
+                    .foregroundStyle(tint.opacity(0.28))
+                    .padding(.leading, 96 * unit)
+            }
+            if cursor.line >= 1 {
+                Text(Self.dotted(texts[cursor.line - 1]))
+                    .font(.system(size: 36 * unit, weight: .bold, design: .monospaced))
+                    .foregroundStyle(tint.opacity(0.6))
+                    .padding(.leading, 48 * unit)
+            }
+            HStack(spacing: 14 * unit) {
+                Text(typed(words))
+                    .font(.system(size: 54 * unit, weight: .bold, design: .monospaced))
+                    .foregroundStyle(tint)
+                    .shadow(color: tint.opacity(0.55), radius: 14 * unit)
+                Rectangle()
+                    .fill(Self.caret)
+                    .frame(width: 28 * unit, height: 56 * unit)
+                    // Solid while typing, blinking once the line is out.
+                    .opacity(isDone && !blink ? 0 : 1)
+            }
+        }
+        .lineLimit(1)
+        .minimumScaleFactor(0.4)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .animation(.smooth(duration: 0.3), value: cursor.line)
+    }
+
+    private func typed(_ words: [String]) -> String {
+        guard cursor.word >= 0, cursor.word < words.count else { return "" }
+        let current = words[cursor.word]
+        let letters = Int((cursor.wordProgress * Double(current.count)).rounded(.up))
+        return (words[..<cursor.word] + [String(current.prefix(max(letters, 1)))]).joined(separator: " ").lowercased()
+    }
+
+    private static func dotted(_ text: String) -> String {
+        LyricTiming.words(in: text)
+            .map { $0.trimmingCharacters(in: .punctuationCharacters) }
+            .filter { !$0.isEmpty }
+            .joined(separator: ".")
+            .lowercased()
+    }
+}
