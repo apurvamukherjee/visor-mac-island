@@ -2,11 +2,15 @@ import { useEffect, useState, type AnimationEvent } from 'react';
 import { inline } from '../../apps/markdown';
 import { Cover } from '../../notch/Cover';
 import { useNotch } from '../../notch/store';
-import { trackAt } from '../../notch/tracks';
+import { PREVIEW_S, formatTime, trackAt } from '../../notch/tracks';
 import { useLock } from '../../store/lock';
 import { useNow } from '../useNow';
 import avatar from './apurva.webp';
 import './LockScreen.css';
+
+// Visor's own sample words, as its lock screen preview plays: the demo songs' real lyrics aren't ours to show.
+const SAMPLE = ['Lock the screen and let it play', 'The cover glows, the record turns', 'Words fall in time with every beat', 'Light runs round the edge of night', 'Stay a while, the song’s not done'];
+const LINE_S = PREVIEW_S / SAMPLE.length;
 
 // Never hold a visitor on the welcome screen for a slow image; the desktop can finish loading behind them.
 const READY_CAP_MS = 4000;
@@ -41,7 +45,7 @@ export function LockScreen() {
   const ready = useReady(welcome);
   const [leaving, setLeaving] = useState(false);
   const now = useNow();
-  const { track, playing, togglePlay, skip } = useNotch();
+  const { track, playing, position, togglePlay, skip } = useNotch();
 
   useEffect(() => {
     if (!locked || !ready) return;
@@ -72,15 +76,35 @@ export function LockScreen() {
         <span>{now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
         <time>{now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).replace(/\s?[AP]M/, '')}</time>
       </div>
-      {/* Visor's lock screen widget: the player keeps working while locked. */}
+      {/* Visor's lock screen: the cover, the controls and the lyrics, with the edge glow while it plays. */}
       {!welcome && (
-        <div className="lock-player" onClick={(e) => e.stopPropagation()}>
-          <Cover track={t} size={48} linked={false} />
-          <span><b>{t.title}</b><small>{t.artist}</small></span>
-          <button aria-label="Previous track" onClick={() => skip(-1)}>⏮</button>
-          <button aria-label={playing ? 'Pause' : 'Play'} onClick={togglePlay}>{playing ? '⏸' : '▶'}</button>
-          <button aria-label="Next track" onClick={() => skip(1)}>⏭</button>
-        </div>
+        <>
+          <div className="lock-backdrop" style={{ backgroundImage: `url("${t.art}")` }} aria-hidden />
+          <div className={`lock-glow${playing ? ' is-on' : ''}`} style={{ '--art': `url("${t.art}")` } as React.CSSProperties} aria-hidden />
+          <div className="lock-stage" onClick={(e) => e.stopPropagation()}>
+            <div className="lock-side">
+              <Cover track={t} size={220} linked={false} />
+              <div className="lock-player">
+                <span><b>{t.title}</b><small>{t.artist}</small></span>
+                <div className="lock-progress">
+                  <small>{formatTime(position)}</small>
+                  <i><i style={{ width: `${(position / PREVIEW_S) * 100}%` }} /></i>
+                  <small>-{formatTime(PREVIEW_S - position)}</small>
+                </div>
+                <div className="lock-controls">
+                  <button aria-label="Previous track" onClick={() => skip(-1)}>⏮</button>
+                  <button aria-label={playing ? 'Pause' : 'Play'} onClick={togglePlay}>{playing ? '⏸' : '▶'}</button>
+                  <button aria-label="Next track" onClick={() => skip(1)}>⏭</button>
+                </div>
+              </div>
+            </div>
+            <ol className="lock-lyrics" aria-label="Sample lyrics" style={{ '--line': Math.min(SAMPLE.length - 1, Math.floor(position / LINE_S)) } as React.CSSProperties}>
+              {SAMPLE.map((line, i) => (
+                <li key={line} className={i === Math.min(SAMPLE.length - 1, Math.floor(position / LINE_S)) ? 'is-now' : undefined}>{line}</li>
+              ))}
+            </ol>
+          </div>
+        </>
       )}
       {!welcome && (
         <div className="lock-note">
