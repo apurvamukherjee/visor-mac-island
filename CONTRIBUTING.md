@@ -38,6 +38,7 @@ CI runs these on every push to `main`. Run the ones for the folders you touched 
 # Mac app
 swiftlint lint --quiet
 xcodebuild -scheme Visor -configuration Debug CODE_SIGNING_ALLOWED=NO build
+swiftc -parse-as-library Visor/models/LyricTiming.swift scripts/check-lyric-timing.swift -o /tmp/check-lyric-timing && /tmp/check-lyric-timing
 
 # website/ and windows/
 npm run typecheck
