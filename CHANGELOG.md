@@ -4,6 +4,11 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## Unreleased
+
+- **Edge glow on Windows.** Settings › Music › Edge glow runs a line of light in the album's colours round every monitor while music plays, thickening on the bass. It hears the output through Windows' own loopback, so nothing asks for permission, and it keeps only how loud the music is. The lock screen player and its lyrics stay Mac only: Windows shows no app windows on its lock screen.
+- **The website's lock screen** now shows the cover, the controls, lyrics lit line by line and the edge glow while a song plays.
+
 ## 3.12.1 (build 59) · 2026-11-12
 
 - **Edge glow on the lock screen only.** Settings › Media › Edge glow › Show now offers Everywhere, Lock screen only or Desktop only, in place of the lock screen switch. If you had turned that switch off, pick Desktop only.

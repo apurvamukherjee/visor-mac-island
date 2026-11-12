@@ -36,7 +36,8 @@ Since 3.7.2 the Mac and Windows ship in one release under the plain `v<version>`
 | Timer | Presets plus +1 min, since the island can't take typing; the header pill fills as it runs |
 | Battery | Low-battery and on-battery notes add Windows' estimate of the time left once it has one |
 | Logs | Release builds write `%LOCALAPPDATA%\Visor\visor.log`; Settings › About › Show log file |
-| Lock screen | Windows shows no app windows there; the padlock opens on unlock instead |
+| Lock screen | Windows shows no app windows there; the padlock opens on unlock instead, and the lock screen player and its lyrics are Mac only |
+| Edge glow | Settings › Music › Edge glow. Hears the output through WASAPI loopback, so no permission is asked; on the desktop only, since the lock screen takes no app windows |
 | Liquid Glass | Not available |
 | Background removal | Not available: Windows has no built-in subject cutout |
 | HEIC | Converts only with Microsoft's HEIF extension installed |
