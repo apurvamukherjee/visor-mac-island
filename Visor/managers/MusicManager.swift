@@ -278,9 +278,12 @@ class MusicManager: ObservableObject {
                     """
                     if let result = try await AppleScriptHelper.execute(script), let lyricsString = result.stringValue,
                        !lyricsString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        self.currentLyrics = lyricsString.trimmingCharacters(in: .whitespacesAndNewlines)
-                        self.isFetchingLyrics = false
-                        self.syncedLyrics = []
+                        // Visor: Music's own lyrics carry no timestamps, so the
+                        // web lookup still runs for the synced ones and keeps
+                        // this text as the plain version.
+                        let plain = lyricsString.trimmingCharacters(in: .whitespacesAndNewlines)
+                        self.currentLyrics = plain
+                        await self.fetchLyricsFromWeb(title: title, artist: artist, duration: duration, plain: plain)
                         return
                     }
                 } catch {
@@ -315,9 +318,9 @@ class MusicManager: ObservableObject {
     // A reply that lands after the track changed is dropped: it would put the
     // last song's words under this one.
     @MainActor
-    private func fetchLyricsFromWeb(title: String, artist: String, duration: TimeInterval) async {
+    private func fetchLyricsFromWeb(title: String, artist: String, duration: TimeInterval, plain known: String = "") async {
         let requestedKey = lastLyricsKey
-        var plain = ""
+        var plain = known
         var synced = ""
         defer {
             if requestedKey == lastLyricsKey {
@@ -348,7 +351,9 @@ class MusicManager: ObservableObject {
         guard let best = nearest ?? results.first else { return }
 
         // Prefer plain lyrics (syncedLyrics may also be present)
-        plain = best.plainLyrics?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if plain.isEmpty {
+            plain = best.plainLyrics?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        }
         synced = best.syncedLyrics?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
     }
 
