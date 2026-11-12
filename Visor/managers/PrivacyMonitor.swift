@@ -89,7 +89,10 @@ final class PrivacyMonitor: ObservableObject {
     private func rewireAudio() {
         unwireAudio()
         if #available(macOS 14.2, *) {
+            // Visor's own edge glow reads the output mix through an input
+            // stream. That is not a microphone, so Visor is left out.
             audioObjects = Self.audioIDs(system, kAudioHardwarePropertyProcessObjectList)
+                .filter { Self.audioValue($0, kAudioProcessPropertyPID) != UInt32(getpid()) }
         } else {
             let input: AudioObjectID = Self.audioValue(system, kAudioHardwarePropertyDefaultInputDevice)
             audioObjects = input == kAudioObjectUnknown ? [] : [input]
