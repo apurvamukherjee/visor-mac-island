@@ -292,6 +292,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         UpdateChecker.shared.startAutomaticChecks()
         EdgeGlow.shared.start()
+        #if DEBUG
+        // The lock screen cannot be screenshotted, so a debug build can open
+        // its preview at launch: `Visor -previewLockScreen`.
+        if CommandLine.arguments.contains("-previewLockScreen") {
+            LockScreenPlayer.shared.preview()
+        }
+        #endif
         MeetingMonitor.shared.reschedule()
         TaskMonitor.shared.reschedule()
         ScreenshotMonitor.shared.onCapture = { [weak self] in
