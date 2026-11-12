@@ -4,6 +4,12 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.12.0 (build 58) · 2026-11-12
+
+- **A full player on the lock screen.** Below the clock a record now turns for whatever is playing, over a card with the progress, the controls and a favorite button. Click the record for the full cover, and again for the lyrics. The look you leave it on is the one it opens with next time. Settings › Lock Screen picks the look and the background (your wallpaper, a dim, the blurred cover, or an aura in its colours), and its Preview button shows all of it without locking your Mac. The timer stays below the card.
+- **Lyrics word by word, in five styles.** Lines scrolls the whole song beside the cover and lights each word as it is sung. Big Words, Lens, Stars and Terminal put one line at a time in the middle of the screen. The words take the cover's colour, or stay white. Lyrics are looked up only while they are on screen, and the display stays awake while they play. The lookup now picks the synced version closest to the track's length, so live cuts and covers no longer drift, and Apple Music songs with their own lyrics get synced ones too.
+- **Edge glow.** Turn on Settings › Media › Edge glow and a line of light in the album's colours runs around every screen while music plays, on the lock screen too, and thickens on the bass. To hear the bass Visor asks once for System Audio Recording permission (macOS 14.2 or later). It measures loudness only and saves nothing, and listens only while music plays. Without the permission the glow breathes slowly instead. Off by default.
+
 ## 3.11.0 (build 57) · 2026-11-08
 
 - **Tasks in the notch, on Mac and Windows.** Turn on Settings › Calendar › Show tasks and your top task sits beside the player, in the calendar's place and at the same size, so the open notch is no wider. With the calendar on too, a button in the notch header switches between them. Only one task shows at a time, highest priority first, then the nearest deadline. Tick it off and the next one takes its place, or step through the rest with the arrow.
