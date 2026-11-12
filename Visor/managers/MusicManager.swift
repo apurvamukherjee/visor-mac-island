@@ -176,7 +176,9 @@ class MusicManager: ObservableObject {
             }
 
             // Fetch lyrics on content change
-            self.fetchLyricsIfAvailable(bundleIdentifier: state.bundleIdentifier, title: state.title, artist: state.artist)
+            self.fetchLyricsIfAvailable(
+                bundleIdentifier: state.bundleIdentifier, title: state.title, artist: state.artist, duration: state.duration
+            )
         }
 
         set(\.songTitle, state.title)
@@ -224,7 +226,7 @@ class MusicManager: ObservableObject {
     }
 
     // MARK: - Lyrics
-    private func fetchLyricsIfAvailable(bundleIdentifier: String?, title: String, artist: String) {
+    private func fetchLyricsIfAvailable(bundleIdentifier: String?, title: String, artist: String, duration: TimeInterval) {
         guard Defaults[.enableLyrics], !title.isEmpty else {
             lastLyricsKey = nil
             DispatchQueue.main.async {
@@ -245,7 +247,7 @@ class MusicManager: ObservableObject {
             Task { @MainActor in
                 let runningApps = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Music")
                 guard !runningApps.isEmpty else {
-                    await self.fetchLyricsFromWeb(title: title, artist: artist)
+                    await self.fetchLyricsFromWeb(title: title, artist: artist, duration: duration)
                     return
                 }
 
@@ -284,13 +286,13 @@ class MusicManager: ObservableObject {
                 } catch {
                     // fall through to web lookup
                 }
-                await self.fetchLyricsFromWeb(title: title, artist: artist)
+                await self.fetchLyricsFromWeb(title: title, artist: artist, duration: duration)
             }
         } else {
             Task { @MainActor in
                 self.isFetchingLyrics = true
                 self.currentLyrics = ""
-                await self.fetchLyricsFromWeb(title: title, artist: artist)
+                await self.fetchLyricsFromWeb(title: title, artist: artist, duration: duration)
             }
         }
     }
@@ -304,6 +306,7 @@ class MusicManager: ObservableObject {
     private struct LRCLibResult: Decodable {
         let plainLyrics: String?
         let syncedLyrics: String?
+        let duration: Double?
     }
 
     // Visor: every exit publishes through the defer, so a failed lookup also
@@ -312,7 +315,7 @@ class MusicManager: ObservableObject {
     // A reply that lands after the track changed is dropped: it would put the
     // last song's words under this one.
     @MainActor
-    private func fetchLyricsFromWeb(title: String, artist: String) async {
+    private func fetchLyricsFromWeb(title: String, artist: String, duration: TimeInterval) async {
         let requestedKey = lastLyricsKey
         var plain = ""
         var synced = ""
@@ -333,11 +336,20 @@ class MusicManager: ObservableObject {
         guard let url = components?.url,
               let (data, response) = try? await URLSession.shared.data(from: url),
               (response as? HTTPURLResponse)?.statusCode == 200,
-              let first = try? JSONDecoder().decode([LRCLibResult].self, from: data).first else { return }
+              let results = try? JSONDecoder().decode([LRCLibResult].self, from: data) else { return }
+
+        // Visor: the search also returns live cuts and covers, whose timestamps
+        // drift from this recording. Of the entries that are synced, the one
+        // nearest this track's length is the one that fits.
+        let timed = results.filter { $0.syncedLyrics?.isEmpty == false }
+        let nearest = duration > 0
+            ? timed.min { abs(($0.duration ?? 0) - duration) < abs(($1.duration ?? 0) - duration) }
+            : timed.first
+        guard let best = nearest ?? results.first else { return }
 
         // Prefer plain lyrics (syncedLyrics may also be present)
-        plain = first.plainLyrics?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        synced = first.syncedLyrics?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        plain = best.plainLyrics?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        synced = best.syncedLyrics?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
     }
 
     // MARK: - Synced lyrics helpers
