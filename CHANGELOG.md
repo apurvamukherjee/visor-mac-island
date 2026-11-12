@@ -4,6 +4,10 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.13.1 (build 61) · 2026-11-12
+
+- **The edge glow runs under the notch** instead of across it.
+
 ## 3.13.0 (build 60) · 2026-11-12
 
 - **Edge glow on Windows.** Settings › Music › Edge glow runs a line of light in the album's colours round every monitor while music plays, thickening on the bass. It hears the output through Windows' own loopback, so nothing asks for permission, and it keeps only how loud the music is. The lock screen player and its lyrics stay Mac only: Windows shows no app windows on its lock screen.
