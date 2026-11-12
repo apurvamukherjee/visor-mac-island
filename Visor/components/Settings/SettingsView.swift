@@ -47,7 +47,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
         case .general: "menu bar icon launch login displays screen gestures swipe skip track haptic hover peek delay notch height sizing scroll"
         case .appearance: "tabs mirror camera microphone privacy indicator face timer download progress settings icon "
             + "vinyl slider color tint blur spectrogram glass"
-        case .media: "music source spotify apple lyrics sneak peek full screen controls buttons inactivity"
+        case .media: "music source spotify apple lyrics sneak peek full screen controls buttons inactivity edge glow beat light"
         case .lockScreen: "lock screen now playing record vinyl cover lyrics words style background timer preview awake"
         case .calendar: "events reminders all-day weather meeting zoom meet teams join tasks to-do deadline priority"
         case .huds: "volume brightness keyboard backlight accessibility percentage glow gradient option key"
@@ -564,6 +564,8 @@ struct Media: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+
+            EdgeGlowSettings()
         }
         .navigationTitle("Media")
     }

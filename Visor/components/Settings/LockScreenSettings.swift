@@ -59,3 +59,46 @@ struct LockScreenSettings: View {
         .navigationTitle("Lock Screen")
     }
 }
+
+/// The edge glow's settings, shown in the Media pane: it follows the music on
+/// the desktop as well as the lock screen.
+struct EdgeGlowSettings: View {
+    @Default(.edgeGlow) private var isOn
+    @Default(.edgeGlowIntensity) private var intensity
+
+    private static let privacyPane = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")
+
+    var body: some View {
+        Section {
+            Defaults.Toggle(key: .edgeGlow) {
+                Text("Glow around the screen edge while music plays")
+            }
+            Defaults.Toggle(key: .edgeGlowOnLockScreen) {
+                Text("Show on the lock screen")
+            }
+            .disabled(!isOn)
+            Slider(value: $intensity, in: 0.4 ... 2) {
+                Text("Strength")
+            }
+            .disabled(!isOn)
+            if let url = Self.privacyPane {
+                HStack {
+                    Text("System Audio Recording permission")
+                    Spacer()
+                    Button("Open Privacy Settings…") { NSWorkspace.shared.open(url) }
+                }
+            }
+        } header: {
+            Text("Edge glow")
+        } footer: {
+            Text(
+                "A line of light in the album's colors runs around the screen and thickens on the bass. "
+                    + "To hear the bass, Visor asks for System Audio Recording permission the first time. "
+                    + "It only measures how loud the music is and saves nothing. "
+                    + "Without the permission, or before macOS 14.2, the glow breathes slowly instead."
+            )
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+    }
+}
