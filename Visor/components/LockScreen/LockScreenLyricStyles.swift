@@ -157,3 +157,110 @@ private struct LensLyrics: View {
         .fixedSize()
     }
 }
+
+// MARK: - Stars
+
+/// The line as a constellation: a star for each word, joined up in the order
+/// they are sung.
+private struct StarsLyrics: View {
+    let words: [String]
+    let cursor: LyricCursor
+    let tint: Color
+    let unit: CGFloat
+
+    var body: some View {
+        GeometryReader { sky in
+            let stars = Self.stars(count: words.count, line: cursor.line, in: sky.size)
+            ZStack {
+                Canvas { context, _ in draw(stars, in: &context) }
+                ForEach(Array(words.enumerated()), id: \.offset) { index, word in
+                    let isCurrent = index == cursor.word
+                    Text(word)
+                        // Drawn large and scaled down, so growing into the
+                        // current word is a transform and stays sharp.
+                        .font(.system(size: 60 * unit, weight: .heavy))
+                        .scaleEffect(isCurrent ? 1 : 0.3)
+                        .foregroundStyle(isCurrent ? tint : index < cursor.word ? tint.opacity(0.75) : .white.opacity(0.32))
+                        .shadow(color: isCurrent ? tint.opacity(0.7) : .clear, radius: 14 * unit)
+                        .fixedSize()
+                        .position(x: stars[index].x, y: stars[index].y + (isCurrent ? 58 : 22) * unit)
+                }
+            }
+            .animation(.spring(duration: 0.4, bounce: 0.2), value: cursor.word)
+            .id(cursor.line)
+            .transition(.opacity)
+        }
+        .animation(.easeInOut(duration: 0.5), value: cursor.line)
+    }
+
+    private func draw(_ stars: [CGPoint], in context: inout GraphicsContext) {
+        var sung = Path()
+        var ahead = Path()
+        for index in stars.indices.dropFirst() {
+            if index <= cursor.word {
+                sung.move(to: stars[index - 1])
+                sung.addLine(to: stars[index])
+            } else {
+                ahead.move(to: stars[index - 1])
+                ahead.addLine(to: stars[index])
+            }
+        }
+        context.stroke(ahead, with: .color(tint.opacity(0.16)), lineWidth: unit)
+        context.stroke(sung, with: .color(tint.opacity(0.7)), lineWidth: 1.4 * unit)
+        for (index, star) in stars.enumerated() {
+            let isCurrent = index == cursor.word
+            context.fill(
+                Self.sparkle(at: star, radius: (isCurrent ? 14 : 7) * unit),
+                with: .color(index <= cursor.word ? tint : tint.opacity(0.4))
+            )
+            if isCurrent {
+                let ring = 27 * unit
+                context.stroke(
+                    Path(ellipseIn: CGRect(x: star.x - ring, y: star.y - ring, width: ring * 2, height: ring * 2)),
+                    with: .color(tint.opacity(0.55)), lineWidth: 1.2 * unit
+                )
+            }
+        }
+    }
+
+    /// A four-pointed star: long tips on the axes, pinched in between.
+    private static func sparkle(at center: CGPoint, radius: CGFloat) -> Path {
+        var path = Path()
+        for step in 0 ..< 8 {
+            let angle = Double(step) * .pi / 4
+            let reach = step.isMultiple(of: 2) ? radius : radius * 0.2
+            let point = CGPoint(x: center.x + cos(angle) * reach, y: center.y + sin(angle) * reach)
+            if step == 0 { path.move(to: point) } else { path.addLine(to: point) }
+        }
+        path.closeSubpath()
+        return path
+    }
+
+    /// Left to right so the line still reads in order, at heights that are
+    /// random but the same every time this line comes round.
+    private static func stars(count: Int, line: Int, in size: CGSize) -> [CGPoint] {
+        var generator = SplitMix64(state: UInt64(truncatingIfNeeded: line) &* 0x9E37_79B9_7F4A_7C15 &+ 1)
+        let inset = size.width * 0.08
+        let step = (size.width - inset * 2) / CGFloat(max(count, 1))
+        return (0 ..< count).map { index in
+            CGPoint(
+                x: inset + (CGFloat(index) + 0.5 + .random(in: -0.28 ... 0.28, using: &generator)) * step,
+                // The lower part is left clear for the current word, drawn under its star.
+                y: size.height * .random(in: 0.1 ... 0.68, using: &generator)
+            )
+        }
+    }
+}
+
+/// A seedable generator; the system one cannot be seeded.
+private struct SplitMix64: RandomNumberGenerator {
+    var state: UInt64
+
+    mutating func next() -> UInt64 {
+        state &+= 0x9E37_79B9_7F4A_7C15
+        var mixed = state
+        mixed = (mixed ^ (mixed >> 30)) &* 0xBF58_476D_1CE4_E5B9
+        mixed = (mixed ^ (mixed >> 27)) &* 0x94D0_49BB_1331_11EB
+        return mixed ^ (mixed >> 31)
+    }
+}
