@@ -11,6 +11,9 @@ import SwiftUI
 final class LockScreenPlayer {
     static let shared = LockScreenPlayer()
 
+    /// The share of the screen's height, from the top, the player window covers.
+    static let playerHeightShare: CGFloat = 0.86
+
     private static let size = CGSize(width: 380, height: 220)
     /// From the screen's vertical centre to the panel's top edge: clear of
     /// the clock above and the password field below.
