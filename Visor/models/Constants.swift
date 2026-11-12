@@ -49,6 +49,23 @@ enum HUDControls: String, CaseIterable, Identifiable, Defaults.Serializable {
     var id: String { self.rawValue }
 }
 
+// What the lock screen player shows. Clicking the record or the cover steps to the next.
+enum LockScreenLook: String, CaseIterable, Identifiable, Defaults.Serializable {
+    case record = "Record"
+    case cover = "Cover"
+    case lyrics = "Lyrics"
+
+    var id: String { rawValue }
+
+    var next: LockScreenLook {
+        switch self {
+        case .record: .cover
+        case .cover: .lyrics
+        case .lyrics: .record
+        }
+    }
+}
+
 enum LyricStyle: String, CaseIterable, Identifiable, Defaults.Serializable {
     case lines = "Lines"
     case bigWords = "Big Words"
@@ -85,6 +102,7 @@ extension Defaults.Keys {
     // Visor: a padlock in the notch for a few seconds on lock and unlock.
     static let lockScreenAnimation = Key<Bool>("lockScreenAnimation", default: true)
     static let lockScreenWidgets = Key<Bool>("lockScreenWidgets", default: true)
+    static let lockScreenLook = Key<LockScreenLook>("lockScreenLook", default: .record)
     static let lockScreenLyricStyle = Key<LyricStyle>("lockScreenLyricStyle", default: .lines)
     // Off by default: following the music needs the System Audio Recording permission.
     static let edgeGlow = Key<Bool>("edgeGlow", default: false)
