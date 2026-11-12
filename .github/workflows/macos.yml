@@ -3,10 +3,10 @@ name: macOS
 on:
   push:
     branches: [main]
-    paths: [Visor/**, project.yml, Visor.entitlements, .swiftlint.yml, .github/workflows/macos.yml]
+    paths: [Visor/**, scripts/check-lyric-timing.swift, project.yml, Visor.entitlements, .swiftlint.yml, .github/workflows/macos.yml]
   pull_request:
     branches: [main]
-    paths: [Visor/**, project.yml, Visor.entitlements, .swiftlint.yml, .github/workflows/macos.yml]
+    paths: [Visor/**, scripts/check-lyric-timing.swift, project.yml, Visor.entitlements, .swiftlint.yml, .github/workflows/macos.yml]
   workflow_dispatch:
 
 permissions:
@@ -20,6 +20,8 @@ jobs:
       - uses: actions/checkout@v4
       - run: brew install xcodegen swiftlint
       - run: swiftlint lint --quiet
+      # The lyric word timing is plain Swift, so it is checked without the app.
+      - run: swiftc -parse-as-library Visor/models/LyricTiming.swift scripts/check-lyric-timing.swift -o /tmp/check-lyric-timing && /tmp/check-lyric-timing
       - run: xcodegen generate
       # CI has no signing identity; this only checks that the app compiles.
       - run: xcodebuild -scheme Visor -configuration Debug CODE_SIGNING_ALLOWED=NO build -quiet
