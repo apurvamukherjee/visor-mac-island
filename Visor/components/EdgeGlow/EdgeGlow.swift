@@ -103,6 +103,8 @@ final class EdgeGlow {
             contentRect: screen.frame, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false
         )
         window.ignoresMouseEvents = true
+        // One below the notch's level so the notch draws over the line.
+        window.level = .mainMenu + 2
         // A notched display is rounded at its corners; the line follows them.
         let view = EdgeGlowView(cornerRadius: screen.safeAreaInsets.top > 0 ? 10 : 0)
         view.setColors(MusicManager.shared.palette)
