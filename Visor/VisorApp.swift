@@ -100,7 +100,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             cleanupWindows()
         }
         coordinator.isScreenLocked = true
-        LockScreenWidgets.shared.show()
+        LockScreenPlayer.shared.show()
         EdgeGlow.shared.setLocked(true)
         if Defaults[.lockScreenAnimation] {
             coordinator.toggleExpandingView(status: true, type: .lock, value: 1)
@@ -110,7 +110,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @MainActor
     func onScreenUnlocked(_ notification: Notification) {
         isScreenLocked = false
-        LockScreenWidgets.shared.hide()
+        LockScreenPlayer.shared.hide()
         EdgeGlow.shared.setLocked(false)
         if Defaults[.showOnLockScreen] {
             disableSkyLightOnAllWindows()

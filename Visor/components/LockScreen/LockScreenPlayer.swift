@@ -8,8 +8,8 @@ import SwiftUI
 /// uses while locked. It is created on lock and its SwiftUI tree is dropped
 /// on unlock, so nothing renders for it the rest of the time.
 @MainActor
-final class LockScreenWidgets {
-    static let shared = LockScreenWidgets()
+final class LockScreenPlayer {
+    static let shared = LockScreenPlayer()
 
     private static let size = CGSize(width: 380, height: 220)
     /// From the screen's vertical centre to the panel's top edge: clear of
