@@ -100,7 +100,7 @@ Trade the cover for a spinning record with the art on its label. The tonearm dro
 </td>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/lock.svg" width="40" align="center"> &nbsp;Lock &amp; unlock</h3>
-Lock your Mac and a padlock snaps shut in the notch and stays until you unlock. Below the clock, the lock screen shows what's playing, with previous, play/pause and next, and any running timer.
+Lock your Mac and a padlock snaps shut in the notch and stays until you unlock. Below the clock, a record turns for whatever is playing, over a card with the progress, previous, play/pause and next, and any running timer. Click the record for the full cover, and again for the lyrics, shown word by word in one of five styles: Lines, Big Words, Lens, Stars or Terminal, in the cover's colours. Settings › Lock Screen has a Preview button, so you can try them without locking. Turn on Settings › Media › Edge glow and a line of light in the album's colours runs around the screen and thickens on the bass, on the lock screen too.
 </td>
 </tr>
 <tr>
