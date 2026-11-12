@@ -105,3 +105,55 @@ private struct BigWordsLyrics: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
+
+// MARK: - Lens
+
+/// The word swells under a lens that crosses it as it is sung. The next word
+/// waits below on a tag.
+private struct LensLyrics: View {
+    let words: NearbyWords
+    /// 0...1 across the word: where the lens is.
+    let focus: Double
+    let tint: Color
+    let unit: CGFloat
+
+    /// How much of the word the lens covers, as a share of its width.
+    private static let lensWidth = 0.24
+    private static let magnification = 0.5
+
+    var body: some View {
+        VStack(spacing: 4 * unit) {
+            Text(words.previous ?? " ")
+                .font(.system(size: 44 * unit, weight: .heavy))
+                .foregroundStyle(tint.opacity(0.55))
+            lensed(words.current ?? "♪")
+                .foregroundStyle(tint)
+                .frame(height: 190 * unit)
+            Text(words.next ?? " ")
+                .font(.system(size: 34 * unit, weight: .black).italic())
+                .foregroundStyle(.black)
+                .padding(.horizontal, 12 * unit)
+                .padding(.vertical, 3 * unit)
+                .background(tint, in: RoundedRectangle(cornerRadius: 5 * unit))
+                .rotationEffect(.degrees(-2))
+                .opacity(words.next == nil ? 0 : 1)
+        }
+        .lineLimit(1)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func lensed(_ word: String) -> some View {
+        let letters = Array(word)
+        // A long word starts smaller so its swollen middle still fits the screen.
+        let base = min(118, 1500 / CGFloat(max(letters.count, 1))) * unit
+        return HStack(alignment: .center, spacing: 0) {
+            ForEach(Array(letters.enumerated()), id: \.offset) { index, letter in
+                let distance = (Double(index) + 0.5) / Double(letters.count) - focus
+                let swell = exp(-distance * distance / (2 * Self.lensWidth * Self.lensWidth))
+                Text(String(letter))
+                    .font(.system(size: base * (1 + Self.magnification * swell), weight: .black))
+            }
+        }
+        .fixedSize()
+    }
+}
