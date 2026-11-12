@@ -15,6 +15,7 @@ final class EdgeGlow {
 
     private var windows: [SkyLightWindow] = []
     private var cancellables: Set<AnyCancellable> = []
+    private var isLocked = false
 
     private init() {}
 
@@ -23,6 +24,7 @@ final class EdgeGlow {
         Publishers.MergeMany(
             music.$isPlaying.removeDuplicates().map { _ in () }.eraseToAnyPublisher(),
             Defaults.publisher(.edgeGlow).map { _ in () }.eraseToAnyPublisher(),
+            Defaults.publisher(.edgeGlowOnLockScreen).map { _ in () }.eraseToAnyPublisher(),
             NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
                 .map { _ in () }.eraseToAnyPublisher()
         )
@@ -37,10 +39,24 @@ final class EdgeGlow {
             .store(in: &cancellables)
     }
 
+    func setLocked(_ locked: Bool) {
+        isLocked = locked
+        refresh()
+        if locked {
+            windows.forEach { $0.enableSkyLight() }
+        } else {
+            // The same beat the notch waits, so the glow does not blink as the lock shield lifts.
+            Task {
+                try? await Task.sleep(for: .milliseconds(150))
+                if !isLocked { windows.forEach { $0.disableSkyLight() } }
+            }
+        }
+    }
+
     private var views: [EdgeGlowView] { windows.compactMap { $0.contentView as? EdgeGlowView } }
 
     private var isWanted: Bool {
-        Defaults[.edgeGlow] && MusicManager.shared.isPlaying
+        Defaults[.edgeGlow] && MusicManager.shared.isPlaying && (!isLocked || Defaults[.edgeGlowOnLockScreen])
     }
 
     private func refresh() {
@@ -93,6 +109,7 @@ final class EdgeGlow {
         window.contentView = view
         window.setFrame(screen.frame, display: false)
         window.alphaValue = 0
+        if isLocked { window.enableSkyLight() }
         window.orderFrontRegardless()
         NSAnimationContext.runAnimationGroup { context in
             context.duration = Self.fadeDuration
