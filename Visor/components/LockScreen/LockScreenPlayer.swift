@@ -15,11 +15,26 @@ import SwiftUI
 /// Both are created on lock and their SwiftUI trees dropped on unlock, so
 /// nothing renders for them the rest of the time.
 @MainActor
-final class LockScreenPlayer {
+final class LockScreenPlayer: ObservableObject {
     static let shared = LockScreenPlayer()
 
     /// The share of the screen's height, from the top, the player window covers.
     static let playerHeightShare: CGFloat = 0.86
+
+    /// Words for the settings preview when the song playing has none, or
+    /// nothing is playing. `previewLoop` seconds long.
+    static let sampleLines: [(time: Double, text: String)] = [
+        (0.4, "Lock the screen and let it play"),
+        (3.4, "The cover glows, the record turns"),
+        (6.4, "Words fall in time with every beat"),
+        (9.4, "Light runs round the edge of night"),
+        (12.4, "Stay a while, the song's not done"),
+    ]
+    static let previewLoop = 15.5
+
+    /// True while the windows are up over the desktop from Settings, not on a locked screen.
+    @Published private(set) var isPreview = false
+    private(set) var previewStart = Date()
 
     private var stage: SkyLightWindow?
     private var player: SkyLightWindow?
@@ -40,6 +55,7 @@ final class LockScreenPlayer {
     }
 
     func show() {
+        endPreview()
         guard Defaults[.lockScreenWidgets] else { return }
         isLocked = true
         present()
@@ -49,6 +65,23 @@ final class LockScreenPlayer {
 
     func hide() {
         isLocked = false
+        dismiss()
+    }
+
+    /// Shows the lock screen player over the desktop until it is clicked.
+    func preview() {
+        guard !isLocked, !isPreview else { return }
+        previewStart = Date()
+        isPreview = true
+        present()
+        // Unlike on the lock screen, the stage takes the click that closes it.
+        stage?.ignoresMouseEvents = false
+        sync()
+    }
+
+    func endPreview() {
+        guard isPreview else { return }
+        isPreview = false
         dismiss()
     }
 
@@ -65,8 +98,8 @@ final class LockScreenPlayer {
         stage.ignoresMouseEvents = true
         stage.setFrame(frame, display: false)
         player.setFrame(playerFrame, display: false)
-        stage.contentView = NSHostingView(rootView: LockScreenStageView(screenSize: frame.size))
-        player.contentView = NSHostingView(rootView: LockScreenPlayerView(screenSize: frame.size))
+        stage.contentView = NSHostingView(rootView: LockScreenStageView(screenSize: frame.size).environmentObject(self))
+        player.contentView = NSHostingView(rootView: LockScreenPlayerView(screenSize: frame.size).environmentObject(self))
         stage.orderFrontRegardless()
         player.orderFrontRegardless()
     }
@@ -88,10 +121,10 @@ final class LockScreenPlayer {
     /// Lyrics are looked up, and the display kept awake, only while the lyrics
     /// are actually on screen.
     private func sync() {
-        let showingLyrics = isLocked && Defaults[.lockScreenLook] == .lyrics
+        let showingLyrics = (isLocked || isPreview) && Defaults[.lockScreenLook] == .lyrics
         MusicManager.shared.lyricsWanted = showingLyrics
 
-        let keepAwake = showingLyrics && MusicManager.shared.isPlaying && Defaults[.lockScreenKeepAwake]
+        let keepAwake = isLocked && showingLyrics && MusicManager.shared.isPlaying && Defaults[.lockScreenKeepAwake]
         if keepAwake, awake == nil {
             awake = ProcessInfo.processInfo.beginActivity(
                 options: .idleDisplaySleepDisabled, reason: "Lyrics are playing on the lock screen"

@@ -6,6 +6,7 @@ import SwiftUI
 struct LockScreenPlayerView: View {
     let screenSize: CGSize
 
+    @EnvironmentObject private var controller: LockScreenPlayer
     @ObservedObject private var music = MusicManager.shared
     @ObservedObject private var timer = TimerManager.shared
     @Default(.lockScreenLook) private var look
@@ -16,7 +17,7 @@ struct LockScreenPlayerView: View {
     private var layout: LockScreenLayout { LockScreenLayout(size: screenSize, look: look, style: style) }
     private func scaled(_ value: CGFloat) -> CGFloat { layout.scaled(value) }
 
-    private var hasMedia: Bool { music.isPlaying || !music.isPlayerIdle }
+    private var hasMedia: Bool { music.isPlaying || !music.isPlayerIdle || controller.isPreview }
     private var move: Animation? { reduceMotion ? nil : .spring(duration: 0.8, bounce: 0.16) }
 
     var body: some View {

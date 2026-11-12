@@ -6,6 +6,7 @@ import SwiftUI
 struct LockScreenStageView: View {
     let screenSize: CGSize
 
+    @EnvironmentObject private var controller: LockScreenPlayer
     @ObservedObject private var music = MusicManager.shared
     @Default(.lockScreenLook) private var look
     @Default(.lockScreenLyricStyle) private var style
@@ -15,11 +16,12 @@ struct LockScreenStageView: View {
     private var layout: LockScreenLayout { LockScreenLayout(size: screenSize, look: look, style: style) }
     private func scaled(_ value: CGFloat) -> CGFloat { layout.scaled(value) }
 
-    private var hasMedia: Bool { music.isPlaying || !music.isPlayerIdle }
+    private var hasMedia: Bool { music.isPlaying || !music.isPlayerIdle || controller.isPreview }
     private var tint: Color { albumColor ? Color(nsColor: music.palette.first ?? .white) : .white }
 
     var body: some View {
         ZStack {
+            if controller.isPreview { previewChrome }
             if hasMedia {
                 backdropFill
                     .frame(width: screenSize.width, height: screenSize.height)
@@ -40,6 +42,9 @@ struct LockScreenStageView: View {
         .animation(.easeInOut(duration: 0.6), value: style)
         .animation(.easeInOut(duration: 0.8), value: backdrop)
         .animation(.smooth, value: hasMedia)
+        .contentShape(Rectangle())
+        // Reachable only in the preview; on the lock screen the window takes no clicks.
+        .onTapGesture { controller.endPreview() }
         .preferredColorScheme(.dark)
     }
 
@@ -91,7 +96,8 @@ struct LockScreenStageView: View {
     // MARK: Lyrics
 
     @ViewBuilder private var lyrics: some View {
-        let lines = music.syncedLyrics
+        let isSample = controller.isPreview && music.syncedLyrics.isEmpty
+        let lines = isSample ? LockScreenPlayer.sampleLines : music.syncedLyrics
         if lines.isEmpty {
             Text(music.isFetchingLyrics ? "Finding lyrics…" : "No synced lyrics for this song")
                 .font(.system(size: scaled(20), weight: .semibold))
@@ -99,8 +105,11 @@ struct LockScreenStageView: View {
                 .shadow(color: .black.opacity(0.4), radius: 6)
         } else {
             let texts = lines.map(\.text)
-            TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !music.isPlaying)) { timeline in
-                let elapsed = music.estimatedPlaybackPosition(at: timeline.date)
+            TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !(music.isPlaying || isSample))) { timeline in
+                let elapsed = isSample
+                    ? timeline.date.timeIntervalSince(controller.previewStart)
+                    .truncatingRemainder(dividingBy: LockScreenPlayer.previewLoop)
+                    : music.estimatedPlaybackPosition(at: timeline.date)
                 if let cursor = LyricTiming.cursor(lines: lines, at: elapsed) {
                     LyricStyleView(
                         style: style, texts: texts, cursor: style.followsWithinWord ? cursor.steppedProgress : cursor.wholeWords,
@@ -110,6 +119,31 @@ struct LockScreenStageView: View {
                     .equatable()
                 }
             }
+        }
+    }
+
+    // MARK: Preview
+
+    /// Over the desktop there is no lock screen behind the player, so the
+    /// preview stands one in: a dark screen and a clock where macOS puts its own.
+    private var previewChrome: some View {
+        ZStack {
+            Color.black.opacity(0.72)
+            TimelineView(.everyMinute) { timeline in
+                VStack(spacing: 0) {
+                    Text(timeline.date.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)))
+                        .font(.system(size: scaled(26), weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.72))
+                    Text(timeline.date.formatted(.dateTime.hour().minute()))
+                        .font(.system(size: scaled(128), weight: .medium))
+                        .foregroundStyle(.white.opacity(0.55))
+                }
+            }
+            .position(x: screenSize.width / 2, y: scaled(165))
+            Text("Preview. Click anywhere to close.")
+                .font(.system(size: scaled(13), weight: .medium))
+                .foregroundStyle(.white.opacity(0.5))
+                .position(x: screenSize.width / 2, y: screenSize.height - scaled(60))
         }
     }
 }
