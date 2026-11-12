@@ -6,6 +6,7 @@ mod brightness;
 mod error;
 mod files;
 mod fullscreen;
+mod glow;
 mod keys;
 mod log;
 mod media;
@@ -445,6 +446,8 @@ fn main() {
             thread::spawn(move || keys::run(keys_app));
             let audio_app = handle.clone();
             thread::spawn(move || audio::watch(audio_app));
+            let glow_app = handle.clone();
+            thread::spawn(move || glow::watch(glow_app));
             let media_app = handle.clone();
             thread::spawn(move || media::watch(media_app));
             thread::spawn(move || track_cursor(handle));

@@ -111,5 +111,6 @@ export interface NativeSettings {
   hideFromCapture: boolean;
   hideInFullscreen: boolean;
   launchAtLogin: boolean;
+  edgeGlow: boolean;
 }
 export const applySettings = (settings: NativeSettings) => invoke('apply_settings', { settings });

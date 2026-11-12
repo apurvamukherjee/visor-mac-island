@@ -99,12 +99,34 @@ function General() {
 }
 
 function Music() {
+  const { edgeGlow, edgeGlowStrength, set } = useSettings();
   return (
-    <Group>
-      <Toggle flag="sneakPeek" label="Sneak peek on song change" hint="The title slides out of the closed island for a moment." />
-      <Toggle flag="vinyl" label="Vinyl record instead of cover" />
-      <Toggle flag="lyrics" label="Show lyrics below artist name" hint="Synced to the song from LRCLIB, when it has it." />
-    </Group>
+    <>
+      <Group>
+        <Toggle flag="sneakPeek" label="Sneak peek on song change" hint="The title slides out of the closed island for a moment." />
+        <Toggle flag="vinyl" label="Vinyl record instead of cover" />
+        <Toggle flag="lyrics" label="Show lyrics below artist name" hint="Synced to the song from LRCLIB, when it has it." />
+      </Group>
+      <Group title="Edge glow">
+        <Toggle flag="edgeGlow" label="Glow around the screen edge while music plays" hint="A line of light in the album's colours that thickens on the bass. Visor measures how loud the output is and keeps nothing." />
+        <label className={`row${edgeGlow ? '' : ' is-disabled'}`}>
+          <span className="row-text">Strength</span>
+          <span className="range">
+            <input
+              type="range"
+              min={0.4}
+              max={2}
+              step={0.1}
+              value={edgeGlowStrength}
+              disabled={!edgeGlow}
+              style={{ '--p': `${((edgeGlowStrength - 0.4) / 1.6) * 100}%` } as React.CSSProperties}
+              onChange={(e) => set({ edgeGlowStrength: e.target.valueAsNumber })}
+            />
+            <output>{edgeGlowStrength.toFixed(1)}×</output>
+          </span>
+        </label>
+      </Group>
+    </>
   );
 }
 

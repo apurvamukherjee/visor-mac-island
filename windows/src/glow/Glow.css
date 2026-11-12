@@ -1,0 +1,29 @@
+html.is-glow, html.is-glow body { margin: 0; background: transparent; overflow: hidden; }
+
+/* Turned by the compositor, so the app does no work to move the light round. */
+@property --spin { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
+
+/* A conic sweep lit along half its turn, seen through a ring on the screen's edge: a thin line
+   (::after) and a soft band inside it (::before) that both thicken with --g, the bass. */
+.glow { position: fixed; inset: 0; --g: 0.3; animation: glow-lap 5s linear infinite reverse; }
+.glow::before, .glow::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: conic-gradient(from var(--spin), transparent 2%, var(--a) 9%, var(--b) 42%, transparent 50% 100%);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+.glow::after { padding: calc(2.5px + var(--g) * 5.5px); }
+/* The band fades in from each edge instead of being cut out, so it has no inner line. */
+.glow::before {
+  opacity: calc(0.3 + var(--g) * 0.6);
+  mask: linear-gradient(#000, transparent 46px), linear-gradient(to top, #000, transparent 46px),
+    linear-gradient(to right, #000, transparent 46px), linear-gradient(to left, #000, transparent 46px);
+  mask-composite: add;
+}
+@keyframes glow-lap { to { --spin: 360deg; } }
+
+/* Nothing turns, so the whole edge is lit rather than a stalled half. */
+@media (prefers-reduced-motion: reduce) {
+  .glow { animation: none; }
+  .glow::before, .glow::after { background: linear-gradient(135deg, var(--a), var(--b)); }
+}

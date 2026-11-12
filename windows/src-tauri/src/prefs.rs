@@ -18,6 +18,7 @@ pub struct Native {
     hide_from_capture: bool,
     hide_in_fullscreen: bool,
     launch_at_login: bool,
+    edge_glow: bool,
 }
 
 #[tauri::command]
@@ -25,8 +26,9 @@ pub fn apply_settings(app: AppHandle, settings: Native) -> Result<()> {
     keys::REPLACE_HUD.store(settings.replace_hud, Ordering::Relaxed);
     HIDE_IN_FULLSCREEN.store(settings.hide_in_fullscreen, Ordering::Relaxed);
     HIDE_FROM_CAPTURE.store(settings.hide_from_capture, Ordering::Relaxed);
+    crate::glow::ENABLED.store(settings.edge_glow, Ordering::Relaxed);
     for (label, window) in app.webview_windows() {
-        if label.starts_with("island-") {
+        if label.starts_with("island-") || label.starts_with("glow-") {
             capture(&window)?;
         }
     }

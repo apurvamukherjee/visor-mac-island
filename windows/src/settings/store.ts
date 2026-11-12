@@ -24,6 +24,9 @@ const defaults = {
   sneakPeek: false,
   vinyl: false,
   lyrics: false,
+  /** A line of light round each monitor while music plays, thickening on the bass; off as on the Mac. */
+  edgeGlow: false,
+  edgeGlowStrength: 1,
   showBattery: true,
   showCalendar: false,
   showTasks: false,
@@ -70,16 +73,16 @@ window.addEventListener('storage', (e) => {
   if (e.key === KEY) void useSettings.persist.rehydrate();
 });
 
-function syncNative({ replaceHud, hudControls, hideFromCapture, hideInFullscreen, launchAtLogin }: SettingsValues) {
+function syncNative({ replaceHud, hudControls, hideFromCapture, hideInFullscreen, launchAtLogin, edgeGlow }: SettingsValues) {
   // Rust only takes the volume keys; brightness keys are firmware's, so there's nothing to hand it for those.
-  applySettings({ replaceHud: replaceHud && hudControls !== 'brightness', hideFromCapture, hideInFullscreen, launchAtLogin }).catch(report);
+  applySettings({ replaceHud: replaceHud && hudControls !== 'brightness', hideFromCapture, hideInFullscreen, launchAtLogin, edgeGlow }).catch(report);
 }
 
 /** Hands Rust the settings it acts on now and after every change. Idempotent, so every window may call it. */
 export function startNativeSettings() {
   syncNative(useSettings.getState());
   // Not on every change: dragging the hover-delay slider would rewrite the registry in every window.
-  const NATIVE = ['replaceHud', 'hudControls', 'hideFromCapture', 'hideInFullscreen', 'launchAtLogin'] as const;
+  const NATIVE = ['replaceHud', 'hudControls', 'hideFromCapture', 'hideInFullscreen', 'launchAtLogin', 'edgeGlow'] as const;
   useSettings.subscribe((s, prev) => {
     if (NATIVE.some((k) => s[k] !== prev[k])) syncNative(s);
   });
