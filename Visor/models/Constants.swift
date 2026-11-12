@@ -76,6 +76,16 @@ enum LyricStyle: String, CaseIterable, Identifiable, Defaults.Serializable {
     var id: String { rawValue }
 }
 
+// What sits behind the cover and the lyrics on the lock screen.
+enum LockScreenBackdrop: String, CaseIterable, Identifiable, Defaults.Serializable {
+    case wallpaper = "Wallpaper"
+    case dim = "Dim"
+    case cover = "Cover"
+    case aura = "Aura"
+
+    var id: String { rawValue }
+}
+
 extension Defaults.Keys {
     // MARK: General
     static let menubarIcon = Key<Bool>("menubarIcon", default: true)
@@ -104,6 +114,7 @@ extension Defaults.Keys {
     static let lockScreenWidgets = Key<Bool>("lockScreenWidgets", default: true)
     static let lockScreenLook = Key<LockScreenLook>("lockScreenLook", default: .record)
     static let lockScreenLyricStyle = Key<LyricStyle>("lockScreenLyricStyle", default: .lines)
+    static let lockScreenBackdrop = Key<LockScreenBackdrop>("lockScreenBackdrop", default: .cover)
     // Off by default: following the music needs the System Audio Recording permission.
     static let edgeGlow = Key<Bool>("edgeGlow", default: false)
     static let edgeGlowOnLockScreen = Key<Bool>("edgeGlowOnLockScreen", default: true)
