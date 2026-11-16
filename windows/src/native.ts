@@ -97,6 +97,7 @@ export const share = (paths: string[]) => invoke('share', { paths });
 
 export type ImageFormat = 'png' | 'jpeg' | 'bmp' | 'tiff' | 'gif';
 export const convertImage = (path: string, format: ImageFormat) => invoke<string>('convert_image', { path, format });
+export const copyText = (path: string) => invoke('copy_text', { path });
 export const imagesToPdf = (paths: string[]) => invoke<string>('images_to_pdf', { paths });
 export const pdfToImages = (path: string) => invoke<string[]>('pdf_to_images', { path });
 

@@ -47,6 +47,24 @@ final class ImageProcessingService {
     private init() {}
     private let ciContext = CIContext(options: nil)
 
+    // MARK: - Copy Text
+
+    /// Reads an image's text on device with Vision, one line per recognised line.
+    func recognizeText(in url: URL) async throws -> String {
+        guard let cgImage = NSImage(contentsOf: url)?.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+            throw ImageProcessingError.invalidImage
+        }
+        let lines = try await Task.detached(priority: .userInitiated) {
+            let request = VNRecognizeTextRequest()
+            request.recognitionLevel = .accurate
+            request.usesLanguageCorrection = true
+            try VNImageRequestHandler(cgImage: cgImage).perform([request])
+            return (request.results ?? []).compactMap { $0.topCandidates(1).first?.string }
+        }.value
+        guard !lines.isEmpty else { throw ImageProcessingError.noTextFound }
+        return lines.joined(separator: "\n")
+    }
+
     // MARK: - Remove Background
 
     /// Removes the background from an image using Vision framework
@@ -248,9 +266,12 @@ enum ImageProcessingError: LocalizedError {
     case pdfCreationFailed
     case noImagesProvided
     case saveFailed
+    case noTextFound
 
     var errorDescription: String? {
         switch self {
+        case .noTextFound:
+            return "No text found in this image"
         case .invalidImage:
             return "The file is not a valid image"
         case .backgroundRemovalFailed:

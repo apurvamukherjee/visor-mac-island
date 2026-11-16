@@ -3,6 +3,7 @@
 
 mod audio;
 mod brightness;
+mod clipboard;
 mod error;
 mod files;
 mod fullscreen;
@@ -447,6 +448,7 @@ fn main() {
             tools::convert_image,
             tools::images_to_pdf,
             tools::pdf_to_images,
+            tools::copy_text,
             net::fetch_text,
             log::log,
             log::show_log,

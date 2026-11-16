@@ -5,7 +5,7 @@ import { links } from '../../../website/src/links';
 import { useUpdate } from '../island/queries';
 import { openTarget, report, showLog, showTasks, useSystem } from '../native';
 import icon from '../../src-tauri/icons/128x128.png';
-import { useSettings, type HudControls, type PaneId, type SettingsValues } from './store';
+import { useSettings, type HudControls, type PaneId, type SettingsValues, type VisualizerStyle } from './store';
 import './Settings.css';
 
 type Flag = { [K in keyof SettingsValues]: SettingsValues[K] extends boolean ? K : never }[keyof SettingsValues];
@@ -200,12 +200,30 @@ function Shelf() {
 }
 
 function Extras() {
+  const { visualizer, set } = useSettings();
   return (
-    <Group>
-      <Toggle flag="showTimer" label="Timer" />
-      <Toggle flag="showMirror" label="Mirror" hint="A camera preview, for a quick check before a call. Needs Privacy & security › Camera › desktop apps on." />
-      <Toggle flag="deviceAnimation" label="3D model when headphones or a soundbar connect" hint="AirPods, OnePlus Buds, boAt Rockerz and JBL bars." />
-    </Group>
+    <>
+      <Group>
+        <Toggle flag="showTimer" label="Timer" />
+        <Toggle flag="showMirror" label="Mirror" hint="A camera preview, for a quick check before a call. Needs Privacy & security › Camera › desktop apps on." />
+        <Toggle flag="deviceAnimation" label="3D model when headphones or a soundbar connect" hint="AirPods, OnePlus Buds, boAt Rockerz and JBL bars." />
+      </Group>
+      <Group title="Beta features">
+        <label className="row">
+          <span className="row-text">
+            Visualizer style
+            <small>What moves beside the closed island while music plays. Pet is a small creature that bobs along and naps when paused.</small>
+          </span>
+          <select value={visualizer} onChange={(e) => set({ visualizer: e.target.value as VisualizerStyle })}>
+            <option value="bars">Bars</option>
+            <option value="wave">Wave</option>
+            <option value="dots">Dots</option>
+            <option value="pet">Pet</option>
+          </select>
+        </label>
+        <Toggle flag="copyText" label="Copy text from shelf images" hint="Select an image on the shelf and press Copy text. Read on your PC; nothing is uploaded." />
+      </Group>
+    </>
   );
 }
 

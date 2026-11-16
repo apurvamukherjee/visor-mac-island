@@ -73,6 +73,19 @@ html.is-island button { font: inherit; color: inherit; transition: background-co
 .visualizer.is-paused i { animation: none; transform: scaleY(0.25); }
 @keyframes viz { from { transform: scaleY(0.25); } to { transform: scaleY(1); } }
 
+/* Beta styles, Settings › Extras › Visualizer style. Each is a CSS loop, like the bars. */
+.visualizer.is-wave { gap: 1.5px; }
+.visualizer.is-wave i { width: 2px; animation: viz 0.6s ease-in-out infinite alternate; animation-delay: calc(var(--i) * -0.17s); }
+.visualizer.is-dots { gap: 3px; }
+.visualizer.is-dots i { width: 4px; height: 4px; border-radius: 50%; animation: dot 1s ease-in-out infinite; animation-delay: calc(var(--i) * 0.25s - 1s); }
+.visualizer.is-dots.is-paused i { animation: none; transform: scale(0.6); opacity: 0.5; }
+@keyframes dot { 0%, 100% { transform: scale(0.6); opacity: 0.4; } 30% { transform: scale(1.25); opacity: 1; } }
+/* The pet: a 6-frame white sprite sheet used as a mask, so the cover's tint colours it. Bobs while playing, naps while paused. */
+.visualizer.is-pet { width: 24px; height: 18px; background: color-mix(in oklch, var(--tint), #fff 25%); mask: var(--pet) 0 0 / 144px 18px no-repeat; image-rendering: pixelated; animation: pet-bob 0.6s steps(4) infinite; }
+.visualizer.is-pet.is-paused { animation: pet-nap 2.4s steps(2) infinite; mask-position: -96px 0; }
+@keyframes pet-bob { from { mask-position: 0 0; } to { mask-position: -96px 0; } }
+@keyframes pet-nap { from { mask-position: -96px 0; } to { mask-position: -144px 0; } }
+
 .closed-hud { gap: 12px; }
 .closed-hud-icon { width: 22px; display: grid; place-items: center; }
 .closed-hud-icon svg { width: 18px; height: 18px; }
@@ -311,6 +324,8 @@ button.calendar-empty { cursor: pointer; }
   .island-open { transition: none; }
   .vinyl-disc, .closed-bell, .closed-download-ring, .header-pill.is-ringing, .closed-due-pill, .shelf-busy::before { animation: none; }
   .visualizer i { animation: none; transform: scaleY(0.6); }
+  .visualizer.is-dots i { transform: none; }
+  .visualizer.is-pet { animation: none; }
   .popover { animation: none; }
   .marquee[data-scroll] > span { animation: none; }
   .marquee > span { display: block; overflow: hidden; text-overflow: ellipsis; }

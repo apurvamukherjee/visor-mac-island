@@ -4,6 +4,7 @@ import { applySettings, report } from '../native';
 
 export type HudControls = 'volume' | 'brightness' | 'both';
 export type HomePanel = 'calendar' | 'tasks';
+export type VisualizerStyle = 'bars' | 'wave' | 'dots' | 'pet';
 export type PaneId = 'general' | 'music' | 'calendar' | 'shelf' | 'extras' | 'about';
 
 // Defaults follow the Mac app's Constants.swift wherever the setting exists there.
@@ -45,6 +46,9 @@ const defaults = {
   catchScreenshots: true,
   deviceAnimation: true,
   checkForUpdates: true,
+  // Beta features, under Settings › Extras: off until turned on, as on the Mac.
+  visualizer: 'bars' as VisualizerStyle,
+  copyText: false,
 };
 
 export type SettingsValues = typeof defaults;

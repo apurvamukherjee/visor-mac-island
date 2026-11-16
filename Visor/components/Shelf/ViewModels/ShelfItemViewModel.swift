@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import Defaults
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -198,6 +199,9 @@ final class ShelfItemViewModel: ObservableObject {
             if imageURLs.count == 1 {
                 imageSubmenu.addItem(NSMenuItem(title: "Remove Background", action: nil, keyEquivalent: ""))
                 imageSubmenu.addItem(NSMenuItem(title: "Convert Image…", action: nil, keyEquivalent: ""))
+                if Defaults[.shelfCopyText] {
+                    imageSubmenu.addItem(NSMenuItem(title: "Copy Text", action: nil, keyEquivalent: ""))
+                }
             }
             imageSubmenu.addItem(NSMenuItem(title: "Shrink for Sharing", action: nil, keyEquivalent: ""))
 
@@ -362,6 +366,9 @@ final class ShelfItemViewModel: ObservableObject {
             case "Convert Image…":
                 showConvertImageDialog()
 
+            case "Copy Text":
+                handleCopyText()
+
             case "Create PDF":
                 handleCreatePDF()
 
@@ -449,6 +456,22 @@ final class ShelfItemViewModel: ObservableObject {
                 } catch {
                     print("❌ Failed to remove background: \(error.localizedDescription)")
                     showErrorAlert(title: "Background Removal Failed", message: error.localizedDescription)
+                }
+            }
+        }
+
+        @MainActor
+        private func handleCopyText() {
+            guard let imageURL = selectedImageURLs.first else { return }
+            Task {
+                do {
+                    let text = try await imageURL.accessSecurityScopedResource { url in
+                        try await ImageProcessingService.shared.recognizeText(in: url)
+                    }
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(text, forType: .string)
+                } catch {
+                    showErrorAlert(title: "Couldn't Copy Text", message: error.localizedDescription)
                 }
             }
         }

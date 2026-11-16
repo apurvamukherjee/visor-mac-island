@@ -8,6 +8,15 @@ enum CalendarSelectionState: Codable, Defaults.Serializable {
     case selected(Set<String>)
 }
 
+enum VisualizerStyle: String, CaseIterable, Identifiable, Defaults.Serializable {
+    case bars = "Bars"
+    case wave = "Wave"
+    case dots = "Dots"
+    case pet = "Pet"
+
+    var id: String { rawValue }
+}
+
 enum HideNotchOption: String, Defaults.Serializable {
     case always
     case nowPlayingOnly
@@ -169,6 +178,9 @@ extension Defaults.Keys {
 
     // MARK: Media playback
     static let coloredSpectrogram = Key<Bool>("coloredSpectrogram", default: true)
+    // Beta features: off unless turned on in Settings › Appearance › Beta features.
+    static let visualizerStyle = Key<VisualizerStyle>("visualizerStyle", default: .bars)
+    static let shelfCopyText = Key<Bool>("shelfCopyText", default: false)
     static let enableSneakPeek = Key<Bool>("enableSneakPeek", default: false)
     static let sneakPeekStyles = Key<SneakPeekStyle>("sneakPeekStyles", default: .standard)
     static let waitInterval = Key<Double>("waitInterval", default: 3)

@@ -35,6 +35,15 @@ struct ContentView: View {
     @Default(.showNotHumanFace) var showNotHumanFace
     @Default(.liquidGlass) var liquidGlass
     @Default(.hoverPeek) var hoverPeek
+    @Default(.visualizerStyle) var visualizerStyle
+
+    private var spectrumSize: CGSize {
+        switch visualizerStyle {
+        case .bars: CGSize(width: 16, height: 12)
+        case .wave, .dots: CGSize(width: 18, height: 12)
+        case .pet: CGSize(width: 24, height: 18)
+        }
+    }
     @State private var isPeeking = false
     /// How long a peek stays before hovering on opens the notch fully.
     private static let peekHold: Duration = .seconds(1)
@@ -597,8 +606,9 @@ struct ContentView: View {
                         .frame(width: 50, alignment: .center)
                         .matchedGeometryEffect(id: "spectrum", in: albumArtNamespace)
                         .mask {
-                            AudioSpectrumView(isPlaying: .constant(musicManager.isPlaying && !batteryModel.shouldSaveEnergy))
-                                .frame(width: 16, height: 12)
+                            AudioSpectrumView(isPlaying: .constant(musicManager.isPlaying && !batteryModel.shouldSaveEnergy),
+                                              style: visualizerStyle)
+                                .frame(width: spectrumSize.width, height: spectrumSize.height)
                         }
                 }
             }

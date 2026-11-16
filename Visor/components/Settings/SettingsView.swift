@@ -46,7 +46,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
         switch self {
         case .general: "menu bar icon launch login displays screen gestures swipe skip track haptic hover peek delay notch height sizing scroll"
         case .appearance: "tabs mirror camera microphone privacy indicator face timer download progress settings icon "
-            + "vinyl slider color tint blur spectrogram glass"
+            + "vinyl slider color tint blur spectrogram glass beta visualizer wave dots pet ocr copy text"
         case .media: "music source spotify apple lyrics sneak peek full screen controls buttons inactivity edge glow beat light"
         case .lockScreen: "lock screen now playing record vinyl cover lyrics words style background timer preview awake"
         case .calendar: "events reminders all-day weather meeting zoom meet teams join tasks to-do deadline priority"
@@ -902,6 +902,7 @@ struct Appearance: View {
     @ObservedObject var coordinator = VisorViewCoordinator.shared
     @Default(.mirrorShape) var mirrorShape
     @Default(.sliderColor) var sliderColor
+    @Default(.visualizerStyle) var visualizerStyle
 
     var body: some View {
         Form {
@@ -976,6 +977,26 @@ struct Appearance: View {
                 }
             } header: {
                 Text("Additional features")
+            }
+
+            Section {
+                Picker(selection: $visualizerStyle) {
+                    ForEach(VisualizerStyle.allCases) { style in
+                        Text(style.rawValue).tag(style)
+                    }
+                } label: {
+                    Text("Visualizer style")
+                    Text("What moves beside the closed notch while music plays. Pet is a small creature that bobs along and naps when paused.")
+                }
+                Defaults.Toggle(key: .shelfCopyText) {
+                    Text("Copy text from shelf images")
+                    Text("Right-click an image on the shelf › Image Actions › Copy Text. Read on your Mac; nothing is uploaded.")
+                }
+            } header: {
+                HStack {
+                    Text("Beta features")
+                    customBadge(text: "Beta")
+                }
             }
         }
         .navigationTitle("Appearance")

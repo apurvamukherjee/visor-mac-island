@@ -5,6 +5,7 @@ import { useSystem } from '../native';
 import { useSettings } from '../settings/store';
 import { clock, duration, startsIn } from './format';
 import { useCover, useDueTask, useMeeting } from './queries';
+import pet from './pet.png';
 import { useIsland, type Transient } from './store';
 
 // three.js loads only when a device first connects.
@@ -46,13 +47,19 @@ export function Cover({ size }: { size: number }) {
   );
 }
 
+const VISUALIZER_BARS = { bars: 4, wave: 7, dots: 4, pet: 0 } as const;
+
 export function Visualizer({ playing }: { playing: boolean }) {
+  const style = useSettings((s) => s.visualizer);
   return (
-    <span className={`visualizer${playing ? '' : ' is-paused'}`} aria-hidden>
-      <i />
-      <i />
-      <i />
-      <i />
+    <span
+      className={`visualizer${style === 'bars' ? '' : ` is-${style}`}${playing ? '' : ' is-paused'}`}
+      style={style === 'pet' ? ({ '--pet': `url(${pet})` } as React.CSSProperties) : undefined}
+      aria-hidden
+    >
+      {Array.from({ length: VISUALIZER_BARS[style] }, (_, i) => (
+        <i key={i} style={{ '--i': i } as React.CSSProperties} />
+      ))}
     </span>
   );
 }

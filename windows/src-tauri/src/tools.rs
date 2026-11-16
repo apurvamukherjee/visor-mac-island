@@ -1,4 +1,5 @@
 use crate::{
+    clipboard,
     error::{Error, Result},
     media::read_stream,
     pdf,
@@ -13,6 +14,7 @@ use windows::{
     Graphics::Imaging::{
         BitmapAlphaMode, BitmapDecoder, BitmapEncoder, BitmapPixelFormat, SoftwareBitmap,
     },
+    Media::Ocr::OcrEngine,
     Storage::{FileAccessMode, StorageFile, Streams::InMemoryRandomAccessStream},
 };
 
@@ -125,6 +127,30 @@ pub async fn images_to_pdf(paths: Vec<String>) -> Result<String> {
     let out = output(&stem(Path::new(first)), "pdf")?;
     fs::write(&out, pdf::write(&pages))?;
     Ok(out.to_string_lossy().into_owned())
+}
+
+/// Beta: the image's text, read by Windows' own OCR, onto the clipboard, a line per line.
+#[tauri::command]
+pub async fn copy_text(path: String) -> Result<()> {
+    let bitmap = decode(Path::new(&path), BitmapAlphaMode::Premultiplied)?;
+    let max = OcrEngine::MaxImageDimension()?;
+    // ponytail: refuses oversized images instead of scaling them down; scale first if anyone hits it.
+    if bitmap.PixelWidth()? as u32 > max || bitmap.PixelHeight()? as u32 > max {
+        return Err(Error(format!("This image is too large to read; Windows reads up to {max} px")));
+    }
+    let engine = OcrEngine::TryCreateFromUserProfileLanguages()
+        .map_err(|_| Error("Windows has no text recognition for your languages; add one in Settings › Time & language".into()))?;
+    let lines = engine
+        .RecognizeAsync(&bitmap)?
+        .join()?
+        .Lines()?
+        .into_iter()
+        .map(|line| line.Text().map(|t| t.to_string()))
+        .collect::<windows::core::Result<Vec<_>>>()?;
+    if lines.is_empty() {
+        return Err(Error("No text found in this image".into()));
+    }
+    clipboard::set_text(&lines.join("\r\n"))
 }
 
 /// Each page of a PDF as a PNG.

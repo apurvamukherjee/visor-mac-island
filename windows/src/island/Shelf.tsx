@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
-import { convertImage, imagesToPdf, openTarget, pdfToImages, report, reveal, share, startDrag } from '../native';
+import { useSettings } from '../settings/store';
+import { convertImage, copyText, imagesToPdf, openTarget, pdfToImages, report, reveal, share, startDrag } from '../native';
 import { useThumbnail } from './queries';
 import { useShelf } from './store';
 
@@ -64,6 +65,8 @@ export function Shelf() {
   const [selected, setSelected] = useState<string[]>([]);
   // Conversions take a moment (a long PDF, a folder of photos), so the buttons say so and don't stack up.
   const [busy, setBusy] = useState(0);
+  const canCopyText = useSettings((s) => s.copyText);
+  const [copied, setCopied] = useState<string | null>(null);
   const chosen = selected.filter((p) => files.includes(p));
   const targets = chosen.length ? chosen : files;
   const run = (job: Promise<string | string[]>) => {
@@ -144,7 +147,19 @@ export function Shelf() {
                 <button onClick={() => run(imagesToPdf(images))}>Make PDF</button>
               </>
             )}
-            {only && isPdf(only) && <button onClick={() => run(pdfToImages(only))}>Pages to images</button>}
+            {canCopyText && only && isImage(only) && (
+              <button
+                onClick={() =>
+                  copyText(only).then(() => {
+                    setCopied(only);
+                    setTimeout(() => setCopied(null), 1500);
+                  }, report)
+                }
+              >
+                {copied === only ? 'Copied' : 'Copy text'}
+              </button>
+            )}
+            {only && isPdf(only) &&<button onClick={() => run(pdfToImages(only))}>Pages to images</button>}
             <button
               onClick={() => {
                 remove(chosen);

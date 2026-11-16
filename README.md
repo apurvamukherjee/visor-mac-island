@@ -95,7 +95,7 @@ Cover art, title, artist, a timeline you can scrub and the usual controls for wh
 </td>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/live.svg" width="40" align="center"> &nbsp;Live activity</h3>
-With the notch closed, the cover sits on one side and a visualizer bounces on the other. Sneak peek flashes the new track when the song changes, and lyrics can run under the artist name (beta). The same wings carry a running timer, a download ring or a Join button for your next call.
+With the notch closed, the cover sits on one side and a visualizer bounces on the other. Sneak peek flashes the new track when the song changes, and lyrics can run under the artist name (beta). The same wings carry a running timer, a download ring or a Join button for your next call. Under Beta features the visualizer can be a wave, dots or a small pixel pet that naps when you pause.
 </td>
 </tr>
 <tr>
@@ -131,7 +131,7 @@ Charge level and percentage next to the notch, plus a heads-up when you plug in 
 <tr>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/shelf.svg" width="40" align="center"> &nbsp;Shelf</h3>
-Drag files onto the notch to park them, then drag them out wherever they need to go. Send them with AirDrop or another share service, or preview them with Quick Look. Right-click to convert, shrink or zip images, turn images into a PDF or a PDF's pages into images. They stay put across restarts.
+Drag files onto the notch to park them, then drag them out wherever they need to go. Send them with AirDrop or another share service, or preview them with Quick Look. Right-click to convert, shrink or zip images, turn images into a PDF or a PDF's pages into images. They stay put across restarts. With Copy Text turned on under Beta features, an image's words go to the clipboard, read on your Mac.
 </td>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/calendar.svg" width="40" align="center"> &nbsp;Calendar &amp; Reminders</h3>
