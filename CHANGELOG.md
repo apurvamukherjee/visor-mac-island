@@ -4,6 +4,10 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.14.1 (build 63) · 2026-11-16
+
+- **Sharper lock screen lyrics.** The colour now sweeps across each word behind a soft edge, or fades in over the whole line, and the letters stay crisp while it does. The line being sung and the ones next to it are no longer blurred; only the lines further away soften. The glow behind the sung words is gone.
+
 ## 3.14.0 (build 62) · 2026-11-16
 
 - **Lock screen lyrics, rebuilt.** The song's words scroll in one column beside the cover. The line being sung comes into focus out of a blur while the lines around it dim and soften, and the column glides up a line at a time. Settings › Lock Screen › Light up chooses Line by line or Word by word. Big Words, Lens, Stars and Terminal are gone.
