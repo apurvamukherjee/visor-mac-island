@@ -11,6 +11,14 @@ const ATTACK = 18;
 const RELEASE = 6;
 /** Without audio to follow, a slow breath instead of a still line. */
 const BREATH_S = 3.2;
+/** One turn of the light round the screen, as the Mac's secondsPerLap. */
+const LAP_S = 5;
+/**
+ * Every repaint redraws the whole screen's edge, and Rust sends 30 levels a second, so the light
+ * is redrawn 30 times a second too, however fast the display is. The slack keeps a frame that
+ * lands a hair early from being skipped.
+ */
+const FRAME_MS = 1000 / 30 - 2;
 
 function usePalette() {
   const cover = useCover();
@@ -47,18 +55,23 @@ export function Glow() {
     return () => void off.then((stop) => stop());
   }, []);
 
-  // Once a frame, straight onto the element: React never re-renders for the music.
+  // Straight onto the element: React never re-renders for the music. The turn and the thickness
+  // are set in the same frame, so the edge is painted once for both.
   useEffect(() => {
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
     let glow = 0;
     let last = performance.now();
     let frame = requestAnimationFrame(function tick(now) {
+      frame = requestAnimationFrame(tick);
+      if (now - last < FRAME_MS) return;
       const elapsed = Math.min(0.05, (now - last) / 1000);
       last = now;
       const { level, live } = heard.current;
       const target = live ? level ** 1.5 : 0.3 + 0.15 * Math.sin((now / 1000) * ((2 * Math.PI) / BREATH_S));
       glow += (target - glow) * (1 - Math.exp(-elapsed * (target > glow ? ATTACK : RELEASE)));
-      rim.current?.style.setProperty('--g', Math.min(1, glow * strength).toFixed(3));
-      frame = requestAnimationFrame(tick);
+      const style = rim.current?.style;
+      style?.setProperty('--g', Math.min(1, glow * strength).toFixed(3));
+      if (!still) style?.setProperty('--spin', `${(360 - (((now / 1000) % LAP_S) / LAP_S) * 360).toFixed(1)}deg`);
     });
     return () => cancelAnimationFrame(frame);
   }, [strength]);

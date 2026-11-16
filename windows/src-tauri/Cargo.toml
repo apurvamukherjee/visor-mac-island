@@ -51,3 +51,10 @@ features = [
   "Win32_UI_Shell_PropertiesSystem",
   "Win32_UI_WindowsAndMessaging",
 ]
+
+# Visor runs all day in the background: a smaller binary means fewer pages kept in memory.
+# Panics still unwind, so one watcher thread failing doesn't take the islands down with it.
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true

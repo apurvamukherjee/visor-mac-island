@@ -19,26 +19,34 @@ mod system;
 mod tools;
 
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashMap,
     sync::{
         atomic::{AtomicBool, Ordering},
         Mutex,
     },
     thread,
-    time::Duration,
+    time::{Duration, Instant},
 };
 use tauri::{
     menu::{Menu, MenuItem, PredefinedMenuItem, Submenu},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    AppHandle, Emitter, Manager, PhysicalPosition, PhysicalSize, WebviewUrl, WebviewWindowBuilder,
+    AppHandle, Emitter, Manager, PhysicalPosition, PhysicalSize, WebviewUrl, WebviewWindow,
+    WebviewWindowBuilder,
+};
+use windows::Win32::{
+    Foundation::{HWND, POINT},
+    UI::WindowsAndMessaging::GetCursorPos,
 };
 
 // The open island (640 x 190) plus room for its ears and shadow; see src/island/Island.tsx.
 const WINDOW_W: f64 = 720.0;
 const WINDOW_H: f64 = 230.0;
 const TICK: Duration = Duration::from_millis(16);
-const MONITOR_CHECK_TICKS: u32 = 120;
-const FULLSCREEN_CHECK_TICKS: u32 = 15;
+/// A pointer that hasn't moved for this many ticks (about half a second) is checked less often.
+const REST_AFTER: u32 = 30;
+const RESTING_TICK: Duration = Duration::from_millis(100);
+const MONITOR_CHECK: Duration = Duration::from_secs(2);
+const FULLSCREEN_CHECK: Duration = Duration::from_millis(250);
 /// TimerManager.presetMinutes, as the island's timer offers them.
 const TIMER_PRESETS: [u32; 6] = [1, 5, 10, 15, 25, 60];
 
@@ -54,12 +62,28 @@ struct Rect {
     h: f64,
 }
 
+/// Where an island's window was placed, in physical pixels, and the rect inside it that takes the mouse.
+/// The window never moves once placed, so the tracker reads this instead of asking the window each tick.
+struct Hit {
+    x: i32,
+    y: i32,
+    scale: f64,
+    rect: Option<Rect>,
+}
+
 #[derive(Default)]
-struct Hits(Mutex<HashMap<String, Rect>>);
+struct Hits {
+    map: Mutex<HashMap<String, Hit>>,
+    /// Set with each new rect, so the tracker tests again under a pointer that hasn't moved.
+    changed: AtomicBool,
+}
 
 #[tauri::command]
 fn set_hit(window: tauri::Window, hits: tauri::State<Hits>, rect: Rect) {
-    hits.0.lock().unwrap().insert(window.label().into(), rect);
+    if let Some(hit) = hits.map.lock().unwrap().get_mut(window.label()) {
+        hit.rect = Some(rect);
+    }
+    hits.changed.store(true, Ordering::Relaxed);
 }
 
 type MonitorKey = Vec<(i32, i32, u32, u32, u64)>;
@@ -88,7 +112,8 @@ fn place_islands(app: &AppHandle, generation: u32) -> error::Result<()> {
             window.destroy()?;
         }
     }
-    app.state::<Hits>().0.lock().unwrap().clear();
+    let hits = app.state::<Hits>();
+    hits.map.lock().unwrap().clear();
 
     for (i, monitor) in app.available_monitors()?.iter().enumerate() {
         let scale = monitor.scale_factor();
@@ -97,24 +122,32 @@ fn place_islands(app: &AppHandle, generation: u32) -> error::Result<()> {
             (WINDOW_H * scale).round() as u32,
         );
         let x = monitor.position().x + (monitor.size().width as i32 - w as i32) / 2;
-        let window = WebviewWindowBuilder::new(
-            app,
-            format!("island-{generation}-{i}"),
-            WebviewUrl::default(),
-        )
-        .transparent(true)
-        .decorations(false)
-        .shadow(false)
-        .resizable(false)
-        .always_on_top(true)
-        .skip_taskbar(true)
-        .focused(false)
-        .focusable(false)
-        .visible(false)
-        .build()?;
+        let y = monitor.position().y;
+        let label = format!("island-{generation}-{i}");
+        // Before the window exists, so its first set_hit finds the entry.
+        hits.map.lock().unwrap().insert(
+            label.clone(),
+            Hit {
+                x,
+                y,
+                scale,
+                rect: None,
+            },
+        );
+        let window = WebviewWindowBuilder::new(app, label, WebviewUrl::default())
+            .transparent(true)
+            .decorations(false)
+            .shadow(false)
+            .resizable(false)
+            .always_on_top(true)
+            .skip_taskbar(true)
+            .focused(false)
+            .focusable(false)
+            .visible(false)
+            .build()?;
         // Moved first, sized after: moving onto a monitor with another scale makes Windows rescale the
         // window for it, which would undo a size set for that monitor beforehand.
-        window.set_position(PhysicalPosition::new(x, monitor.position().y))?;
+        window.set_position(PhysicalPosition::new(x, y))?;
         window.set_size(PhysicalSize::new(w, h))?;
         window.set_ignore_cursor_events(true)?;
         prompts::allow(&window)?;
@@ -130,103 +163,171 @@ fn place_islands(app: &AppHandle, generation: u32) -> error::Result<()> {
     Ok(())
 }
 
+/// One island as the tracker holds it: the handle is asked for once, since every ask of a window
+/// waits on the main thread.
+struct Island {
+    label: String,
+    window: WebviewWindow,
+    hwnd: HWND,
+    /// Whether the window takes the mouse right now; None until the first test.
+    interactive: Option<bool>,
+    hidden: bool,
+}
+
+fn island_windows(app: &AppHandle, generation: u32) -> Vec<Island> {
+    // Only this generation's: the last one's windows may still be on their way out.
+    let prefix = format!("island-{generation}-");
+    app.webview_windows()
+        .into_iter()
+        .filter(|(label, _)| label.starts_with(&prefix))
+        .filter_map(|(label, window)| {
+            let hwnd = window
+                .hwnd()
+                .map_err(|e| eprintln!("visor: {label} has no window handle: {e}"))
+                .ok()?;
+            Some(Island {
+                label,
+                window,
+                hwnd,
+                interactive: None,
+                hidden: false,
+            })
+        })
+        .collect()
+}
+
 /// Windows can't shape a window's hit area to a CSS box, so the window ignores the mouse
 /// unless the cursor is over the island's reported rect.
-// ponytail: 60 Hz cursor poll; swap for a WH_MOUSE_LL hook if it ever shows up in CPU.
+// ponytail: polled, 60 Hz while the pointer moves and 10 Hz at rest; a WH_MOUSE_LL hook would
+// run on every mouse move system-wide, which costs more than this does.
 fn track_cursor(app: AppHandle) {
-    let mut interactive: HashMap<String, bool> = HashMap::new();
-    let mut hidden: HashSet<String> = HashSet::new();
+    let hits = app.state::<Hits>();
     let mut monitors = monitor_key(&app).unwrap_or_default();
     let mut generation = 0;
-    let mut tick = 0u32;
+    let mut islands = island_windows(&app, generation);
+    let mut last = (i32::MIN, i32::MIN);
+    let mut still = 0u32;
+    let (mut monitors_at, mut fullscreen_at) = (Instant::now(), Instant::now());
     loop {
-        thread::sleep(TICK);
-        tick = tick.wrapping_add(1);
+        thread::sleep(if still >= REST_AFTER {
+            RESTING_TICK
+        } else {
+            TICK
+        });
+        let now = Instant::now();
+        let mut retest = hits.changed.swap(false, Ordering::Relaxed);
 
         // Tauri has no display-change event, so hot-plugging and rescaling are polled.
-        if tick.is_multiple_of(MONITOR_CHECK_TICKS) {
+        if now.duration_since(monitors_at) >= MONITOR_CHECK {
+            monitors_at = now;
             match monitor_key(&app) {
-                Ok(now) if now != monitors => {
-                    monitors = now;
+                Ok(key) if key != monitors => {
+                    monitors = key;
                     generation += 1;
-                    interactive.clear();
                     if let Err(e) = place_islands(&app, generation) {
                         eprintln!("visor: rebuilding islands failed: {e}");
                     }
+                    islands = island_windows(&app, generation);
+                    retest = true;
                 }
                 Ok(_) => {}
                 Err(e) => eprintln!("visor: reading monitors failed: {e}"),
             }
         }
 
-        if tick.is_multiple_of(FULLSCREEN_CHECK_TICKS) {
-            hide_under_fullscreen(&app, &mut hidden);
+        if now.duration_since(fullscreen_at) >= FULLSCREEN_CHECK {
+            fullscreen_at = now;
+            retest |= hide_under_fullscreen(&mut islands);
         }
 
-        let Ok(cursor) = app.cursor_position() else {
+        // Straight from Win32: Tauri's cursor_position is answered by the main thread, and asking
+        // it 60 times a second kept that thread awake for nothing.
+        let mut cursor = POINT::default();
+        if unsafe { GetCursorPos(&mut cursor) }.is_err() {
             continue;
-        };
-        let hits = app.state::<Hits>().0.lock().unwrap().clone();
-        for (label, window) in app.webview_windows() {
-            let Some(r) = hits.get(&label) else { continue };
-            if hidden.contains(&label) {
+        }
+        let at = (cursor.x, cursor.y);
+        if at == last {
+            still = still.saturating_add(1);
+            if !retest {
                 continue;
             }
-            let (Ok(origin), Ok(scale)) = (window.outer_position(), window.scale_factor()) else {
-                continue;
-            };
-            let (left, top) = (origin.x as f64 + r.x * scale, origin.y as f64 + r.y * scale);
-            let inside = cursor.x >= left
-                && cursor.x < left + r.w * scale
-                && cursor.y >= top
-                && cursor.y < top + r.h * scale;
-            if interactive.get(&label) != Some(&inside) {
-                if let Err(e) = window.set_ignore_cursor_events(!inside) {
-                    eprintln!("visor: {label} hit-test toggle failed: {e}");
+        } else {
+            still = 0;
+            last = at;
+        }
+
+        for island in islands.iter_mut().filter(|i| !i.hidden) {
+            let inside = {
+                let map = hits.map.lock().unwrap();
+                let Some((hit, r)) = map
+                    .get(&island.label)
+                    .and_then(|h| Some((h, h.rect.as_ref()?)))
+                else {
                     continue;
-                }
-                // Once the window turns click-through the webview may never see the pointer go,
-                // so the island hears it from here too and closes as if it had.
-                if !inside && interactive.get(&label) == Some(&true) {
-                    if let Err(e) = app.emit_to(label.as_str(), "pointer-left", ()) {
-                        eprintln!("visor: {label} pointer-left failed: {e}");
-                    }
-                }
-                interactive.insert(label, inside);
+                };
+                let (left, top) = (
+                    hit.x as f64 + r.x * hit.scale,
+                    hit.y as f64 + r.y * hit.scale,
+                );
+                let (x, y) = (cursor.x as f64, cursor.y as f64);
+                x >= left && x < left + r.w * hit.scale && y >= top && y < top + r.h * hit.scale
+            };
+            if island.interactive == Some(inside) {
+                continue;
             }
+            let label = island.label.as_str();
+            if let Err(e) = island.window.set_ignore_cursor_events(!inside) {
+                eprintln!("visor: {label} hit-test toggle failed: {e}");
+                continue;
+            }
+            // Once the window turns click-through the webview may never see the pointer go,
+            // so the island hears it from here too and closes as if it had.
+            if !inside && island.interactive == Some(true) {
+                if let Err(e) = app.emit_to(label, "pointer-left", ()) {
+                    eprintln!("visor: {label} pointer-left failed: {e}");
+                }
+            }
+            island.interactive = Some(inside);
         }
     }
 }
 
 /// Visor stays on top of everything, but steps aside for a full-screen game or video when
 /// the setting asks, and only on the monitor showing it; and everywhere when the tray says so.
-fn hide_under_fullscreen(app: &AppHandle, hidden: &mut HashSet<String>) {
+/// True when an island was hidden or shown.
+fn hide_under_fullscreen(islands: &mut [Island]) -> bool {
     let user_hidden = USER_HIDDEN.load(Ordering::Relaxed);
     let full = prefs::HIDE_IN_FULLSCREEN
         .load(Ordering::Relaxed)
         .then(fullscreen::monitor)
         .flatten();
-    for (label, window) in app.webview_windows() {
-        if !label.starts_with("island-") {
-            continue;
-        }
-        let Ok(hwnd) = window.hwnd() else { continue };
-        let hide = user_hidden || full.is_some_and(|m| fullscreen::monitor_of(hwnd) == m);
+    let mut changed = false;
+    for island in islands {
+        let label = island.label.as_str();
+        let hide = user_hidden || full.is_some_and(|m| fullscreen::monitor_of(island.hwnd) == m);
         if !hide {
-            if let Err(e) = fullscreen::raise(hwnd) {
+            if let Err(e) = fullscreen::raise(island.hwnd) {
                 eprintln!("visor: {label} raise failed: {e}");
             }
         }
-        if hide == hidden.contains(&label) {
+        if hide == island.hidden {
             continue;
         }
-        let done = if hide { window.hide() } else { window.show() };
+        let done = if hide {
+            island.window.hide()
+        } else {
+            island.window.show()
+        };
         match done {
-            Ok(()) if hide => drop(hidden.insert(label)),
-            Ok(()) => drop(hidden.remove(&label)),
+            Ok(()) => {
+                island.hidden = hide;
+                changed = true;
+            }
             Err(e) => eprintln!("visor: {label} fullscreen hide failed: {e}"),
         }
     }
+    changed
 }
 
 #[tauri::command]

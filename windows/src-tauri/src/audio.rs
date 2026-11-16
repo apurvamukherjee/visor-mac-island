@@ -1,13 +1,23 @@
 use crate::{error::Result, state};
-use std::{ffi::c_void, thread, time::Duration};
+use std::{
+    ffi::c_void,
+    sync::mpsc::{self, RecvTimeoutError, Sender},
+    time::Duration,
+};
 use tauri::AppHandle;
 use windows::{
-    core::PWSTR,
+    core::{implement, Interface, PCWSTR, PWSTR},
     Win32::{
         Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
+        Foundation::PROPERTYKEY,
         Media::Audio::{
-            eConsole, eRender, Endpoints::IAudioEndpointVolume, IMMDeviceEnumerator,
-            MMDeviceEnumerator, DEVICE_STATE_ACTIVE,
+            eConsole, eRender, EDataFlow, ERole,
+            Endpoints::{
+                IAudioEndpointVolume, IAudioEndpointVolumeCallback,
+                IAudioEndpointVolumeCallback_Impl,
+            },
+            IMMDeviceEnumerator, IMMNotificationClient, IMMNotificationClient_Impl,
+            MMDeviceEnumerator, AUDIO_VOLUME_NOTIFICATION_DATA, DEVICE_STATE, DEVICE_STATE_ACTIVE,
         },
         System::Com::{
             CoCreateInstance, CoInitializeEx, CoTaskMemFree, CLSCTX_ALL, COINIT_MULTITHREADED,
@@ -16,8 +26,9 @@ use windows::{
     },
 };
 
-const VOLUME_POLL: Duration = Duration::from_millis(50);
-const OUTPUTS_EVERY: u32 = 20;
+/// With no event for this long, everything is read again: an audio service that restarted
+/// takes its callbacks with it and says nothing.
+const REFRESH: Duration = Duration::from_secs(5);
 
 /// Joins this thread to COM. The result is ignored on purpose: S_FALSE (already joined) and
 /// RPC_E_CHANGED_MODE (an STA thread, like Tauri's main thread) both leave COM usable.
@@ -64,23 +75,106 @@ fn outputs(en: &IMMDeviceEnumerator) -> Result<Vec<state::Output>> {
         .collect()
 }
 
-/// Volume every 50 ms so the HUD keeps up with a held key; the output list once a second.
-// ponytail: polled; IAudioEndpointVolumeCallback and IMMNotificationClient if the poll ever shows in CPU.
+/// What Windows tells the watcher: the level moved, or the set of outputs did.
+#[derive(Clone, Copy, PartialEq)]
+enum Wake {
+    Volume,
+    Outputs,
+}
+
+/// Both of Windows' audio callbacks, which only pass the news on: they run on its threads
+/// and must not block.
+#[implement(IAudioEndpointVolumeCallback, IMMNotificationClient)]
+struct Events(Sender<Wake>);
+
+impl Events_Impl {
+    fn wake(&self, wake: Wake) -> windows::core::Result<()> {
+        if self.0.send(wake).is_err() {
+            eprintln!("visor: an audio change had no watcher to go to");
+        }
+        Ok(())
+    }
+}
+
+#[allow(non_snake_case)]
+impl IAudioEndpointVolumeCallback_Impl for Events_Impl {
+    fn OnNotify(&self, _: *mut AUDIO_VOLUME_NOTIFICATION_DATA) -> windows::core::Result<()> {
+        self.wake(Wake::Volume)
+    }
+}
+
+#[allow(non_snake_case)]
+impl IMMNotificationClient_Impl for Events_Impl {
+    fn OnDeviceStateChanged(&self, _: &PCWSTR, _: DEVICE_STATE) -> windows::core::Result<()> {
+        self.wake(Wake::Outputs)
+    }
+    fn OnDeviceAdded(&self, _: &PCWSTR) -> windows::core::Result<()> {
+        self.wake(Wake::Outputs)
+    }
+    fn OnDeviceRemoved(&self, _: &PCWSTR) -> windows::core::Result<()> {
+        self.wake(Wake::Outputs)
+    }
+    fn OnDefaultDeviceChanged(
+        &self,
+        _: EDataFlow,
+        _: ERole,
+        _: &PCWSTR,
+    ) -> windows::core::Result<()> {
+        self.wake(Wake::Outputs)
+    }
+    /// Drivers change properties all the time; a renamed output is picked up by the refresh.
+    fn OnPropertyValueChanged(&self, _: &PCWSTR, _: &PROPERTYKEY) -> windows::core::Result<()> {
+        Ok(())
+    }
+}
+
+/// Follows the volume and the output list from Windows' own notifications, so the thread
+/// sleeps until one of them changes.
 pub fn watch(app: AppHandle) {
     com();
-    let mut tick = 0u32;
+    let (send, wakes) = mpsc::channel();
+    let on_volume: IAudioEndpointVolumeCallback = Events(send).into();
+    let on_outputs: IMMNotificationClient = match on_volume.cast() {
+        Ok(client) => client,
+        Err(e) => return eprintln!("visor: no audio notifications: {e}"),
+    };
+    let mut devices: Option<IMMDeviceEnumerator> = None;
     let mut volume: Option<IAudioEndpointVolume> = None;
+    let mut wake = Wake::Outputs;
     loop {
         let mut list = None;
-        if tick.is_multiple_of(OUTPUTS_EVERY) {
+        if wake == Wake::Outputs {
+            if devices.is_none() {
+                devices = enumerator()
+                    .and_then(|en| {
+                        unsafe { en.RegisterEndpointNotificationCallback(&on_outputs)? };
+                        Ok(en)
+                    })
+                    .map_err(|e| eprintln!("visor: watching outputs failed: {e}"))
+                    .ok();
+            }
             // The default device can change under us, so the endpoint is fetched again with the list.
+            if let Some(old) = volume.take() {
+                if let Err(e) = unsafe { old.UnregisterControlChangeNotify(&on_volume) } {
+                    eprintln!("visor: letting go of the last output failed: {e}");
+                }
+            }
             volume = endpoint_volume()
+                .and_then(|v| {
+                    unsafe { v.RegisterControlChangeNotify(&on_volume)? };
+                    Ok(v)
+                })
                 .map_err(|e| eprintln!("visor: no output volume: {e}"))
                 .ok();
-            list = enumerator()
-                .and_then(|en| outputs(&en))
-                .map_err(|e| eprintln!("visor: listing outputs failed: {e}"))
-                .ok();
+            list = devices.as_ref().and_then(|en| {
+                outputs(en)
+                    .map_err(|e| eprintln!("visor: listing outputs failed: {e}"))
+                    .ok()
+            });
+            // A list that can't be read means the enumerator is dead; the next refresh makes another.
+            if list.is_none() {
+                devices = None;
+            }
         }
         let level = volume.as_ref().and_then(|v| unsafe {
             Some((v.GetMasterVolumeLevelScalar().ok()?, v.GetMute().ok()?))
@@ -96,8 +190,20 @@ pub fn watch(app: AppHandle) {
                 s.muted = muted.as_bool();
             }
         });
-        tick = tick.wrapping_add(1);
-        thread::sleep(VOLUME_POLL);
+        wake = match wakes.recv_timeout(REFRESH) {
+            Ok(first) => {
+                // Plugging a device in sends a burst; one refresh answers all of it.
+                if wakes.try_iter().any(|w| w == Wake::Outputs) {
+                    Wake::Outputs
+                } else {
+                    first
+                }
+            }
+            Err(RecvTimeoutError::Timeout) => Wake::Outputs,
+            Err(RecvTimeoutError::Disconnected) => {
+                return eprintln!("visor: audio notifications stopped")
+            }
+        };
     }
 }
 

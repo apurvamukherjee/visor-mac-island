@@ -1,12 +1,16 @@
 use crate::{error::Result, state};
 use std::{
-    sync::{Mutex, OnceLock},
+    sync::{
+        mpsc::{self, RecvTimeoutError, Sender},
+        Mutex, OnceLock,
+    },
     thread,
-    time::Duration,
+    time::{Duration, Instant},
 };
 use tauri::{ipc::Response, AppHandle};
 use windows::{
-    core::Interface,
+    core::{Interface, RuntimeType},
+    Foundation::TypedEventHandler,
     Media::Control::{
         GlobalSystemMediaTransportControlsSession as Session,
         GlobalSystemMediaTransportControlsSessionManager as SessionManager,
@@ -17,56 +21,146 @@ use windows::{
     Storage::Streams::{DataReader, IRandomAccessStream},
 };
 
-// ponytail: polls the session; its change events need a handler per session, add if 500 ms ever feels late.
+/// How often the session is read while something is unsettled: a new cover on its way, a
+/// player that failed to answer, or no events to wait on.
 const POLL: Duration = Duration::from_millis(500);
-/// Polls to keep re-reading the cover after a track change: about 5 s.
-const COVER_SETTLE: u32 = 10;
+/// How long the watcher sleeps when nothing has been heard, in case an event went missing.
+const REFRESH: Duration = Duration::from_secs(5);
+/// The least time between two reads, so a player that reports its position many times a
+/// second costs no more than the polling did.
+const MIN_GAP: Duration = Duration::from_millis(250);
+/// How long the cover keeps being re-read after a track change.
+const COVER_SETTLE: Duration = Duration::from_secs(5);
 /// 1601-01-01 to 1970-01-01, in the 100 ns ticks WinRT dates use.
 const UNIX_EPOCH_TICKS: i64 = 116_444_736_000_000_000;
 
-/// Failed reads in a row before the island lets go of the song: a player that's busy for a
-/// moment shouldn't collapse the island and bring the sneak peek back.
-const MISSES: u32 = 4;
+/// How long reads may keep failing before the island lets go of the song: a player that's busy
+/// for a moment shouldn't collapse the island and bring the sneak peek back.
+const LET_GO: Duration = Duration::from_secs(2);
 
 static MANAGER: OnceLock<SessionManager> = OnceLock::new();
 /// The session the island shows, so the buttons control that one and not whichever Windows calls current.
 static SHOWN: Mutex<Option<Session>> = Mutex::new(None);
 static COVER: Mutex<Vec<u8>> = Mutex::new(Vec::new());
 
+/// What a player's event says: the set of players changed, or something about one did.
+#[derive(Clone, Copy, PartialEq)]
+enum Wake {
+    Sessions,
+    Change,
+}
+
+/// A session being listened to, with the tokens that take its three handlers off again.
+type Heard = (Session, [i64; 3]);
+
+/// A handler that only passes the news on; the watcher does the reading.
+fn waker<S, A>(send: &Sender<Wake>, wake: Wake) -> TypedEventHandler<S, A>
+where
+    S: RuntimeType + 'static,
+    A: RuntimeType + 'static,
+{
+    let send = send.clone();
+    TypedEventHandler::new(move |_, _| {
+        if send.send(wake).is_err() {
+            eprintln!("visor: a media change had no watcher to go to");
+        }
+        Ok(())
+    })
+}
+
+/// Listens to every open player: one that isn't shown may start playing, and then it is.
+fn listen(manager: &SessionManager, send: &Sender<Wake>, heard: &mut Vec<Heard>) {
+    for (session, [media, playback, timeline]) in heard.drain(..) {
+        let removed = session
+            .RemoveMediaPropertiesChanged(media)
+            .and(session.RemovePlaybackInfoChanged(playback))
+            .and(session.RemoveTimelinePropertiesChanged(timeline));
+        if let Err(e) = removed {
+            eprintln!("visor: a player's handlers stayed on, most likely it closed: {e}");
+        }
+    }
+    let sessions = match manager.GetSessions() {
+        Ok(sessions) => sessions,
+        Err(e) => return eprintln!("visor: listing players failed: {e}"),
+    };
+    for session in sessions {
+        let tokens = (|| {
+            windows::core::Result::Ok([
+                session.MediaPropertiesChanged(&waker(send, Wake::Change))?,
+                session.PlaybackInfoChanged(&waker(send, Wake::Change))?,
+                session.TimelinePropertiesChanged(&waker(send, Wake::Change))?,
+            ])
+        })();
+        match tokens {
+            Ok(tokens) => heard.push((session, tokens)),
+            Err(e) => eprintln!("visor: a player's changes can't be followed: {e}"),
+        }
+    }
+}
+
 /// Follows whatever Windows shows in its own media flyout: Spotify, a browser tab, Media Player.
+/// It reads when a player says something changed, and otherwise sleeps.
 pub fn watch(app: AppHandle) {
     let manager = match SessionManager::RequestAsync().and_then(|op| op.join()) {
         Ok(m) => MANAGER.get_or_init(|| m),
         Err(e) => return eprintln!("visor: no media sessions: {e}"),
     };
+    let (send, wakes) = mpsc::channel();
+    let events = manager
+        .SessionsChanged(&waker(&send, Wake::Sessions))
+        .and(manager.CurrentSessionChanged(&waker(&send, Wake::Change)))
+        .map_err(|e| eprintln!("visor: no media events, polling instead: {e}"))
+        .is_ok();
+    let mut heard = Vec::new();
+    let mut wake = Wake::Sessions;
     let mut key = String::new();
     let mut cover = 0;
-    let mut settle = 0;
-    let mut misses = 0;
+    let mut settle = Instant::now();
+    let mut failing: Option<Instant> = None;
     loop {
+        let started = Instant::now();
+        if wake == Wake::Sessions {
+            listen(manager, &send, &mut heard);
+        }
         let last = SHOWN.lock().unwrap().clone();
         let session = pick(manager, last.as_ref());
         *SHOWN.lock().unwrap() = session.clone();
         match session.map(|s| read(&s, &mut key, &mut cover, &mut settle)) {
             Some(Ok(media)) => {
-                misses = 0;
+                failing = None;
                 state::update(&app, |s| s.media = Some(media));
             }
             Some(Err(e)) => {
-                if misses == 0 {
+                let since = *failing.get_or_insert_with(|| {
                     eprintln!("visor: reading media failed: {e}");
-                }
-                misses += 1;
-                if misses >= MISSES {
+                    started
+                });
+                if started.duration_since(since) >= LET_GO {
                     state::update(&app, |s| s.media = None);
                 }
             }
             None => {
-                misses = 0;
+                failing = None;
                 state::update(&app, |s| s.media = None);
             }
         }
-        thread::sleep(POLL);
+        let unsettled = !events || failing.is_some() || Instant::now() < settle;
+        wake = match wakes.recv_timeout(if unsettled { POLL } else { REFRESH }) {
+            Ok(first) => {
+                // The first event after a quiet spell is read at once; a burst waits out the gap
+                // and is answered by one read.
+                if let Some(rest) = MIN_GAP.checked_sub(started.elapsed()) {
+                    thread::sleep(rest);
+                }
+                if wakes.try_iter().any(|w| w == Wake::Sessions) {
+                    Wake::Sessions
+                } else {
+                    first
+                }
+            }
+            Err(RecvTimeoutError::Timeout) => Wake::Change,
+            Err(RecvTimeoutError::Disconnected) => return eprintln!("visor: media events stopped"),
+        };
     }
 }
 
@@ -111,7 +205,7 @@ fn read(
     session: &Session,
     key: &mut String,
     cover: &mut u32,
-    settle: &mut u32,
+    settle: &mut Instant,
 ) -> Result<state::Media> {
     let props = session.TryGetMediaPropertiesAsync()?.join()?;
     let info = session.GetPlaybackInfo()?;
@@ -125,10 +219,9 @@ fn read(
     let now = format!("{app}|{title}|{artist}");
     if now != *key {
         *key = now;
-        *settle = COVER_SETTLE;
+        *settle = Instant::now() + COVER_SETTLE;
     }
-    if *settle > 0 || COVER.lock().unwrap().is_empty() {
-        *settle = settle.saturating_sub(1);
+    if Instant::now() < *settle || COVER.lock().unwrap().is_empty() {
         let bytes = cover_bytes(&props).unwrap_or_default();
         let mut stored = COVER.lock().unwrap();
         if bytes != *stored {

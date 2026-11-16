@@ -22,6 +22,8 @@ use windows::{
 use windows_registry::{Key, CURRENT_USER};
 
 const POLL: Duration = Duration::from_secs(1);
+/// The accent color and the region are changed in Settings, by hand: every tenth poll is plenty.
+const SETTINGS_EVERY: u32 = 10;
 const NO_BATTERY: u8 = 128;
 const UNKNOWN: u8 = 255;
 const CHARGING: u8 = 8;
@@ -45,6 +47,8 @@ pub fn watch(app: AppHandle) {
         .unwrap_or(SystemTime::UNIX_EPOCH);
     let (mut downloads_stamp, mut shots_stamp) = (None, None);
     let mut downloading = false;
+    let mut tick = 0u32;
+    let mut settings = None;
     loop {
         // Downloads folders run to thousands of files, so each is listed again only when it changed.
         if let Some(dir) = downloads
@@ -69,19 +73,23 @@ pub fn watch(app: AppHandle) {
                 }
             }
         }
-        let accent = ui.as_ref().and_then(accent);
+        if tick.is_multiple_of(SETTINGS_EVERY) {
+            settings = Some((ui.as_ref().and_then(accent), region()));
+        }
+        tick = tick.wrapping_add(1);
         let battery = battery();
         let (camera, mic) = (in_use("webcam"), in_use("microphone"));
-        let (fahrenheit, hour24) = region();
         state::update(&app, |s| {
             s.battery = battery;
             s.camera = camera;
             s.mic = mic;
             s.downloading = downloading;
-            s.fahrenheit = fahrenheit;
-            s.hour24 = hour24;
-            if let Some(accent) = accent {
-                s.accent = accent;
+            if let Some((accent, (fahrenheit, hour24))) = settings.take() {
+                s.fahrenheit = fahrenheit;
+                s.hour24 = hour24;
+                if let Some(accent) = accent {
+                    s.accent = accent;
+                }
             }
         });
         thread::sleep(POLL);
@@ -127,6 +135,7 @@ fn battery() -> Option<state::Battery> {
 }
 
 /// Windows' own privacy record: an app holding the camera or mic has a start time and no stop time yet.
+// ponytail: walks the record's keys once a second; RegNotifyChangeKeyValue on it if that shows in a profile.
 fn in_use(device: &str) -> bool {
     let path = format!(
         r"Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\{device}"

@@ -16,6 +16,8 @@ final class EdgeGlow {
     private var windows: [SkyLightWindow] = []
     private var cancellables: Set<AnyCancellable> = []
     private var isLocked = false
+    /// Music keeps the Mac awake with its screens off, and nobody sees a glow then.
+    private var displaysAsleep = false
 
     private init() {}
 
@@ -31,6 +33,20 @@ final class EdgeGlow {
         // @Published fires before the value is stored; a hop reads the new one.
         .receive(on: DispatchQueue.main)
         .sink { MainActor.assumeIsolated { EdgeGlow.shared.refresh() } }
+        .store(in: &cancellables)
+
+        let workspace = NSWorkspace.shared.notificationCenter
+        Publishers.Merge(
+            workspace.publisher(for: NSWorkspace.screensDidSleepNotification).map { _ in true },
+            workspace.publisher(for: NSWorkspace.screensDidWakeNotification).map { _ in false }
+        )
+        .receive(on: DispatchQueue.main)
+        .sink { asleep in
+            MainActor.assumeIsolated {
+                EdgeGlow.shared.displaysAsleep = asleep
+                EdgeGlow.shared.refresh()
+            }
+        }
         .store(in: &cancellables)
 
         music.$palette
@@ -56,7 +72,8 @@ final class EdgeGlow {
     private var views: [EdgeGlowView] { windows.compactMap { $0.contentView as? EdgeGlowView } }
 
     private var isWanted: Bool {
-        Defaults[.edgeGlow] && MusicManager.shared.isPlaying && Defaults[.edgeGlowPlacement].shows(locked: isLocked)
+        Defaults[.edgeGlow] && MusicManager.shared.isPlaying && !displaysAsleep
+            && Defaults[.edgeGlowPlacement].shows(locked: isLocked)
     }
 
     private func refresh() {
@@ -144,6 +161,11 @@ final class EdgeGlowView: NSView {
     private var link: CADisplayLink?
     private var lastTick: CFTimeInterval = 0
     private var glow = 0.0
+    /// The strength the layers were last given.
+    private var applied = -1.0
+    /// A smaller step moves the line less than a quarter of a pixel, and each one given to the
+    /// layers has the render server redraw a mask the size of the screen.
+    private static let visibleStep = 0.01
 
     private var reduceMotion: Bool { NSWorkspace.shared.accessibilityDisplayShouldReduceMotion }
 
@@ -264,13 +286,16 @@ final class EdgeGlowView: NSView {
             : 0.3 + 0.15 * sin(link.targetTimestamp * 2 * Double.pi / 3.2)
         glow += (target - glow) * (1 - exp(-elapsed * (target > glow ? Self.attack : Self.release)))
 
+        let strength = min(1, glow * Defaults[.edgeGlowIntensity])
+        guard abs(strength - applied) >= Self.visibleStep else { return }
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        apply(strength: min(1, glow * Defaults[.edgeGlowIntensity]))
+        apply(strength: strength)
         CATransaction.commit()
     }
 
     private func apply(strength: Double) {
+        applied = strength
         // Doubled: the stroke is centred on the screen's edge, so half of it is off-screen.
         rimMask.lineWidth = 2 * unit * (2.5 + 5.5 * strength)
         halo.opacity = Float(0.3 + 0.6 * strength)

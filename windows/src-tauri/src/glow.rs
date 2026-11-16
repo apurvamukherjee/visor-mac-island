@@ -19,7 +19,12 @@ use windows::Win32::{
 /// Settings › Music › Edge glow.
 pub static ENABLED: AtomicBool = AtomicBool::new(false);
 
+/// How often a glow that's switched off looks at its setting.
+const OFF: Duration = Duration::from_secs(1);
+/// How often a glow that's on looks for music to start.
 const IDLE: Duration = Duration::from_millis(250);
+/// How often the monitors are counted while it runs, and the longest a still level goes unsent.
+const SLOW: Duration = Duration::from_secs(1);
 /// About 30 levels a second: the glow smooths between them itself.
 const FRAME: Duration = Duration::from_millis(33);
 /// A second of buffer, in 100 ns units; loopback only fills what plays.
@@ -71,7 +76,7 @@ impl BassMeter {
 }
 
 /// What the glow windows hear each frame.
-#[derive(serde::Serialize, Clone, Copy)]
+#[derive(serde::Serialize, Clone, Copy, PartialEq)]
 struct Level {
     level: f32,
     /// False when nothing is audible, so the glow breathes instead of sitting still.
@@ -84,6 +89,8 @@ struct Loopback {
     capture: IAudioCaptureClient,
     channels: usize,
     meter: BassMeter,
+    /// Kept between reads, so a frame doesn't allocate.
+    samples: Vec<f32>,
 }
 
 impl Loopback {
@@ -124,12 +131,14 @@ impl Loopback {
             capture,
             channels,
             meter: BassMeter::new(rate),
+            samples: Vec::new(),
         })
     }
 
     /// Everything captured since the last call, as one level.
     fn read(&mut self) -> Result<Level> {
-        let mut samples = Vec::new();
+        let samples = &mut self.samples;
+        samples.clear();
         loop {
             if unsafe { self.capture.GetNextPacketSize()? } == 0 {
                 break;
@@ -149,7 +158,7 @@ impl Loopback {
             }
             unsafe { self.capture.ReleaseBuffer(frames)? };
         }
-        let (level, live) = self.meter.measure(&samples, self.channels);
+        let (level, live) = self.meter.measure(&self.samples, self.channels);
         Ok(Level { level, live })
     }
 }
@@ -162,10 +171,7 @@ impl Drop for Loopback {
     }
 }
 
-fn wanted(app: &AppHandle) -> bool {
-    if !ENABLED.load(Ordering::Relaxed) {
-        return false;
-    }
+fn playing(app: &AppHandle) -> bool {
     let state = app.state::<state::Shared>();
     let state = state.0.lock().unwrap();
     !state.locked && state.media.as_ref().is_some_and(|m| m.playing)
@@ -227,33 +233,47 @@ pub fn watch(app: AppHandle) {
     let mut loopback: Option<Loopback> = None;
     let mut generation = 0u32;
     let mut monitors = 0usize;
+    // The open windows' labels, held so a frame doesn't ask Tauri for its window list.
+    let mut labels: Vec<String> = Vec::new();
     let mut retry_at = Instant::now();
+    let mut counted_at = Instant::now();
+    let mut sent: Option<(Level, Instant)> = None;
     loop {
-        if !wanted(&app) {
-            if loopback.take().is_some() || !glow_windows(&app).is_empty() {
+        let on = ENABLED.load(Ordering::Relaxed);
+        if !on || !playing(&app) {
+            if loopback.take().is_some() || !labels.is_empty() {
                 close_windows(&app);
+                labels.clear();
             }
-            thread::sleep(IDLE);
+            thread::sleep(if on { IDLE } else { OFF });
             continue;
         }
-        // A monitor plugged in or out gets a fresh set, as the islands do.
-        let count = app
-            .available_monitors()
-            .map(|m| m.len())
-            .unwrap_or(monitors);
-        if glow_windows(&app).is_empty() || count != monitors {
+        let now = Instant::now();
+        // A monitor plugged in or out gets a fresh set, as the islands do. Counting them waits
+        // on the main thread, so it isn't done every frame.
+        let mut count = monitors;
+        if labels.is_empty() || now.duration_since(counted_at) >= SLOW {
+            counted_at = now;
+            count = app
+                .available_monitors()
+                .map(|m| m.len())
+                .unwrap_or(monitors);
+        }
+        if labels.is_empty() || count != monitors {
             close_windows(&app);
             generation += 1;
             monitors = count;
             if let Err(e) = open_windows(&app, generation) {
                 eprintln!("visor: opening the glow failed: {e}");
             }
+            labels = glow_windows(&app).into_iter().map(|(l, _)| l).collect();
+            sent = None;
         }
-        if loopback.is_none() && Instant::now() >= retry_at {
+        if loopback.is_none() && now >= retry_at {
             loopback = Loopback::open()
                 .map_err(|e| {
                     eprintln!("visor: the glow can't hear the output: {e}");
-                    retry_at = Instant::now() + Duration::from_secs(5);
+                    retry_at = now + Duration::from_secs(5);
                 })
                 .ok();
         }
@@ -274,9 +294,14 @@ pub fn watch(app: AppHandle) {
                 live: false,
             },
         };
-        for (label, _) in glow_windows(&app) {
-            if let Err(e) = app.emit_to(label.as_str(), "glow-level", level) {
-                eprintln!("visor: {label} glow level failed: {e}");
+        // A level that hasn't moved (silence between songs) is sent once a second, not 30 times:
+        // often enough for a window that was still loading when the last one went out.
+        if sent.is_none_or(|(last, at)| last != level || now.duration_since(at) >= SLOW) {
+            sent = Some((level, now));
+            for label in &labels {
+                if let Err(e) = app.emit_to(label.as_str(), "glow-level", level) {
+                    eprintln!("visor: {label} glow level failed: {e}");
+                }
             }
         }
         thread::sleep(FRAME);
