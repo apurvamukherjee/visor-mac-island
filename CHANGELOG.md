@@ -4,6 +4,11 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.14.2 (build 64) · 2026-11-16
+
+- **Lighter on Windows.** Visor used to ask Windows for the pointer, the volume and the song many times a second, all day. It now waits to be told: the volume and the list of outputs come from Windows' own notifications, the player is read when it reports a change, and the pointer is checked less often once it stops moving. The island looks and behaves the same.
+- **A cheaper edge glow.** On Windows the light is redrawn 30 times a second rather than on every frame the display shows. On the Mac the glow, and the listening behind it, stop while the displays are asleep.
+
 ## 3.14.1 (build 63) · 2026-11-16
 
 - **Sharper lock screen lyrics.** The colour now sweeps across each word behind a soft edge, or fades in over the whole line, and the letters stay crisp while it does. The line being sung and the ones next to it are no longer blurred; only the lines further away soften. The glow behind the sung words is gone.
