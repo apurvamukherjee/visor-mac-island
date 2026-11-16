@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSystem } from '../native';
 import { Group } from '../settings/Settings';
+import { useSettings } from '../settings/store';
 import { queue, type Priority, type Task } from './queue';
 import { useTasks } from './store';
 import './Tasks.css';
@@ -49,6 +50,8 @@ function AddTask() {
       onSubmit={(e) => {
         e.preventDefault();
         if (!title.trim()) return;
+        // The island's tasks panel ships off; a first task with nowhere to show reads as broken.
+        if (useTasks.getState().tasks.length === 0) useSettings.getState().set({ showTasks: true });
         add({ title: title.trim(), priority, deadline: fromInput(deadline) });
         setTitle('');
         setDeadline('');
