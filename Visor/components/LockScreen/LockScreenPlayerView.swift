@@ -1,8 +1,8 @@
 import Defaults
 import SwiftUI
 
-/// The lock screen's clickable half: the record, the cover, the Now Playing
-/// card and the timer. Clicking the record or the cover steps to the next look.
+/// The lock screen's clickable half: the cover, the Now Playing card and the
+/// timer. Clicking the cover switches between it alone and the lyrics.
 struct LockScreenPlayerView: View {
     let screenSize: CGSize
 
@@ -10,11 +10,9 @@ struct LockScreenPlayerView: View {
     @ObservedObject private var music = MusicManager.shared
     @ObservedObject private var timer = TimerManager.shared
     @Default(.lockScreenLook) private var look
-    @Default(.lockScreenLyricStyle) private var style
-    @Default(.enableLyrics) private var enableLyrics
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private var layout: LockScreenLayout { LockScreenLayout(size: screenSize, look: look, style: style) }
+    private var layout: LockScreenLayout { LockScreenLayout(size: screenSize, look: look) }
     private func scaled(_ value: CGFloat) -> CGFloat { layout.scaled(value) }
 
     private var hasMedia: Bool { music.isPlaying || !music.isPlayerIdle || controller.isPreview }
@@ -26,7 +24,6 @@ struct LockScreenPlayerView: View {
                 card
                     .position(layout.cardCenter)
                     .transition(.opacity.combined(with: .scale(scale: 0.95)))
-                vinyl
                 cover
             }
             belowCard
@@ -35,94 +32,71 @@ struct LockScreenPlayerView: View {
             width: screenSize.width, height: screenSize.height * LockScreenPlayer.playerHeightShare, alignment: .top
         )
         .animation(move, value: look)
-        .animation(move, value: style)
+        .animation(move, value: music.isPlaying)
         .animation(.smooth, value: hasMedia)
         .animation(.smooth, value: timer.endDate)
         .preferredColorScheme(.dark)
     }
 
-    // MARK: The record and the cover
-
-    // Each is laid out once at its largest size and scaled, so moving between
-    // the middle of the screen and the card's slot is a transform, not a redraw.
-    private var vinyl: some View {
-        let placement = layout.vinyl
-        let base = scaled(LockScreenLayout.vinylBase)
-        return VinylDisc(
-            isSpinning: music.isPlaying,
-            tint: music.palette.first ?? .white,
-            artwork: music.albumArt.cgImage(forProposedRect: nil, context: nil, hints: nil)
-        )
-        .frame(width: base, height: base)
-        .overlay { stepButton("Record") }
-        .shadow(color: .black.opacity(0.4), radius: base * 0.12, y: base * 0.06)
-        .scaleEffect(placement.side / base)
-        .position(placement.center)
-        .opacity(layout.showsVinyl ? 1 : 0)
-        .transition(.opacity)
-    }
+    // MARK: The cover
 
     private var cover: some View {
-        let placement = layout.cover
-        let base = scaled(LockScreenLayout.coverBase)
-        let scale = placement.side / base
-        // Divided by the scale, so the corner is the same roundness on screen at every size.
-        let shape = RoundedRectangle(cornerRadius: placement.side * 0.085 / scale, style: .continuous)
+        let side = scaled(LockScreenLayout.coverSide)
+        let shape = RoundedRectangle(cornerRadius: side * 0.07, style: .continuous)
         return Image(nsImage: music.albumArt)
             .resizable()
+            .interpolation(.high)
             .scaledToFill()
-            .frame(width: base, height: base)
+            .frame(width: side, height: side)
             .clipShape(shape)
+            .overlay { shape.strokeBorder(.white.opacity(0.14), lineWidth: 1) }
             .overlay {
-                // A soft light from the top left and a hairline edge: printed card, not a flat tile.
-                shape.fill(LinearGradient(
-                    colors: [.white.opacity(0.16), .clear, .clear], startPoint: .topLeading, endPoint: .bottomTrailing
-                ))
-                shape.strokeBorder(.white.opacity(0.14), lineWidth: 1 / scale)
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture { look = look.next }
+                    .accessibilityElement()
+                    .accessibilityLabel("Cover")
+                    .accessibilityHint(look == .cover ? "Shows the lyrics" : "Hides the lyrics")
+                    .accessibilityAddTraits(.isButton)
             }
-            .overlay { stepButton("Cover") }
-            .shadow(color: .black.opacity(0.35), radius: base * 0.07, y: base * 0.035)
-            .scaleEffect(scale)
-            .position(placement.center)
+            .shadow(color: .black.opacity(0.4), radius: side * 0.09, y: side * 0.05)
+            // Paused, the cover steps back.
+            .scaleEffect(music.isPlaying ? 1 : 0.88)
+            .position(layout.coverCenter)
             .transition(.opacity)
-    }
-
-    private func stepButton(_ name: LocalizedStringKey) -> some View {
-        Color.clear
-            .contentShape(Rectangle())
-            .onTapGesture { look = look.next }
-            .accessibilityElement()
-            .accessibilityLabel(name)
-            .accessibilityHint("Shows the next lock screen look")
-            .accessibilityAddTraits(.isButton)
     }
 
     // MARK: Now Playing card
 
     private var card: some View {
         VStack(spacing: 0) {
-            HStack(spacing: scaled(12)) {
-                // The record or the cover sits here; see LockScreenLayout.slotCenter.
-                Color.clear.frame(width: scaled(LockScreenLayout.slotSide), height: scaled(LockScreenLayout.slotSide))
+            HStack(spacing: scaled(10)) {
                 VStack(alignment: .leading, spacing: scaled(2)) {
                     Text(music.songTitle)
-                        .font(.system(size: scaled(14.5), weight: .semibold))
+                        .font(.system(size: scaled(16), weight: .semibold))
                         .foregroundStyle(.white)
                     Text(music.artistName)
-                        .font(.system(size: scaled(12.5)))
+                        .font(.system(size: scaled(13.5)))
                         .foregroundStyle(.white.opacity(0.62))
                 }
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                if music.canFavoriteTrack {
+                    controlButton(music.isFavoriteTrack ? "heart.fill" : "heart", label: "Favorite", size: 15) {
+                        music.toggleFavoriteTrack()
+                    }
+                    .opacity(0.85)
+                }
             }
             Spacer(minLength: 0)
             progress
             Spacer(minLength: 0)
             controls
         }
-        .padding(scaled(12))
-        .frame(width: scaled(LockScreenLayout.cardSize.width), height: scaled(LockScreenLayout.cardSize.height))
-        .background(cardBackground(radius: scaled(20)))
+        .padding(.horizontal, scaled(18))
+        .padding(.vertical, scaled(14))
+        .frame(width: scaled(LockScreenLayout.coverSide), height: scaled(LockScreenLayout.cardHeight))
+        .background(cardBackground(radius: scaled(22)))
     }
 
     private var progress: some View {
@@ -152,60 +126,30 @@ struct LockScreenPlayerView: View {
     }
 
     private var controls: some View {
-        HStack(spacing: scaled(34)) {
-            controlButton("backward.fill", label: "Previous") { music.previousTrack() }
-            controlButton(music.isPlaying ? "pause.fill" : "play.fill", label: music.isPlaying ? "Pause" : "Play") {
+        HStack(spacing: scaled(42)) {
+            controlButton("backward.fill", label: "Previous", size: 17) { music.previousTrack() }
+            controlButton(music.isPlaying ? "pause.fill" : "play.fill", label: music.isPlaying ? "Pause" : "Play", size: 24) {
                 music.togglePlay()
             }
-            controlButton("forward.fill", label: "Next") { music.nextTrack() }
+            controlButton("forward.fill", label: "Next", size: 17) { music.nextTrack() }
         }
         .frame(maxWidth: .infinity)
-        .overlay(alignment: .trailing) {
-            if music.canFavoriteTrack {
-                controlButton(music.isFavoriteTrack ? "heart.fill" : "heart", label: "Favorite", size: 13) {
-                    music.toggleFavoriteTrack()
-                }
-                .opacity(0.8)
-            }
-        }
     }
 
     // MARK: Under the card
 
     private var belowCard: some View {
         let height = scaled(120)
-        return VStack(spacing: scaled(10)) {
-            // With a timer running there is only room for one of the two.
-            if hasMedia, enableLyrics, look != .lyrics, timer.endDate == nil {
-                lyricLine
-            }
+        return VStack {
             if let start = timer.startDate, let end = timer.endDate {
                 timerCard(start ... end)
             }
         }
-        .frame(width: scaled(LockScreenLayout.cardSize.width), height: height, alignment: .top)
+        .frame(width: scaled(LockScreenLayout.coverSide), height: height, alignment: .top)
         .position(
             x: layout.cardCenter.x,
-            y: layout.cardCenter.y + scaled(LockScreenLayout.cardSize.height / 2 + 12) + height / 2
+            y: layout.cardCenter.y + scaled(LockScreenLayout.cardHeight / 2 + 12) + height / 2
         )
-    }
-
-    // The one line the card always carried when the notch's lyric line is on.
-    private var lyricLine: some View {
-        TimelineView(.animation(minimumInterval: 0.25, paused: !music.isPlaying)) { timeline in
-            let line = music.lyricLine(at: music.estimatedPlaybackPosition(at: timeline.date))
-            Text(line)
-                .id(line)
-                .font(.system(size: scaled(13), weight: .medium))
-                .foregroundStyle(.white.opacity(0.85))
-                .shadow(color: .black.opacity(0.5), radius: 3)
-                .lineLimit(1)
-                .frame(maxWidth: .infinity)
-                .transition(.asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity), removal: .opacity))
-                .animation(.smooth(duration: 0.35), value: line)
-        }
-        .frame(height: scaled(18))
-        .clipped()
     }
 
     private func timerCard(_ range: ClosedRange<Date>) -> some View {
@@ -248,7 +192,7 @@ struct LockScreenPlayerView: View {
                 .font(.system(size: scaled(size), weight: .semibold))
                 .foregroundStyle(.white)
                 .contentTransition(.symbolEffect(.replace))
-                .frame(width: scaled(24), height: scaled(24))
+                .frame(width: scaled(28), height: scaled(28))
                 .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())

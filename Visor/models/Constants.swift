@@ -49,29 +49,20 @@ enum HUDControls: String, CaseIterable, Identifiable, Defaults.Serializable {
     var id: String { self.rawValue }
 }
 
-// What the lock screen player shows. Clicking the record or the cover steps to the next.
+// What the lock screen player shows. Clicking the cover steps to the other.
 enum LockScreenLook: String, CaseIterable, Identifiable, Defaults.Serializable {
-    case record = "Record"
     case cover = "Cover"
     case lyrics = "Lyrics"
 
     var id: String { rawValue }
 
-    var next: LockScreenLook {
-        switch self {
-        case .record: .cover
-        case .cover: .lyrics
-        case .lyrics: .record
-        }
-    }
+    var next: LockScreenLook { self == .cover ? .lyrics : .cover }
 }
 
-enum LyricStyle: String, CaseIterable, Identifiable, Defaults.Serializable {
-    case lines = "Lines"
-    case bigWords = "Big Words"
-    case lens = "Lens"
-    case stars = "Stars"
-    case terminal = "Terminal"
+// How the lock screen lights the lyrics as they are sung.
+enum LyricHighlight: String, CaseIterable, Identifiable, Defaults.Serializable {
+    case line = "Line by line"
+    case word = "Word by word"
 
     var id: String { rawValue }
 }
@@ -129,8 +120,8 @@ extension Defaults.Keys {
     // Visor: a padlock in the notch for a few seconds on lock and unlock.
     static let lockScreenAnimation = Key<Bool>("lockScreenAnimation", default: true)
     static let lockScreenWidgets = Key<Bool>("lockScreenWidgets", default: true)
-    static let lockScreenLook = Key<LockScreenLook>("lockScreenLook", default: .record)
-    static let lockScreenLyricStyle = Key<LyricStyle>("lockScreenLyricStyle", default: .lines)
+    static let lockScreenLook = Key<LockScreenLook>("lockScreenLook", default: .cover)
+    static let lockScreenLyricHighlight = Key<LyricHighlight>("lockScreenLyricHighlight", default: .line)
     static let lockScreenBackdrop = Key<LockScreenBackdrop>("lockScreenBackdrop", default: .cover)
     static let lockScreenLyricsAlbumColor = Key<Bool>("lockScreenLyricsAlbumColor", default: true)
     static let lockScreenKeepAwake = Key<Bool>("lockScreenKeepAwake", default: true)

@@ -4,7 +4,7 @@ import SwiftUI
 struct LockScreenSettings: View {
     @Default(.lockScreenLook) private var look
     @Default(.lockScreenBackdrop) private var backdrop
-    @Default(.lockScreenLyricStyle) private var style
+    @Default(.lockScreenLyricHighlight) private var highlight
 
     var body: some View {
         Form {
@@ -28,7 +28,7 @@ struct LockScreenSettings: View {
                 Text("Now Playing")
             } footer: {
                 Text(
-                    "On the lock screen, click the record or the cover to step through Record, Cover and Lyrics. "
+                    "On the lock screen, click the cover to switch between Cover and Lyrics. "
                         + "The background shows behind the cover and the lyrics."
                 )
                 .font(.caption)
@@ -36,9 +36,10 @@ struct LockScreenSettings: View {
             }
 
             Section {
-                Picker("Style", selection: $style) {
-                    ForEach(LyricStyle.allCases) { Text($0.rawValue).tag($0) }
+                Picker("Light up", selection: $highlight) {
+                    ForEach(LyricHighlight.allCases) { Text($0.rawValue).tag($0) }
                 }
+                .pickerStyle(.segmented)
                 Defaults.Toggle(key: .lockScreenLyricsAlbumColor) {
                     Text("Color the words from the album cover")
                 }

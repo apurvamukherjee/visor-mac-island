@@ -19,6 +19,7 @@ enum CheckLyricTiming {
         precondition(start.line == 0 && start.word == 0 && start.wordProgress == 0)
         let third = LyricTiming.cursor(lines: lines, at: 10 + 2 * 12 / 23)!
         precondition(third.line == 0 && third.word == 2 && abs(third.wordProgress - 2.0 / 7) < 1e-9)
+        precondition(abs(third.wordDuration - 2.0 * 7 / 23) < 1e-9)
 
         // Words never run backwards as time moves on.
         var last = -1

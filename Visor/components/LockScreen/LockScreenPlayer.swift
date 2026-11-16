@@ -3,13 +3,13 @@ import Combine
 import Defaults
 import SwiftUI
 
-/// Now Playing on the lock screen: a record under the clock, the cover, or the
-/// song's lyrics, with the running timer below.
+/// Now Playing on the lock screen: the cover over its controls, alone or
+/// beside the song's lyrics, with the running timer below.
 ///
 /// Two windows share the screen, both in the above-the-shield SkyLight space
 /// the notch uses while locked. The stage is the full screen and never takes a
-/// click: the backdrop and the lyrics. The player, with the record, the cover
-/// and the buttons, stops short of the bottom of the screen, so no part of it
+/// click: the backdrop and the lyrics. The player, with the cover and the
+/// buttons, stops short of the bottom of the screen, so no part of it
 /// can ever sit over the password field.
 ///
 /// Both are created on lock and their SwiftUI trees dropped on unlock, so
@@ -145,67 +145,22 @@ final class LockScreenPlayer: ObservableObject {
 struct LockScreenLayout {
     let size: CGSize
     let look: LockScreenLook
-    let style: LyricStyle
+
+    static let coverSide: CGFloat = 310
+    static let cardHeight: CGFloat = 122
 
     var unit: CGFloat { size.height / 956 }
     func scaled(_ value: CGFloat) -> CGFloat { value * unit }
 
-    /// The lyrics look with a full-width style: the words take the middle of
-    /// the screen and the cover moves into the card.
-    var wordsTakeTheStage: Bool { look == .lyrics && style != .lines }
-    private var splitsTheScreen: Bool { look == .lyrics && style == .lines }
+    /// The cover and the card are one column: centred on its own, moved left
+    /// to make room for the lyrics.
+    private var columnX: CGFloat { size.width / 2 - (look == .lyrics ? scaled(300) : 0) }
 
-    static let vinylBase: CGFloat = 150
-    static let coverBase: CGFloat = 330
-    static let slotSide: CGFloat = 44
-    static let cardSize = CGSize(width: 304, height: 118)
-    private static let cardPadding: CGFloat = 12
-
-    private var columnX: CGFloat { splitsTheScreen ? size.width / 2 - scaled(320) : size.width / 2 }
-
-    var cardCenter: CGPoint {
-        let top: CGFloat = switch look {
-        case .record: 620
-        case .cover: 632
-        case .lyrics: style == .lines ? 630 : 626
-        }
-        return CGPoint(x: columnX, y: scaled(top + Self.cardSize.height / 2))
-    }
-
-    /// The small square at the card's top left, where whichever of the record
-    /// and the cover is not the main picture waits.
-    var slotCenter: CGPoint {
-        let inset = Self.cardPadding + Self.slotSide / 2
-        return CGPoint(
-            x: cardCenter.x - scaled(Self.cardSize.width / 2 - inset),
-            y: cardCenter.y - scaled(Self.cardSize.height / 2 - inset)
-        )
-    }
-
-    var vinyl: (center: CGPoint, side: CGFloat) {
-        let (center, side) = look == .record
-            ? (CGPoint(x: columnX, y: scaled(515)), scaled(Self.vinylBase))
-            : (slotCenter, scaled(Self.slotSide))
-        // VinylDisc keeps its right edge for the tonearm, so the record sits
-        // left of its box's middle. The nudge puts the record itself on centre.
-        return (CGPoint(x: center.x + side * 0.06, y: center.y), side)
-    }
-
-    var cover: (center: CGPoint, side: CGFloat) {
-        switch look {
-        case .record: (slotCenter, scaled(Self.slotSide))
-        case .cover: (CGPoint(x: columnX, y: scaled(468)), scaled(274))
-        case .lyrics: wordsTakeTheStage ? (slotCenter, scaled(Self.slotSide)) : (CGPoint(x: columnX, y: scaled(443)), scaled(Self.coverBase))
-        }
-    }
-
-    /// Only one of the two can wait in the card's slot.
-    var showsVinyl: Bool { !wordsTakeTheStage }
+    var coverCenter: CGPoint { CGPoint(x: columnX, y: scaled(446)) }
+    var cardCenter: CGPoint { CGPoint(x: columnX, y: scaled(620 + Self.cardHeight / 2)) }
 
     /// Where the lyrics are drawn.
     var lyrics: CGRect {
-        style == .lines
-            ? CGRect(x: size.width / 2 + scaled(20), y: scaled(243), width: scaled(420), height: scaled(400))
-            : CGRect(x: size.width / 2 - scaled(560), y: scaled(262), width: scaled(1120), height: scaled(350))
+        CGRect(x: size.width / 2 - scaled(90), y: scaled(262), width: scaled(560), height: scaled(490))
     }
 }

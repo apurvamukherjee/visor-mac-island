@@ -8,6 +8,8 @@ struct LyricCursor: Equatable {
     var word: Int
     /// How far through that word, 0...1.
     var wordProgress: Double
+    /// Seconds that word takes to sing; 0 when no word is being sung.
+    var wordDuration: Double = 0
 }
 
 /// Word timing for lyrics that are only synced per line.
@@ -44,10 +46,13 @@ enum LyricTiming {
 
         // A short word still takes a beat to sing, hence the constant.
         let weights = words.map { Double($0.count) + 2 }
-        var remaining = into / duration * weights.reduce(0, +)
+        let total = weights.reduce(0, +)
+        var remaining = into / duration * total
         for (word, weight) in weights.enumerated() {
             if remaining < weight {
-                return LyricCursor(line: index, word: word, wordProgress: remaining / weight)
+                return LyricCursor(
+                    line: index, word: word, wordProgress: remaining / weight, wordDuration: duration * weight / total
+                )
             }
             remaining -= weight
         }

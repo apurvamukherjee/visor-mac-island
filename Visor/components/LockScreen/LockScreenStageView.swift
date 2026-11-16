@@ -9,11 +9,11 @@ struct LockScreenStageView: View {
     @EnvironmentObject private var controller: LockScreenPlayer
     @ObservedObject private var music = MusicManager.shared
     @Default(.lockScreenLook) private var look
-    @Default(.lockScreenLyricStyle) private var style
+    @Default(.lockScreenLyricHighlight) private var highlight
     @Default(.lockScreenBackdrop) private var backdrop
     @Default(.lockScreenLyricsAlbumColor) private var albumColor
 
-    private var layout: LockScreenLayout { LockScreenLayout(size: screenSize, look: look, style: style) }
+    private var layout: LockScreenLayout { LockScreenLayout(size: screenSize, look: look) }
     private func scaled(_ value: CGFloat) -> CGFloat { layout.scaled(value) }
 
     private var hasMedia: Bool { music.isPlaying || !music.isPlayerIdle || controller.isPreview }
@@ -27,8 +27,6 @@ struct LockScreenStageView: View {
                     .frame(width: screenSize.width, height: screenSize.height)
                     .clipped()
                     .mask(backdropMask)
-                    // Under the record the wallpaper is left alone.
-                    .opacity(look == .record ? 0 : 1)
                 if look == .lyrics {
                     lyrics
                         .frame(width: layout.lyrics.width, height: layout.lyrics.height)
@@ -39,7 +37,6 @@ struct LockScreenStageView: View {
         }
         .frame(width: screenSize.width, height: screenSize.height)
         .animation(.easeInOut(duration: 1.1), value: look)
-        .animation(.easeInOut(duration: 0.6), value: style)
         .animation(.easeInOut(duration: 0.8), value: backdrop)
         .animation(.smooth, value: hasMedia)
         .contentShape(Rectangle())
@@ -100,8 +97,9 @@ struct LockScreenStageView: View {
         let lines = isSample ? LockScreenPlayer.sampleLines : music.syncedLyrics
         if lines.isEmpty {
             Text(music.isFetchingLyrics ? "Finding lyrics…" : "No synced lyrics for this song")
-                .font(.system(size: scaled(20), weight: .semibold))
-                .foregroundStyle(.white.opacity(0.5))
+                .font(.system(size: scaled(22), weight: .bold))
+                .foregroundStyle(.white.opacity(0.4))
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .shadow(color: .black.opacity(0.4), radius: 6)
         } else {
             let texts = lines.map(\.text)
@@ -111,10 +109,9 @@ struct LockScreenStageView: View {
                     .truncatingRemainder(dividingBy: LockScreenPlayer.previewLoop)
                     : music.estimatedPlaybackPosition(at: timeline.date)
                 if let cursor = LyricTiming.cursor(lines: lines, at: elapsed) {
-                    LyricStyleView(
-                        style: style, texts: texts, cursor: style.followsWithinWord ? cursor.steppedProgress : cursor.wholeWords,
-                        blink: Int(timeline.date.timeIntervalSinceReferenceDate * 2).isMultiple(of: 2),
-                        tint: tint, unit: layout.unit
+                    LockScreenLyrics(
+                        texts: texts, cursor: highlight == .word ? cursor.wholeWords : cursor.wholeLine,
+                        byWord: highlight == .word, tint: tint, unit: layout.unit
                     )
                     .equatable()
                 }
@@ -148,16 +145,10 @@ struct LockScreenStageView: View {
     }
 }
 
-private extension LyricStyle {
-    /// Whether the style moves inside a word, not just from word to word.
-    var followsWithinWord: Bool { self == .lens || self == .terminal }
-}
-
 private extension LyricCursor {
-    /// Progress in 24 steps, so a style that draws it is not rebuilt on every frame.
-    var steppedProgress: LyricCursor {
-        LyricCursor(line: line, word: word, wordProgress: (wordProgress * 24).rounded() / 24)
-    }
+    /// Without the progress inside the word, so the lyrics are not rebuilt on every frame.
+    var wholeWords: LyricCursor { LyricCursor(line: line, word: word, wordProgress: 0, wordDuration: wordDuration) }
 
-    var wholeWords: LyricCursor { LyricCursor(line: line, word: word, wordProgress: 0) }
+    /// Only whether the line has started, for lyrics lit a line at a time.
+    var wholeLine: LyricCursor { LyricCursor(line: line, word: min(word, 0), wordProgress: 0) }
 }
