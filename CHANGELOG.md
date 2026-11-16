@@ -4,6 +4,12 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.15.0 (build 65) · 2026-11-16
+
+- **Beta features, on Mac and Windows.** A new Beta features group (Settings › Appearance on the Mac, Settings › Extras on Windows). Everything in it is off until you turn it on.
+- **Visualizer styles (beta).** The closed island's visualizer can be Bars (as before), Wave, Dots or Pet: a small pixel creature in the cover's colour that bobs to the music and naps when you pause. Each is a loop the system plays by itself, so none costs more than the bars.
+- **Copy text from shelf images (beta).** Turn it on and an image on the shelf gets Copy Text (right-click › Image Actions on the Mac, a button on Windows). Its words go to the clipboard, read on your computer by the OCR built into macOS and Windows; nothing is uploaded. New screenshots land on the shelf, so this works for them too.
+
 ## 3.14.2 (build 64) · 2026-11-16
 
 - **Lighter on Windows.** Visor used to ask Windows for the pointer, the volume and the song many times a second, all day. It now waits to be told: the volume and the list of outputs come from Windows' own notifications, the player is read when it reports a change, and the pointer is checked less often once it stops moving. The island looks and behaves the same.
