@@ -40,7 +40,8 @@ struct LockScreenLyrics: View, Equatable {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heights[index] = $0 }
                         .scaleEffect(isSung ? 1 : 0.95, anchor: .leading)
-                        .blur(radius: isSung ? 0 : CGFloat(min(max(distance, 1), 4)) * 1.1 * unit)
+                        // The neighbours stay sharp: a slight blur on text reads as low resolution, not depth.
+                        .blur(radius: CGFloat(min(max(distance - 1, 0), 3)) * 2 * unit)
                         .opacity(distance > Self.reach ? 0 : 1)
                         .offset(y: shift)
                         // The lines below follow a beat behind one another, so the column moves like a wave.
@@ -70,32 +71,42 @@ struct LockScreenLyrics: View, Equatable {
         return above + (heights[line] ?? fallback) / 2
     }
 
-    /// The line in dim white, with the same words in the tint laid over it.
-    /// The tint comes into focus out of a blur and melts back into one, a
-    /// line at a time or a word at a time.
+    /// The line in dim white, with the same words in the tint laid over it:
+    /// faded in whole, or swept in a word at a time. The letters themselves
+    /// are never blurred here: a soft tint over a sharp word reads as a smudge.
     private func line(_ text: String, isSung: Bool) -> some View {
         let pieces = byWord ? LyricTiming.words(in: text) : [text]
         let isRightToLeft = text.unicodeScalars.contains { (0x0590 ... 0x08FF).contains($0.value) }
-        // A word takes as long to arrive as it does to sing, but never so short that it snaps.
-        let arrive = Animation.easeOut(duration: byWord ? max(0.5, cursor.wordDuration * 1.3) : 0.8)
         return WordFlow(spacing: fontSize * 0.27) {
             ForEach(Array(pieces.enumerated()), id: \.offset) { position, piece in
                 let isLit = isSung && (!byWord || position <= cursor.word)
                 Text(piece)
                     .foregroundStyle(.white.opacity(Self.dim))
-                    // The words still to come wait a little out of focus.
-                    .blur(radius: isSung && !isLit ? 1.2 * unit : 0)
                     .overlay {
                         Text(piece)
                             .foregroundStyle(tint)
-                            .shadow(color: tint.opacity(0.4), radius: 12 * unit)
-                            .blur(radius: isLit ? 0 : 7 * unit)
-                            .opacity(isLit ? 1 : 0)
+                            .mask { sweep(isOpen: isLit || !byWord, isMirrored: isRightToLeft) }
+                            .opacity(isSung ? 1 : 0)
                     }
-                    .animation(isLit ? arrive : .easeInOut(duration: 0.8), value: isLit)
             }
         }
         .environment(\.layoutDirection, isRightToLeft ? .rightToLeft : .leftToRight)
+    }
+
+    /// Opens across the word in the time it takes to sing, behind a wide soft edge.
+    private func sweep(isOpen: Bool, isMirrored: Bool) -> some View {
+        LinearGradient(
+            stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.6), .init(color: .clear, location: 1)],
+            startPoint: UnitPoint(x: 0, y: 0.5), endPoint: UnitPoint(x: 1, y: 0.5)
+        )
+        // At 1.67 the solid three fifths cover the whole word.
+        .scaleEffect(x: isOpen ? 1.67 : 0.001, anchor: UnitPoint(x: 0, y: 0.5))
+        // Closing waits until the line has faded, so a sung line never sweeps backwards.
+        .animation(
+            isOpen ? .easeInOut(duration: max(0.35, cursor.wordDuration * 1.2)) : .linear(duration: 0.01).delay(0.8), value: isOpen
+        )
+        .environment(\.layoutDirection, .leftToRight)
+        .scaleEffect(x: isMirrored ? -1 : 1)
     }
 }
 
