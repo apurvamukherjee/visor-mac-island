@@ -4,6 +4,13 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.14.0 (build 62) · 2026-11-16
+
+- **Lock screen lyrics, rebuilt.** The song's words scroll in one column beside the cover. The line being sung comes into focus out of a blur while the lines around it dim and soften, and the column glides up a line at a time. Settings › Lock Screen › Light up chooses Line by line or Word by word. Big Words, Lens, Stars and Terminal are gone.
+- **No more record on the lock screen.** There are two looks now, Cover and Lyrics, and clicking the cover switches between them. If you had Record chosen you get Cover. Vinyl mode in the notch is unchanged.
+- **A sharper cover.** Artwork is kept at 1024 px instead of 600, so the lock screen's cover no longer breaks into pixels on large displays.
+- **A cleaner card.** It is as wide as the cover, with a larger title and play button and the favorite heart beside the title. The single lyric line under it is gone; the Lyrics look is where the words live.
+
 ## 3.13.1 (build 61) · 2026-11-12
 
 - **The edge glow runs under the notch** instead of across it.
