@@ -59,7 +59,7 @@ brew install --cask apurvamukherjee/tap/visor
 </p>
 
 <p align="center">
-  <img src="assets/readme/lock-screen.png" width="100%" alt="The Mac lock screen with the song's cover and Now Playing card on the left and its lyrics on the right, the line being sung lit in the cover's blue"><br>
+  <img src="assets/readme/lock-screen.png" width="100%" alt="The Mac lock screen with the song's cover and Now Playing card on the left and its lyrics on the right, the line being sung in focus and lit word by word in the cover's pink"><br>
   <b>Lock screen.</b> The cover, the controls and the lyrics, lit as they are sung.
 </p>
 
