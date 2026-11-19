@@ -54,6 +54,11 @@ brew install --cask apurvamukherjee/tap/visor
 </p>
 
 <p align="center">
+  <img src="assets/readme/home-tasks.png" width="100%" alt="Open notch with the music player beside the Tasks panel: the top task, Send the invoice to Acme, marked high priority with two red exclamation marks and overdue since 18 Nov, with six more tasks, a ring showing 2 of 6 done today, and buttons to add, complete and step to the next task"><br>
+  <b>Or your tasks.</b> The button beside the tabs swaps the calendar for the task that matters most, and a ring for today.
+</p>
+
+<p align="center">
   <img src="assets/readme/shelf.png" width="100%" alt="The shelf tab with AirDrop and a drop zone"><br>
   <b>Shelf.</b> Drop files here, AirDrop them from here.
 </p>
