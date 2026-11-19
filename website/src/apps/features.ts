@@ -18,6 +18,7 @@ export const features: Feature[] = [
   { title: 'Battery', icon: icon('battery'), text: 'Charge level beside the notch, and a heads-up when you plug in or unplug.' },
   { title: 'Shelf', icon: icon('shelf'), text: 'Drop files on the notch, drag them out later, AirDrop or Quick Look them. They survive restarts.' },
   { title: 'Calendar & Reminders', icon: icon('calendar'), text: 'A week strip with today’s events, weather, and a one-click Join for Zoom, Meet, Teams and Webex.' },
+  { title: 'Tasks', icon: icon('tasks'), text: 'Inbox, Today and Upcoming, with dates and priority typed as you go: “call the bank tomorrow 5pm !!”. The notch shows the top one, and Reminders sync carries them to your iPhone.' },
   { title: 'Mirror', icon: icon('mirror'), text: 'A camera check in one click before a call. Round or square.' },
   { title: 'Hover & gestures', icon: icon('gestures'), text: 'Hover to open, scroll down to open, up to close, sideways to skip, with a haptic tap.' },
   { title: 'Timer', icon: icon('live'), text: 'A 1 to 60 minute timer. The countdown sits beside the notch and a bell rings at the end.' },

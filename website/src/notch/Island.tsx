@@ -22,10 +22,19 @@ const tabs: { id: Tab; label: string; path: string }[] = [
   { id: 'shelf', label: 'Shelf', path: 'M4 13l2-8h12l2 8v6H4zm2.3 0H9a3 3 0 0 0 6 0h2.7l-1.4-6H7.7z' },
 ];
 
+// Calendar and checklist glyphs for the button that swaps what sits beside the player.
+const PANEL_ICON = {
+  calendar: 'M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm-1 5v9h16v-9zM7 2h2v4H7zm8 0h2v4h-2z',
+  tasks: 'M4 5.5l1.5 1.5L8.5 4 10 5.5 5.5 10 2.5 7zM12 6h9v2h-9zm-8 6.5h4v4H4zm8 .5h9v2h-9zM4 18h4v2H4zm8 0h9v2h-9z',
+};
+
 function Header() {
   const tab = useNotch((s) => s.tab);
   const setTab = useNotch((s) => s.setTab);
+  const panel = useNotch((s) => s.panel);
+  const setPanel = useNotch((s) => s.setPanel);
   const { supported, level, charging } = useBattery();
+  const other = panel === 'calendar' ? 'tasks' : 'calendar';
   return (
     <div className="island-header">
       <div className="island-tabs" role="tablist">
@@ -35,6 +44,11 @@ function Header() {
           </button>
         ))}
       </div>
+      {tab === 'home' && (
+        <button className="island-tab island-panel-switch" aria-label={`Show ${other}`} title={`Show ${other}`} onClick={() => setPanel(other)}>
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d={PANEL_ICON[other]} /></svg>
+        </button>
+      )}
       {supported && (
         <span className="island-battery">
           {Math.round(level * 100)}%

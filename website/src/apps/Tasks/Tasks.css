@@ -1,0 +1,147 @@
+.tk {
+  --inbox: #0a84ff; --today: #ff9f0a; --upcoming: #bf5af2; --completed: #30d158;
+  --high: #ff453a; --medium: #ff9f0a; --low: #8e8e93;
+  --muted: rgb(255 255 255 / 0.55); --faint: rgb(255 255 255 / 0.32); --line: rgb(255 255 255 / 0.08);
+  display: flex; height: 100%; font-size: 13px; color: #f4f4f5;
+}
+.tint-inbox { --tint: var(--inbox); }
+.tint-today { --tint: var(--today); }
+.tint-upcoming { --tint: var(--upcoming); }
+.tint-completed { --tint: var(--completed); }
+.tk svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Menus */
+.tk-menu { position: relative; display: inline-flex; flex: none; }
+.tk-menu-btn { padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
+.tk-menu-btn:focus-visible { outline: 2px solid var(--inbox); border-radius: 6px; }
+.tk-menu-list {
+  position: absolute; z-index: 5; top: calc(100% + 4px); right: 0; min-width: 190px; padding: 5px;
+  display: flex; flex-direction: column; border-radius: 9px; background: rgb(44 44 47 / 0.98);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.45), inset 0 0 0 1px rgb(255 255 255 / 0.08);
+}
+.tk-menu-list button { display: flex; gap: 6px; padding: 4px 8px; border: 0; border-radius: 5px; background: none; color: #f4f4f5; font: inherit; font-size: 12.5px; text-align: left; white-space: nowrap; cursor: pointer; }
+.tk-menu-list button span { width: 12px; flex: none; }
+.tk-menu-list button:hover, .tk-menu-list button:focus-visible { background: var(--inbox); outline: 0; }
+.tk-menu-list button.is-danger { color: var(--high); }
+.tk-menu-list button.is-danger:hover { color: #fff; background: var(--high); }
+.tk-menu-list hr { width: 100%; margin: 4px 0; border: 0; border-top: 1px solid var(--line); }
+
+/* Sidebar */
+.tk-side { flex: none; width: 180px; display: flex; flex-direction: column; gap: 2px; padding: 6px 8px; background: rgb(255 255 255 / 0.04); border-right: 1px solid var(--line); }
+.tk-side-item {
+  display: flex; align-items: center; gap: 9px; padding: 6px 9px; border: 0; border-radius: 7px;
+  background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.tk-side-item svg { width: 17px; height: 17px; color: var(--tint); flex: none; }
+.tk-side-item span { flex: 1; }
+.tk-side-item b { font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tk-side-item b.is-alert { color: var(--high); }
+.tk-side-item:hover { background: rgb(255 255 255 / 0.05); }
+.tk-side-item.is-active { background: rgb(255 255 255 / 0.11); }
+.tk-side-item.is-drop { box-shadow: inset 0 0 0 2px var(--tint); }
+.tk-side-item:focus-visible { outline: 2px solid var(--tint); }
+.tk-side-hint { margin: auto 6px 4px; font-size: 11px; color: var(--faint); line-height: 1.4; }
+
+/* Detail */
+.tk-detail { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.tk-header { padding: 10px 22px 10px; }
+.tk-header h1 { margin: 0; font: 700 26px ui-rounded, -apple-system, system-ui, sans-serif; color: var(--tint); }
+.tk-header p { margin: 3px 0 0; color: var(--muted); }
+.tk-progress { height: 4px; max-width: 260px; margin-top: 8px; border-radius: 2px; background: rgb(255 255 255 / 0.1); overflow: hidden; }
+.tk-progress i { display: block; height: 100%; background: var(--tint); transform-origin: left; transition: transform 0.4s ease; }
+
+.tk-sync {
+  position: absolute; top: 10px; right: 14px; display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border: 0; border-radius: 999px; background: rgb(255 255 255 / 0.08);
+  color: var(--muted); font: inherit; font-size: 12px; cursor: pointer;
+}
+.tk-sync svg { width: 14px; height: 14px; }
+.tk-sync.is-synced { color: var(--completed); }
+.tk-sync:hover { background: rgb(255 255 255 / 0.13); }
+.tk-sync .is-spinning { animation: tk-spin 0.9s linear infinite; }
+@keyframes tk-spin { to { transform: rotate(360deg); } }
+
+/* Quick add */
+.tk-add {
+  display: flex; align-items: center; gap: 10px; margin: 0 16px 6px; padding: 8px 12px;
+  border-radius: 10px; background: rgb(255 255 255 / 0.07); box-shadow: inset 0 0 0 1.5px transparent; transition: box-shadow 0.15s;
+}
+.tk-add:focus-within { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tint) 65%, transparent); }
+.tk-add-plus { width: 18px; height: 18px; flex: none; fill: var(--tint) !important; stroke: none !important; }
+.tk-add-plus path { stroke: #fff; stroke-width: 1.8; }
+.tk-add input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; color: inherit; font: inherit; }
+.tk-add input::placeholder { color: var(--faint); }
+.tk-flag svg { width: 16px; height: 16px; }
+.tk-flag.p2 { color: var(--high); } .tk-flag.p1 { color: var(--medium); } .tk-flag.p0 { color: var(--low); }
+.tk-flag.p2 svg, .tk-flag.p1 svg { fill: currentColor; }
+.tk-due-btn { font-size: 12.5px; white-space: nowrap; }
+.tk-due-btn.is-none { color: var(--muted); }
+.tk-due-btn.is-read { color: var(--tint); }
+
+/* Groups and rows */
+.tk-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 12px 70px; }
+.tk-group { display: flex; align-items: baseline; gap: 6px; margin: 14px 10px 3px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.tk-scroll > div:first-child .tk-group { margin-top: 4px; }
+.tk-group span { font-weight: 400; color: var(--faint); }
+.tk-group.is-overdue { color: var(--high); }
+.tk-group button { margin-left: auto; border: 0; background: none; padding: 0; color: var(--inbox); font: inherit; font-size: 11.5px; letter-spacing: 0; text-transform: none; font-weight: 500; cursor: pointer; }
+.tk-rows { list-style: none; margin: 0; padding: 0; }
+.tk-row {
+  --p: var(--medium);
+  display: flex; align-items: flex-start; gap: 9px; padding: 6px 8px; border-radius: 7px; transition: background 0.12s, opacity 0.3s;
+}
+.tk-row.p2 { --p: var(--high); } .tk-row.p0 { --p: var(--low); }
+.tk-row:hover { background: rgb(255 255 255 / 0.05); }
+.tk-row[draggable='true'] { cursor: grab; }
+.tk-check { flex: none; width: 20px; height: 20px; padding: 0; border: 0; background: none; color: var(--p); cursor: pointer; }
+.tk-check svg { width: 20px; height: 20px; }
+.tk-check circle { transition: fill 0.2s; }
+.tk-check path { stroke: #fff; stroke-width: 2; stroke-dasharray: 12; stroke-dashoffset: 12; transition: stroke-dashoffset 0.25s 0.05s; }
+.tk-row.is-done .tk-check circle { fill: currentColor; }
+.tk-row.is-done .tk-check path { stroke-dashoffset: 0; }
+.tk-row.is-completing .tk-check { animation: tk-pop 0.35s ease; }
+.tk-row.is-done:not(.is-completing) .tk-check { color: var(--faint); }
+@keyframes tk-pop { 40% { transform: scale(1.25); } }
+.tk-check:focus-visible { outline: 2px solid var(--p); border-radius: 50%; }
+.tk-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.tk-title-line { display: flex; align-items: baseline; gap: 4px; min-height: 20px; }
+.tk-marks { color: var(--p); }
+.tk-title { flex: 1; min-width: 0; padding: 0; border: 0; outline: 0; background: none; color: inherit; font: inherit; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tk-row.is-done .tk-title { color: var(--muted); text-decoration: line-through; }
+.tk-notes { font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tk-when { font-size: 11.5px; color: var(--muted); white-space: nowrap; line-height: 20px; }
+
+.tk-chip { padding: 1px 8px; border-radius: 999px; font-size: 11.5px; white-space: nowrap; line-height: 18px; color: var(--muted); background: rgb(255 255 255 / 0.07); }
+.tk-chip.is-overdue { color: var(--high); background: color-mix(in srgb, var(--high) 16%, transparent); }
+.tk-chip.is-soon { color: var(--today); background: color-mix(in srgb, var(--today) 16%, transparent); }
+.tk-icon-btn { display: inline-grid; place-items: center; width: 20px; height: 20px; color: var(--muted); }
+.tk-icon-btn svg { width: 17px; height: 17px; }
+.tk-icon-btn:hover { color: #fff; }
+/* Faded rather than removed, so a row doesn't reflow on hover. */
+.tk-hover { opacity: 0; transition: opacity 0.12s; }
+.tk-row:hover .tk-hover, .tk-hover[aria-expanded='true'], .tk-hover:focus-visible { opacity: 1; }
+@media (hover: none) { .tk-hover { opacity: 1; } }
+
+.tk-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 20px; text-align: center; color: var(--muted); }
+.tk-empty svg { width: 34px; height: 34px; color: var(--tint); }
+.tk-empty b { color: #f4f4f5; font-size: 15px; }
+.tk-clear { display: block; margin: 14px 8px 0 auto; padding: 5px 12px; border: 0; border-radius: 7px; background: rgb(255 255 255 / 0.08); color: inherit; font: inherit; cursor: pointer; }
+
+.tk-toast {
+  position: absolute; left: 50%; bottom: 16px; display: flex; align-items: center; gap: 12px; padding: 9px 16px;
+  border-radius: 999px; background: rgb(58 58 62 / 0.96); box-shadow: 0 8px 24px rgb(0 0 0 / 0.4), inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  white-space: nowrap; max-width: calc(100% - 32px); transform: translateX(-50%); animation: tk-rise 0.25s ease;
+}
+.tk-toast button { border: 0; background: none; padding: 0; color: var(--inbox); font: inherit; font-weight: 600; cursor: pointer; }
+@keyframes tk-rise { from { opacity: 0; transform: translate(-50%, 10px); } }
+
+@media (max-width: 560px) {
+  .tk-side { width: 56px; padding: 6px 4px; }
+  .tk-side-item { justify-content: center; position: relative; }
+  .tk-side-item span, .tk-side-hint { display: none; }
+  .tk-side-item b { position: absolute; top: 0; right: 2px; font-size: 10px; }
+  .tk-sync { font-size: 0; gap: 0; padding: 5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tk-row.is-completing .tk-check, .tk-toast, .tk-sync .is-spinning { animation: none; }
+}

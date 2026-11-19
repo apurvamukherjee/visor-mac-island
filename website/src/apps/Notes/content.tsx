@@ -108,7 +108,7 @@ export const notes: Note[] = [
       <>
         {rows([
           ['Accessibility', 'Replacing the system HUDs and handling the brightness and backlight keys'],
-          ['Calendars, Reminders', 'The calendar and reminders beside the player'],
+          ['Calendars, Reminders', 'The calendar and reminders beside the player, and syncing tasks with Reminders (off unless you turn it on)'],
           ['Camera', 'The mirror'],
           ['Automation', 'Controlling Apple Music and Spotify'],
           ['Location', 'The weather beside the calendar (off unless you turn it on)'],

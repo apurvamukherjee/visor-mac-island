@@ -25,10 +25,12 @@ import { WhatsApp } from './Share/WhatsApp';
 import { X } from './Share/X';
 import { Terminal } from './Terminal/Terminal';
 import { Trash } from './Trash/Trash';
+import { Tasks } from './Tasks/Tasks';
 import { Visor } from './Visor/Visor';
 
 export const views: Partial<Record<AppId, ComponentType>> = {
   visor: Visor,
+  tasks: Tasks,
   downloads: Downloads,
   terminal: Terminal,
   notes: Notes,

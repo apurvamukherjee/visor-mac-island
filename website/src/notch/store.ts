@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { ringBell } from './bell';
 
 export type Tab = 'home' | 'shelf';
+/** What sits beside the player, as in Visor; the header button switches. */
+export type Panel = 'calendar' | 'tasks';
 export type Hud = 'volume' | 'brightness' | 'backlight';
 
 export type Transient =
@@ -21,6 +23,7 @@ export interface ShelfFile {
 interface Notch {
   open: boolean;
   tab: Tab;
+  panel: Panel;
   playing: boolean;
   track: number;
   position: number;
@@ -34,6 +37,7 @@ interface Notch {
   addToShelf: (files: ShelfFile[]) => void;
   setOpen: (open: boolean) => void;
   setTab: (tab: Tab) => void;
+  setPanel: (panel: Panel) => void;
   togglePlay: () => void;
   skip: (by: 1 | -1) => void;
   playTrack: (index: number) => void;
@@ -50,6 +54,7 @@ let ring: ReturnType<typeof setTimeout> | undefined;
 export const useNotch = create<Notch>()((set, get) => ({
   open: false,
   tab: 'home',
+  panel: 'calendar',
   playing: false,
   track: 0,
   position: 0,
@@ -60,6 +65,7 @@ export const useNotch = create<Notch>()((set, get) => ({
   addToShelf: (files) => set((s) => ({ shelf: [...files, ...s.shelf], tab: 'shelf', open: true })),
   setOpen: (open) => set({ open }),
   setTab: (tab) => set({ tab, open: true }),
+  setPanel: (panel) => set({ panel }),
   togglePlay: () => set((s) => ({ playing: !s.playing })),
   skip: (by) => {
     // Like Music: going back mid-song restarts it instead of jumping a track.

@@ -11,7 +11,7 @@ export function Visor() {
         <img src={`${import.meta.env.BASE_URL}icon.png`} alt="" width={96} height={96} />
         <div>
           <h1>Visor</h1>
-          <p>Your MacBook’s notch, put to work: music, calendar, a file shelf and the HUDs, right where the camera sits. Now on Windows too, as an island at the top of the screen.</p>
+          <p>Your MacBook’s notch, put to work: music, calendar, tasks, a file shelf and the HUDs, right where the camera sits. Now on Windows too, as an island at the top of the screen.</p>
           <div className="visor-actions">
             <a className="app-btn is-primary is-big" href={links.dmg}>Download for macOS</a>
             <a className="app-btn is-primary is-big" href={links.exe}><WindowsLogo /> Download for Windows</a>
@@ -20,7 +20,7 @@ export function Visor() {
           <small className="app-muted">Version {version} ({build}) · Free and open source · macOS 14+ · Apple silicon · Windows 10 and 11</small>
         </div>
       </header>
-      <p className="visor-hint app-muted">Hover the notch at the top of the screen to try it.</p>
+      <p className="visor-hint app-muted">Hover the notch at the top of the screen to try it, or open Visor Tasks from the Dock.</p>
       <ul className="visor-features">
         {features.map((f) => (
           <li key={f.title}>

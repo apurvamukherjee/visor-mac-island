@@ -27,6 +27,8 @@ import xcode from '../icons/apps/xcode.webp';
 import zoom from '../icons/apps/zoom.svg';
 
 const visor = `${import.meta.env.BASE_URL}icon.png`;
+// Its own icon, so it isn't a second Visor in the Dock.
+const tasks = new URL('../../../assets/readme/icons/tasks.svg', import.meta.url).href;
 
 export interface AppMeta {
   name: string;
@@ -42,6 +44,7 @@ const meta = {
   messages: { name: 'Messages', icon: messages, w: 680, h: 480 },
   facetime: { name: 'FaceTime', icon: facetime, w: 560, h: 420, dark: true },
   visor: { name: 'Visor', icon: visor, w: 780, h: 540 },
+  tasks: { name: 'Visor Tasks', icon: tasks, w: 780, h: 540, dark: true },
   github: { name: 'GitHub', icon: github, w: 900, h: 580 },
   music: { name: 'Music', icon: music, w: 620, h: 420 },
   maps: { name: 'Maps', icon: maps, w: 720, h: 480 },
@@ -71,6 +74,6 @@ export type AppId = keyof typeof meta;
 export const apps: Record<AppId, AppMeta> = meta;
 
 export const dockOrder: AppId[] = [
-  'finder', 'launchpad', 'messages', 'facetime', 'visor', 'github', 'music', 'maps', 'appstore', 'notes', 'safari',
+  'finder', 'launchpad', 'messages', 'facetime', 'visor', 'tasks', 'github', 'music', 'maps', 'appstore', 'notes', 'safari',
   'downloads', 'claude', 'settings', 'xcode', 'terminal', 'whatsapp', 'x', 'chrome', 'zoom', 'meet',
 ];

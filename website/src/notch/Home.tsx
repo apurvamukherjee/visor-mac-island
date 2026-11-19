@@ -1,6 +1,7 @@
 import { icons } from '../os/ControlCenter/icons';
 import { useSettings } from '../store/settings';
 import { Calendar } from './Calendar';
+import { TasksPanel } from './TasksPanel';
 import { useNotch } from './store';
 import { Cover } from './Cover';
 import { PREVIEW_S, formatTime, trackAt, type Track } from './tracks';
@@ -55,10 +56,11 @@ export function Player() {
 }
 
 export function Home() {
+  const panel = useNotch((s) => s.panel);
   return (
     <div className="home">
       <Player />
-      <Calendar />
+      {panel === 'tasks' ? <TasksPanel /> : <Calendar />}
     </div>
   );
 }
