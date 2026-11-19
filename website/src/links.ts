@@ -12,6 +12,9 @@ export const links = {
   newIssue: `${repo}/issues/new`,
   license: `${repo}/blob/main/LICENSE`,
   author: 'https://github.com/apurvamukherjee',
+  // MacNative's own embed: the listing link carries their referral tags, the badge is served by them.
+  macnative: 'https://macnative.io/apps/visor?utm_source=macnative-badge&utm_medium=referral',
+  macnativeBadge: (theme: 'light' | 'dark') => `https://macnative.io/badge?kind=listed&theme=${theme}&slug=visor`,
 } as const;
 
 export const QUARANTINE_CMD = 'xattr -dr com.apple.quarantine /Applications/Visor.app';

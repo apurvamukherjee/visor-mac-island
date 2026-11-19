@@ -27,6 +27,8 @@ brew install --cask apurvamukherjee/tap/visor
 
 **[Try Visor in your browser →](https://apurvamukherjee.github.io/visor-mac-island/)** No install needed.
 
+<a href="https://macnative.io/apps/visor?utm_source=macnative-badge&utm_medium=referral"><picture><source media="(prefers-color-scheme: dark)" srcset="https://macnative.io/badge?kind=listed&theme=dark&slug=visor"><img src="https://macnative.io/badge?kind=listed&theme=light&slug=visor" alt="Listed on MacNative" width="160" height="44"></picture></a>
+
 <a href="https://github.com/apurvamukherjee/visor-mac-island/releases/latest"><img src="https://img.shields.io/github/v/release/apurvamukherjee/visor-mac-island?style=flat-square&label=Latest&color=16a34a&labelColor=18181b" alt="Latest version"></a>&nbsp;<a href="CHANGELOG.md"><img src="https://img.shields.io/github/release-date/apurvamukherjee/visor-mac-island?style=flat-square&label=Released&color=0078d4&labelColor=18181b" alt="Release date"></a><br>
 <sub>Both buttons always fetch the newest release. What changed: <a href="CHANGELOG.md">CHANGELOG.md</a> · older builds: <a href="https://github.com/apurvamukherjee/visor-mac-island/releases">Releases</a></sub>
 

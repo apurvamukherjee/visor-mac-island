@@ -1,6 +1,6 @@
 import { links } from '../../links';
 import { features } from '../features';
-import { WindowsLogo } from '../ui';
+import { MacNativeBadge, WindowsLogo } from '../ui';
 import './Visor.css';
 
 export function Visor() {
@@ -17,6 +17,7 @@ export function Visor() {
             <a className="app-btn is-primary is-big" href={links.exe}><WindowsLogo /> Download for Windows</a>
             <a className="app-btn is-big" href={links.repo} target="_blank" rel="noreferrer">View on GitHub ↗</a>
           </div>
+          <MacNativeBadge />
           <small className="app-muted">Version {version} ({build}) · Free and open source · macOS 14+ · Apple silicon · Windows 10 and 11</small>
         </div>
       </header>

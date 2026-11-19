@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { links } from '../links';
 import './ui.css';
 
 export function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) {
@@ -29,5 +30,17 @@ export function Command({ text }: { text: string }) {
       <code>{text}</code>
       <CopyButton text={text} />
     </div>
+  );
+}
+
+/** MacNative's "Listed on" badge. Until the listing is published their image 404s, so it falls back to a text link. */
+export function MacNativeBadge({ theme = 'light' }: { theme?: 'light' | 'dark' }) {
+  const [failed, setFailed] = useState(false);
+  return (
+    <a className="macnative-badge" href={links.macnative} target="_blank" rel="noopener">
+      {failed
+        ? 'Listed on MacNative ↗'
+        : <img src={links.macnativeBadge(theme)} alt="Listed on MacNative" width={160} height={44} loading="lazy" onError={() => setFailed(true)} />}
+    </a>
   );
 }

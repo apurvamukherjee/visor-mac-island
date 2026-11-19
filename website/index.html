@@ -22,6 +22,8 @@
       #boot.is-done .boot-bar i { width: 100%; transition-duration: 0.3s; }
       #boot.is-done { opacity: 0; transition-delay: 0.35s; }
     </style>
+    <!-- Without JavaScript the boot screen is never removed; show the fallback on black instead. -->
+    <noscript><style>#boot { display: none; } body { background: #000; }</style></noscript>
   </head>
   <body>
     <div id="boot" aria-hidden="true">
@@ -43,6 +45,14 @@
       }
     </script>
     <div id="root"></div>
+    <noscript>
+      <div style="position: fixed; top: 18vh; left: 0; right: 0; max-width: 520px; margin: 0 auto; padding: 0 24px; font: 15px/1.5 -apple-system, system-ui, sans-serif; color: #f4f4f5; text-align: center;">
+        <h1 style="margin: 0 0 8px;">Visor</h1>
+        <p>This website is a working macOS desktop and needs JavaScript. Visor itself is a free, open-source notch app for MacBooks and Windows PCs.</p>
+        <p><a style="color: #60a5fa;" href="https://github.com/apurvamukherjee/visor-mac-island/releases/latest/download/Visor.dmg">Download for macOS</a> · <a style="color: #60a5fa;" href="https://github.com/apurvamukherjee/visor-mac-island">GitHub</a></p>
+        <a href="https://macnative.io/apps/visor?utm_source=macnative-badge&amp;utm_medium=referral"><img src="https://macnative.io/badge?kind=listed&amp;theme=dark&amp;slug=visor" alt="Listed on MacNative" width="160" height="44"></a>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

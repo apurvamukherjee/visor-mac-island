@@ -58,6 +58,7 @@ button.widget, a.widget { cursor: pointer; }
 
 .widget-star { display: flex; align-items: center; gap: 12px; }
 .widget-star span:nth-child(2) { flex: 1; min-width: 0; font-size: 13px; }
+.widget-macnative { display: flex; justify-content: center; padding-block: 6px; }
 .widget-star-btn { padding: 5px 10px; border-radius: 8px; background: rgb(255 255 255 / 0.14); font-size: 12px; font-weight: 600; }
 
 .widget-sticky {

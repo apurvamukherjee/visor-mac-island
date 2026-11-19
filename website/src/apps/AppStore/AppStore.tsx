@@ -2,6 +2,7 @@ import closed from '../../../../assets/readme/closed.png';
 import home from '../../../../assets/readme/home.png';
 import shelf from '../../../../assets/readme/shelf.png';
 import { links } from '../../links';
+import { MacNativeBadge } from '../ui';
 import { inline } from '../markdown';
 import './AppStore.css';
 
@@ -36,6 +37,7 @@ export function AppStore() {
             <p>The notch, put to work</p>
             <a className="store-get" href={links.dmg}>Get</a>
             <small>Free · Not on the Mac App Store; downloads the DMG from GitHub</small>
+            <MacNativeBadge />
           </div>
         </header>
         <section>

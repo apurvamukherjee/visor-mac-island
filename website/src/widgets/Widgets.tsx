@@ -1,5 +1,6 @@
 import { apps, type AppId } from '../apps/apps';
 import { openNote } from '../apps/Notes/Notes';
+import { MacNativeBadge } from '../apps/ui';
 import { links } from '../links';
 import { Cover } from '../notch/Cover';
 import { useNotch } from '../notch/store';
@@ -188,6 +189,7 @@ export function Widgets() {
       <aside className="widgets widgets-left" aria-label="Widgets">
         <PortfolioWidget />
         <StarWidget />
+        <div className="widget widget-macnative"><MacNativeBadge theme="dark" /></div>
         <Sticky />
       </aside>
       <aside className="widgets widgets-right" aria-label="Widgets">
