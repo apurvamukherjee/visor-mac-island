@@ -618,6 +618,7 @@ struct CalendarSettings: View {
                     ForEach([5, 15, 30, 60], id: \.self) { Text("\($0) min").tag($0) }
                 }
                 .disabled(!taskAlerts)
+                RemindersSyncControls()
                 Button("Open Tasks…") {
                     TasksWindowController.shared.showWindow()
                 }

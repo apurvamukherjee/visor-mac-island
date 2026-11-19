@@ -14,7 +14,8 @@ class CalendarManager: ObservableObject {
     @Published var calendarAuthorizationStatus: EKAuthorizationStatus = .notDetermined
     @Published var reminderAuthorizationStatus: EKAuthorizationStatus = .notDetermined
     private var selectedCalendars: [CalendarModel] = []
-    private let store = EKEventStore()
+    /// Shared with `RemindersSync`: one store, one permission prompt.
+    let store = EKEventStore()
 
     private init() {
         self.currentWeekStartDate = CalendarManager.startOfDay(Date())
@@ -43,6 +44,7 @@ class CalendarManager: ObservableObject {
         let all = [EKEntityType.event, .reminder]
             .filter { EKEventStore.authorizationStatus(for: $0) == .fullAccess }
             .flatMap { store.calendars(for: $0) }
+            .filter { !Self.isTasksList($0) }
             .map { CalendarModel(from: $0) }
         self.eventCalendars = all.filter { !$0.isReminder }
         self.reminderLists = all.filter { $0.isReminder }
@@ -114,6 +116,12 @@ class CalendarManager: ObservableObject {
         await updateEvents()
     }
 
+    /// The list Reminders sync keeps tasks in. Its reminders already show as
+    /// tasks, so the calendar would show each one twice.
+    static func isTasksList(_ calendar: EKCalendar) -> Bool {
+        calendar.calendarIdentifier == Defaults[.remindersListID]
+    }
+
     static func startOfDay(_ date: Date) -> Date {
         return Calendar.current.startOfDay(for: date)
     }
@@ -131,7 +139,9 @@ class CalendarManager: ObservableObject {
         let start = currentWeekStartDate
         let end = Calendar.current.date(byAdding: .day, value: 1, to: start)!
         func calendars(for type: EKEntityType) -> [EKCalendar] {
-            store.calendars(for: type).filter { ids.isEmpty || ids.contains($0.calendarIdentifier) }
+            store.calendars(for: type).filter {
+                !Self.isTasksList($0) && (ids.isEmpty || ids.contains($0.calendarIdentifier))
+            }
         }
 
         var events: [EventModel] = []

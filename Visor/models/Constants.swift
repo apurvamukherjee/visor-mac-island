@@ -228,6 +228,9 @@ extension Defaults.Keys {
     static let todos = Key<[TodoItem]>("todos", default: [])
     static let taskAlerts = Key<Bool>("taskAlerts", default: true)
     static let taskAlertLead = Key<Int>("taskAlertLead", default: 15)
+    static let syncReminders = Key<Bool>("syncReminders", default: false)
+    /// The "Visor" list in Reminders. Stored by ID so renaming the list keeps the link.
+    static let remindersListID = Key<String?>("remindersListID", default: nil)
 
     // MARK: Fullscreen Media Detection
     static let hideNotchOption = Key<HideNotchOption>("hideNotchOption", default: .nowPlayingOnly)

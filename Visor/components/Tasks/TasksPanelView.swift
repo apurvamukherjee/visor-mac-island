@@ -23,6 +23,13 @@ struct TasksPanelView: View {
                         .foregroundColor(Color(white: 0.65))
                 }
                 Spacer(minLength: 0)
+                // Re-read each minute so a deadline passing at midnight updates the ring.
+                TimelineView(.everyMinute) { _ in
+                    let progress = TodoItem.todayProgress(todos, now: Date())
+                    if progress.total > 0 {
+                        ProgressRing(done: progress.done, total: progress.total)
+                    }
+                }
                 iconButton("plus", help: "Add a task") {
                     TasksWindowController.shared.showWindow()
                 }
@@ -47,10 +54,9 @@ struct TasksPanelView: View {
                 .frame(width: 3)
                 .cornerRadius(1.5)
             VStack(alignment: .leading, spacing: 2) {
-                Text(item.title)
+                (marks(item) + Text(item.title).foregroundColor(.white))
                     .font(.callout)
                     .fontWeight(.medium)
-                    .foregroundColor(.white)
                     .lineLimit(2)
                 if let deadline = item.deadline {
                     // The timeline only redraws; its date is the minute's start, which reads
@@ -83,21 +89,11 @@ struct TasksPanelView: View {
 
     @ViewBuilder
     private func dueLine(_ deadline: Date, now: Date) -> some View {
-        let remaining = deadline.timeIntervalSince(now)
-        Group {
-            if remaining < 0 {
-                Text("Overdue · ") + Text(deadline, format: .dateTime.hour().minute())
-            } else if remaining < TimeInterval(lead * 60) {
-                Text("Due \(deadline.formatted(.relative(presentation: .named)))")
-            } else if Calendar.current.isDateInToday(deadline) {
-                Text("Due ") + Text(deadline, format: .dateTime.hour().minute())
-            } else {
-                Text("Due ") + Text(deadline, format: .dateTime.day().month(.abbreviated).hour().minute())
-            }
-        }
-        .font(.caption)
-        .foregroundColor(remaining < 0 ? .red : remaining < TimeInterval(lead * 60) ? .orange : Color(white: 0.65))
-        .lineLimit(1)
+        let due = TodoItem.dueText(deadline, now: now, lead: TimeInterval(lead * 60))
+        due.text
+            .font(.caption)
+            .foregroundColor(due.urgency == .overdue ? .red : due.urgency == .soon ? .orange : Color(white: 0.65))
+            .lineLimit(1)
     }
 
     private var emptyState: some View {
@@ -130,8 +126,41 @@ struct TasksPanelView: View {
         .help(help)
     }
 
+    /// "!!" before the title, as in the Tasks window, so priority isn't color alone.
+    private func marks(_ item: TodoItem) -> Text {
+        item.priority.marks.isEmpty
+            ? Text("")
+            : Text(item.priority.marks + " ").foregroundColor(item.priority.color).bold()
+    }
+
     private func complete(_ item: TodoItem) {
         guard let index = todos.firstIndex(where: { $0.id == item.id }) else { return }
         todos[index].completedAt = Date()
+    }
+}
+
+/// Today's tasks done out of today's total, beside the panel's add button.
+private struct ProgressRing: View {
+    let done: Int
+    let total: Int
+
+    var body: some View {
+        HStack(spacing: 4) {
+            ZStack {
+                Circle()
+                    .stroke(Color.white.opacity(0.15), lineWidth: 2.5)
+                Circle()
+                    .trim(from: 0, to: CGFloat(done) / CGFloat(max(total, 1)))
+                    .stroke(done == total ? Color.green : Color.white, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+            }
+            .frame(width: 13, height: 13)
+            Text("\(done)/\(total)")
+                .font(.caption2)
+                .monospacedDigit()
+                .foregroundColor(Color(white: 0.65))
+        }
+        .animation(.smooth, value: done)
+        .help("\(done) of \(total) done today")
     }
 }

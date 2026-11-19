@@ -57,7 +57,7 @@ targets:
         NSHumanReadableCopyright: "Copyright © 2026 Apurva Mukherjee"
         NSAppleEventsUsageDescription: "Visor uses AppleEvents to control music."
         NSCalendarsFullAccessUsageDescription: "Visor uses the calendar to display your calendar events."
-        NSRemindersFullAccessUsageDescription: "Visor uses Reminders to display your scheduled reminders in the calendar."
+        NSRemindersFullAccessUsageDescription: "Visor shows your reminders in the calendar, and can sync your tasks with a “Visor” list in Reminders."
         NSCameraUsageDescription: "Visor uses the camera to display a live camera view."
         NSAudioCaptureUsageDescription: "Visor listens to how loud the music is so the edge glow can move with it. Nothing is recorded or saved."
         NSLocationUsageDescription: "Visor uses your approximate location to show the weather beside the calendar."

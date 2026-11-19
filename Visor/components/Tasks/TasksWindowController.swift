@@ -7,7 +7,7 @@ final class TasksWindowController: NSWindowController, NSWindowDelegate {
 
     private init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 560, height: 600),
+            contentRect: NSRect(x: 0, y: 0, width: 720, height: 520),
             styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
             backing: .buffered,
             defer: false
@@ -15,6 +15,8 @@ final class TasksWindowController: NSWindowController, NSWindowDelegate {
         super.init(window: window)
         window.title = "Visor Tasks"
         window.toolbarStyle = .unified
+        // The list's large header is the title; the window title stays for Mission Control.
+        window.titleVisibility = .hidden
         window.isReleasedWhenClosed = false
         window.collectionBehavior = [.managed, .participatesInCycle, .fullScreenAuxiliary]
         window.contentView = NSHostingView(rootView: TasksView())

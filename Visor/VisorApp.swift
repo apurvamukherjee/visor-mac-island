@@ -301,6 +301,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         #endif
         MeetingMonitor.shared.reschedule()
         TaskMonitor.shared.reschedule()
+        RemindersSync.shared.start()
         ScreenshotMonitor.shared.onCapture = { [weak self] in
             guard let self else { return }
             let target = Defaults[.showOnAllDisplays] ? Array(self.viewModels.values) : [self.vm]

@@ -135,7 +135,7 @@ Drag files onto the notch to park them, then drag them out wherever they need to
 </td>
 <td width="50%" valign="top">
 <h3><img src="assets/readme/icons/calendar.svg" width="40" align="center"> &nbsp;Calendar &amp; Reminders</h3>
-A week strip with today's events and reminders beside the player, and the current weather if you want it. Zoom, Meet, Teams and Webex calls get a Join button, and one appears beside the notch two minutes before the call. Choose which calendars show, hide all-day events or finished reminders, and let it scroll to what's next.
+A week strip with today's events and reminders beside the player, and the current weather if you want it. Zoom, Meet, Teams and Webex calls get a Join button, and one appears beside the notch two minutes before the call. Choose which calendars show, hide all-day events or finished reminders, and let it scroll to what's next. Tasks can sit in the same spot: write them in the Tasks window, dates and priority included ("call the bank tomorrow 5pm !!"), and the notch shows the top one with a ring for today's progress. Turn on Reminders sync and they live in a Visor list that iCloud carries to your iPhone and Watch.
 </td>
 </tr>
 <tr>
@@ -245,7 +245,7 @@ Change the Mac ones in Settings → Shortcuts.
 | Permission | Used for |
 | --- | --- |
 | Accessibility | Replacing the system HUDs and handling the brightness and backlight keys |
-| Calendars, Reminders | The calendar and reminders beside the player |
+| Calendars, Reminders | The calendar and reminders beside the player, and syncing tasks with Reminders (off unless you turn it on) |
 | Camera | The mirror |
 | Automation | Controlling Apple Music and Spotify |
 | Location | The weather beside the calendar (off unless you turn it on) |
