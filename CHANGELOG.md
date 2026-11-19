@@ -4,6 +4,14 @@ What changed in each Visor release. Downloads are on the [Releases](https://gith
 
 Versions are `MAJOR.MINOR.PATCH`: a new feature bumps MINOR, a fix bumps PATCH.
 
+## 3.16.0 (build 66) · 2026-11-19
+
+- **A new Tasks window, on the Mac.** Inbox, Today, Upcoming and Completed, each with a large header and its counts; Today has a progress bar and keeps anything overdue at the top, with Move to Today. Type a date and priority as you add a task ("call the bank tomorrow 5pm !!"), and a new task lands in the list you're looking at.
+- **Finishing a task.** Its checkmark shows for a moment before it moves to Completed, and Undo puts it back. Deleting has Undo too.
+- **Richer tasks.** Priority shows as `!` and `!!` beside the title, the due date is a chip you can click, and a task can carry a note; a link in the note gets a button. Drag a task onto a list to re-date it. ⌘N adds, Space completes, Return renames, ⌘1–4 switch lists.
+- **Sync with Apple Reminders.** Off until you turn it on in Settings › Calendar › Tasks or from the Tasks window's toolbar. Tasks live in a "Visor" list, both ways, so they reach your iPhone and Apple Watch through iCloud. Turning it off deletes nothing, and that list stays out of the calendar so nothing shows twice.
+- **The notch's task card** shows the priority marks and a ring for how much of today is done.
+
 ## 3.15.0 (build 65) · 2026-11-16
 
 - **Beta features, on Mac and Windows.** A new Beta features group (Settings › Appearance on the Mac, Settings › Extras on Windows). Everything in it is off until you turn it on.
