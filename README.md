@@ -59,6 +59,11 @@ brew install --cask apurvamukherjee/tap/visor
 </p>
 
 <p align="center">
+  <img src="assets/readme/tasks.png" width="80%" alt="The Visor Tasks window in dark mode on the Today list: an orange Today header with today's date, four tasks left and one overdue, a progress bar, an add bar with a 6:00 PM date, an Overdue section with Move to Today holding a high-priority invoice task with a note and link, and three tasks due today with priority marks and date chips"><br>
+  <b>Tasks.</b> Inbox, Today and Upcoming, with dates and priority typed as you go. Sync them with Apple Reminders to reach your iPhone.
+</p>
+
+<p align="center">
   <img src="assets/readme/lock-screen.png" width="100%" alt="The Mac lock screen with the song's cover and Now Playing card on the left and its lyrics on the right, the line being sung lit word by word in the cover's orange, the lines further away softened"><br>
   <b>Lock screen.</b> The cover, the controls and the lyrics, lit as they are sung.
 </p>
